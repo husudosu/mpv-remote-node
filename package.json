@@ -1,0 +1,17 @@
+{
+  "name": "mpv_node",
+  "version": "1.0.0",
+  "description": "MPV Socket.IO remote control",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ferenc Nánási",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "node-mpv": "^2.0.0-beta.2",
+    "socket.io": "^4.1.2"
+  },
+  "type": "commonjs"
+}
