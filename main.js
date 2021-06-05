@@ -36,18 +36,19 @@ async function start(){
     }
 }
 
-mpv.on("status", (status) => {
+mpv.on("status", async (status) => {
     switch (status.property){
         case 'pause':
+            await mpv.command("show-text", [status.value ? 'Pause' : 'Play'])
             io.emit("pause", status.value);
-            console.log("Paused")
             break;
     }
 });
 
-mpv.on("seek", (data) => {
+mpv.on("seek", async (data) => {
     // FIXME: Probably not the best solution
     console.log(data)
+    await mpv.command("show-text", [`Seek: ${formatTime(data.end)}`])
     socket.emit("playbackTimeResponse", {
         playback_time: formatTime(data.end)
     });
@@ -68,10 +69,11 @@ function formatTime(param){
 
 async function get_mpv_props(){
     let props = {}
+    // TODO: Return empty object if no result.
+    props.filename = await mpv.getProperty("filename");
     props.pause = await mpv.getProperty("pause")
     props.duration = formatTime(await mpv.getProperty("duration"))
     props.playback_time = formatTime(await mpv.getProperty("playback-time"));
-    props.filename = await mpv.getProperty("filename")
     props.percent_pos = Math.ceil(await mpv.getProperty("percent-pos"))
     props.volume = await mpv.getProperty("volume")
     props.media_title = await mpv.getProperty("media-title");
@@ -79,6 +81,12 @@ async function get_mpv_props(){
     return props
 }
 
+/*
+TODO List:
+- Handle EOF (Clear player data)
+- Exception handling (maybe send to frontned too.)
+
+*/
 io.on("connection", (socket) => {
     console.log("a user connected");
     // TODO: Create a method for this!
