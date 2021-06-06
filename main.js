@@ -37,6 +37,7 @@ async function start(){
 }
 
 mpv.on("status", async (status) => {
+    console.log(status)
     switch (status.property){
         case 'pause':
             await mpv.command("show-text", [status.value ? 'Pause' : 'Play'])
@@ -45,12 +46,17 @@ mpv.on("status", async (status) => {
     }
 });
 
+mpv.on("stopped", async() => {
+    io.emit("stopped")
+})
+
 mpv.on("seek", async (data) => {
     // FIXME: Probably not the best solution
     console.log(data)
     await mpv.command("show-text", [`Seek: ${formatTime(data.end)}`])
-    socket.emit("playbackTimeResponse", {
-        playback_time: formatTime(data.end)
+    io.emit("playbackTimeResponse", {
+        playback_time: formatTime(data.end),
+        percent_pos: Math.ceil(await mpv.getProperty("percent-pos"))
     });
 })
 
@@ -68,27 +74,37 @@ function formatTime(param){
 }
 
 async function get_mpv_props(){
-    let props = {}
-    // TODO: Return empty object if no result.
-    props.filename = await mpv.getProperty("filename");
-    props.pause = await mpv.getProperty("pause")
-    props.duration = formatTime(await mpv.getProperty("duration"))
-    props.playback_time = formatTime(await mpv.getProperty("playback-time"));
-    props.percent_pos = Math.ceil(await mpv.getProperty("percent-pos"))
-    props.volume = await mpv.getProperty("volume")
-    props.media_title = await mpv.getProperty("media-title");
+    let props = {
+        filename: null,
+        duration: '00:00:00',
+        playback_time: '00:00:00',
+        percent_pos: 0,
+        media_title: null,
+    }
+
+    try {
+        props.pause = await mpv.getProperty("pause");
+        props.volume = await mpv.getProperty("volume");
+
+        // File related data, only send back if available.
+        props.filename = await mpv.getProperty("filename");
+        props.duration = formatTime(await mpv.getProperty("duration")) || '00:00:00';
+        props.playback_time = formatTime(await mpv.getProperty("playback-time")) || '00:00:00';
+        props.percent_pos = Math.ceil(await mpv.getProperty("percent-pos")) || 0;
+        props.media_title = await mpv.getProperty("media-title");
+    } catch (exc) {
+        console.log("No playback.")
+    }
 
     return props
 }
 
 /*
 TODO List:
-- Handle EOF (Clear player data)
 - Exception handling (maybe send to frontned too.)
-
 */
 io.on("connection", (socket) => {
-    console.log("a user connected");
+    console.log("User connected");
     // TODO: Create a method for this!
     
     get_mpv_props().then((resp) => {
@@ -96,6 +112,7 @@ io.on("connection", (socket) => {
     })
     // Send duration for new connections.
     socket.on("playbackTime", async function (data) {
+        console.log("Playback time requested.")
         const playbackTime = await mpv.getProperty("playback-time")
         const percentPos = Math.ceil(await mpv.getProperty("percent-pos"))
         socket.emit("playbackTimeResponse", {playback_time: formatTime(playbackTime), percent_pos: percentPos});
