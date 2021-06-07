@@ -39,9 +39,19 @@ async function start(){
 mpv.on("status", async (status) => {
     console.log(status)
     switch (status.property){
+        // TODO: Should deprecate pause IO event!
         case 'pause':
-            await mpv.command("show-text", [status.value ? 'Pause' : 'Play'])
+            await mpv.command("show-text", [status.value ? 'Pause' : 'Play']);
             io.emit("pause", status.value);
+            break;
+        case 'volume':
+            io.emit("propChange", status);
+            await mpv.command("show-text", [`Volume: ${status.value}%`]);
+            break;
+        case 'mute':
+            io.emit("propChange", status)
+            let volume = await mpv.getProperty("volume")
+            await mpv.command("show-text", [status.value ? "Mute" : `Volume ${volume}`])
             break;
     }
 });
@@ -80,11 +90,13 @@ async function get_mpv_props(){
         playback_time: '00:00:00',
         percent_pos: 0,
         media_title: null,
+        playlist: [],
     }
 
     try {
         props.pause = await mpv.getProperty("pause");
         props.volume = await mpv.getProperty("volume");
+        props.mute = await mpv.getProperty("mute");
 
         // File related data, only send back if available.
         props.filename = await mpv.getProperty("filename");
@@ -92,6 +104,7 @@ async function get_mpv_props(){
         props.playback_time = formatTime(await mpv.getProperty("playback-time")) || '00:00:00';
         props.percent_pos = Math.ceil(await mpv.getProperty("percent-pos")) || 0;
         props.media_title = await mpv.getProperty("media-title");
+        props.playlist = await mpv.getProperty("playlist") || [];
     } catch (exc) {
         console.log("No playback.")
     }
@@ -118,7 +131,7 @@ io.on("connection", (socket) => {
         socket.emit("playbackTimeResponse", {playback_time: formatTime(playbackTime), percent_pos: percentPos});
     });
 
-    socket.on("set_player_prop", async function (data){
+    socket.on("setPlayerProp", async function (data){
         try {
             console.log(`Set ${data[0]} to ${data[1]}`)
             await mpv.setProperty(data[0], data[1])
