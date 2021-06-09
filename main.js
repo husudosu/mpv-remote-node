@@ -1,3 +1,4 @@
+const process = require('process');
 const express = require("express");
 const app = express();
 const http = require("http");
@@ -10,13 +11,16 @@ const io = new Server(server, {
 });
 const SERVER_PORT = 8000
 
-// where you import your packages
+
 const mpvAPI = require("node-mpv");
-// where you want to initialise the API
+
+const cliArgs = process.argv.slice(2);
+const socketName = cliArgs[0];
+if (!socketName) {console.log("No socket provided"); process.exit();}
 
 // binary: "C:\\Users\\SudoSu\\Downloads\\mpv-x86_64-20210523-git-6c1dd02\\mpv.exe" for windows 10 test
 const mpv = new mpvAPI({
-    socket: "/tmp/mpv",
+    socket: socketName,
     verbose: false
 });
 
@@ -25,11 +29,6 @@ const mpv = new mpvAPI({
 async function start(){
     try {
         await mpv.start();
-        // loads a file
-        // await mpv.load("/home/sudosu/test.webm");
-        // file is playing
-        // sets volume to 70%
-        await mpv.volume(70);
         } catch (error) {
         // handle errors here
         console.log(error);
