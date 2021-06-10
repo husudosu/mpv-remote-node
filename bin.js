@@ -9,7 +9,7 @@ const os = require("os");
 const fs = require("fs");
 
 const target = path.join(__dirname, 'remote.socketio.js');
-const link = path.join(getScriptFolder(), 'remote.socketio.js');
+const link = path.join(getScriptFolder(), 'mpvremote', 'remote.socketio.js');
 
 // const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8'));
 

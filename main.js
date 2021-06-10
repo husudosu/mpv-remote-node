@@ -42,12 +42,11 @@ function getScriptPath(){
 }
 
 var scriptPath = getScriptPath();
-mp.msg.info(scriptPath);
 var socketName = getMPVSocket();
 
 mp.command_native_async({
     name: 'subprocess',
-    args: ['node', 'C:\\mpv_node\\remote.socketio.js', socketName],
+    args: ['node', scriptPath, socketName],
     playback_only: false,
     capture_stderr: true
 });

@@ -9,24 +9,22 @@ const io = new Server(server, {
         origin: '*'
     }
 });
-const SERVER_PORT = 8000
+const SERVER_PORT = 8000;
 
 
 const mpvAPI = require("node-mpv");
 
 const cliArgs = process.argv.slice(2);
 const socketName = cliArgs[0];
-console.log(socketName);
 if (!socketName) {console.log("No socket provided"); process.exit();}
 
-// binary: "C:\\Users\\SudoSu\\Downloads\\mpv-x86_64-20210523-git-6c1dd02\\mpv.exe" for windows 10 test
+
 const mpv = new mpvAPI({
     socket: socketName,
     verbose: false
 });
 
-// somewhere within an async context
-// starts MPV
+
 async function start(){
     try {
         await mpv.start();
@@ -37,7 +35,7 @@ async function start(){
 }
 
 mpv.on("status", async (status) => {
-    console.log(status)
+    console.log(status);
     switch (status.property){
         // TODO: Should deprecate pause IO event!
         case 'pause':
@@ -57,8 +55,8 @@ mpv.on("status", async (status) => {
 });
 
 mpv.on("stopped", async() => {
-    io.emit("stopped")
-})
+    io.emit("stopped");
+});
 
 mpv.on("seek", async (data) => {
     // FIXME: Probably not the best solution
@@ -68,7 +66,7 @@ mpv.on("seek", async (data) => {
         playback_time: formatTime(data.end),
         percent_pos: Math.ceil(await mpv.getProperty("percent-pos"))
     });
-})
+});
 
 
 function formatTime(param){
@@ -91,7 +89,7 @@ async function get_mpv_props(){
         percent_pos: 0,
         media_title: null,
         playlist: [],
-    }
+    };
 
     try {
         props.pause = await mpv.getProperty("pause");
@@ -106,7 +104,7 @@ async function get_mpv_props(){
         props.media_title = await mpv.getProperty("media-title");
         props.playlist = await mpv.getProperty("playlist") || [];
     } catch (exc) {
-        console.log("No playback.")
+        console.log("No playback.");
     }
 
     return props
@@ -121,42 +119,42 @@ io.on("connection", (socket) => {
     // TODO: Create a method for this!
     
     get_mpv_props().then((resp) => {
-        socket.emit("playerData", resp)
-    })
+        socket.emit("playerData", resp);
+    });
     // Send duration for new connections.
     socket.on("playbackTime", async function (data) {
-        console.log("Playback time requested.")
-        const playbackTime = await mpv.getProperty("playback-time")
-        const percentPos = Math.ceil(await mpv.getProperty("percent-pos"))
+        console.log("Playback time requested.");
+        const playbackTime = await mpv.getProperty("playback-time");
+        const percentPos = Math.ceil(await mpv.getProperty("percent-pos"));
         socket.emit("playbackTimeResponse", {playback_time: formatTime(playbackTime), percent_pos: percentPos});
     });
 
     socket.on("setPlayerProp", async function (data){
         try {
-            console.log(`Set ${data[0]} to ${data[1]}`)
-            await mpv.setProperty(data[0], data[1])
+            console.log(`Set ${data[0]} to ${data[1]}`);
+            await mpv.setProperty(data[0], data[1]);
         }
         catch(exc){
-            console.log(exc)
+            console.log(exc);
         }
     });
     socket.on("openFile", async function(data) {
-        await mpv.load(data)
-        socket.emit('playerData', await get_mpv_props())
+        await mpv.load(data);
+        socket.emit('playerData', await get_mpv_props());
     })
 
     socket.on("stopPlayback", async function(data) {
-        await mpv.stop()
+        await mpv.stop();
         socket.emit("playerData", await get_mpv_props());
     })
 
     socket.on("seek", async function(data) {
         try{
-            console.log(`User seek ${data}`)
+            console.log(`User seek ${data}`);
             await mpv.command("seek", [data, "absolute-percent"]);
         }
         catch(exc){
-            console.log(exc)
+            console.log(exc);
         }
     })
 });
@@ -167,4 +165,4 @@ server.listen(SERVER_PORT, () => {
 });
 
 
-start()
+start();
