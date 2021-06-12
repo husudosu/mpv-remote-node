@@ -81,6 +81,32 @@ function formatTime(param){
     return hours+':'+minutes+':'+seconds;
 }
 
+function handle(promise){
+    return promise
+        .then((data) => ([data, undefined]))
+        .catch((error) => Promise.resolve([undefined, error]));
+}
+
+async function get_tracks(){
+    const count = await mpv.getProperty("track-list/count");
+    let tracks = [];
+
+    for (let i = 0; i < count; i++){
+        try{            
+            tracks.push({
+                id: await handle(mpv.getProperty(`track-list/${i}/id`)).then((resp) => resp[0]),
+                type: await handle(mpv.getProperty(`track-list/${i}/type`)).then((resp) => resp[0]),
+                lang: await handle(mpv.getProperty(`track-list/${i}/lang`)).then((resp) => resp[0]),
+                external_filename: await handle(mpv.getProperty(`track-list/${i}/external-filename`)).then((resp) => resp[0]),
+            });
+        }
+        catch(exc){
+            console.log(exc);
+        }
+    }
+    return tracks;
+}
+
 async function get_mpv_props(){
     let props = {
         filename: null,
@@ -89,6 +115,7 @@ async function get_mpv_props(){
         percent_pos: 0,
         media_title: null,
         playlist: [],
+        tracks_list: [],
     };
 
     try {
@@ -103,6 +130,8 @@ async function get_mpv_props(){
         props.percent_pos = Math.ceil(await mpv.getProperty("percent-pos")) || 0;
         props.media_title = await mpv.getProperty("media-title");
         props.playlist = await mpv.getProperty("playlist") || [];
+        props.tracks_list = await get_tracks();
+    
     } catch (exc) {
         console.log("No playback.");
     }
@@ -139,14 +168,23 @@ io.on("connection", (socket) => {
         }
     });
     socket.on("openFile", async function(data) {
-        await mpv.load(data);
+        await mpv.load(data.filename, data.appendToPlaylist ? "append-play" : "replace");
         socket.emit('playerData', await get_mpv_props());
-    })
+    });
+
+    socket.on("playlistPlayIndex", async function(data) {
+        console.log(`PLaylist index change: ${JSON.stringify(data)}`);
+        await mpv.command("playlist-play-index", [data]);
+
+        // We wait for playlist change.
+        await new Promise((r) => setTimeout(r, 500));
+        socket.emit("playerData", await get_mpv_props());
+    });
 
     socket.on("stopPlayback", async function(data) {
         await mpv.stop();
         socket.emit("playerData", await get_mpv_props());
-    })
+    });
 
     socket.on("seek", async function(data) {
         try{
@@ -156,7 +194,7 @@ io.on("connection", (socket) => {
         catch(exc){
             console.log(exc);
         }
-    })
+    });
 });
 
 
