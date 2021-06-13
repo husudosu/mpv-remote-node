@@ -87,10 +87,17 @@ function handle(promise){
         .catch((error) => Promise.resolve([undefined, error]));
 }
 
-async function get_tracks(){
+async function getCurrentTracks(){
+        return {
+            video: await handle(mpv.getProperty(`current-tracks/video`)).then((resp) => resp[0]),
+            audio: await handle(mpv.getProperty(`current-tracks/audio`)).then((resp) => resp[0]),
+            subtitle: await handle(mpv.getProperty(`current-tracks/sub`)).then((resp) => resp[0]),
+        }
+}
+
+async function getTracks(){
     const count = await mpv.getProperty("track-list/count");
     let tracks = [];
-
     for (let i = 0; i < count; i++){
         try{            
             tracks.push({
@@ -115,7 +122,7 @@ async function get_mpv_props(){
         percent_pos: 0,
         media_title: null,
         playlist: [],
-        tracks_list: [],
+        currentTracks: [],
     };
 
     try {
@@ -130,7 +137,7 @@ async function get_mpv_props(){
         props.percent_pos = Math.ceil(await mpv.getProperty("percent-pos")) || 0;
         props.media_title = await mpv.getProperty("media-title");
         props.playlist = await mpv.getProperty("playlist") || [];
-        props.tracks_list = await get_tracks();
+        props.currentTracks = await getCurrentTracks();
     
     } catch (exc) {
         console.log("No playback.");
@@ -152,7 +159,6 @@ io.on("connection", (socket) => {
     });
     // Send duration for new connections.
     socket.on("playbackTime", async function (data) {
-        console.log("Playback time requested.");
         const playbackTime = await mpv.getProperty("playback-time");
         const percentPos = Math.ceil(await mpv.getProperty("percent-pos"));
         socket.emit("playbackTimeResponse", {playback_time: formatTime(playbackTime), percent_pos: percentPos});
@@ -187,13 +193,12 @@ io.on("connection", (socket) => {
     });
 
     socket.on("seek", async function(data) {
-        try{
-            console.log(`User seek ${data}`);
-            await mpv.command("seek", [data, "absolute-percent"]);
-        }
-        catch(exc){
-            console.log(exc);
-        }
+        try{ await mpv.command("seek", [data, "absolute-percent"]); }
+        catch(exc){ console.log(exc); }
+    });
+
+    socket.on("tracks", async function() {
+        socket.emit("tracksResponse", await getTracks());
     });
 });
 
