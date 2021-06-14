@@ -54,6 +54,58 @@ mpv.on("status", async (status) => {
     }
 });
 
+/* 
+TODO: Implement these
+Track change commands:
+Change audio track command:
+audio-reload <id>
+
+Change video track:
+video-reload <id>
+
+Change subtitle:
+sub-reload <id>
+
+Command:
+sub-step <skip>
+Change subtitle timing such, that the subtitle event after the next <skip> subtitle events is displayed. <skip> can be negative to step backwards.
+
+
+Playlist commands:
+
+playlist-clear
+Clear the playlist, except the currently played file.
+
+playlist-remove <index>
+Remove the playlist entry at the given index. Index values start counting with 0.
+The special value current removes the current entry. Note that removing the current entry also stops playback and starts playing the next entry.
+
+playlist-move <index1> <index2>
+Move the playlist entry at index1, so that it takes the place of the entry index2.
+(Paradoxically, the moved playlist entry will not have the index value index2 after moving if index1 was lower than index2, 
+because index2 refers to the target entry, not the index the entry will have after moving.)
+
+Subtitle options:
+
+--sub-scale=<0-100>
+Factor for the text subtitle font size (default: 1).
+
+
+--sub-ass-force-style=<[Style.]Param=Value[,...]>
+    Override some style or script info parameters.
+
+    This is a string list option. See List Options for details.
+
+    Examples
+
+    --sub-ass-force-style=FontName=Arial,Default.Bold=1
+    --sub-ass-force-style=PlayResY=768
+    Note
+
+    Using this option may lead to incorrect subtitle rendering.
+
+*/
+
 mpv.on("stopped", async() => {
     io.emit("stopped");
 });
