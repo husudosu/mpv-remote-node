@@ -230,15 +230,6 @@ io.on("connection", (socket) => {
         socket.emit('playerData', await get_mpv_props());
     });
 
-    socket.on("playlistPlayIndex", async function(data) {
-        console.log(`PLaylist index change: ${JSON.stringify(data)}`);
-        await mpv.command("playlist-play-index", [data]);
-
-        // We wait for playlist change.
-        await new Promise((r) => setTimeout(r, 500));
-        socket.emit("playerData", await get_mpv_props());
-    });
-
     socket.on("stopPlayback", async function(data) {
         await mpv.stop();
         socket.emit("playerData", await get_mpv_props());
@@ -252,6 +243,32 @@ io.on("connection", (socket) => {
     socket.on("tracks", async function() {
         socket.emit("tracksResponse", await getTracks());
     });
+
+
+    // Playlist events
+    socket.on("playlistPlayIndex", async function(data) {
+        console.log(`Playlist index change: ${JSON.stringify(data)}`);
+        await mpv.command("playlist-play-index", [data]);
+
+        // We wait for playlist change.
+        await new Promise((r) => setTimeout(r, 500));
+        // Also start playing new file
+        await mpv.play();
+        socket.emit("playerData", await get_mpv_props());
+    });
+    
+    socket.on("playlistMove", async function(data) {
+        console.log(`Moving playlist element ${data}`);
+        await mpv.command("playlist-move", [data.fromIndex, data.toIndex]);
+        // TODO: Playlist changed event
+    });
+
+    socket.on("playlistRemove", async function(data){ 
+        console.log(`Removing index ${data}`);
+        await mpv.command("playlist-remove", data);
+        // TODO: Playlist changed event
+    })
+
 });
 
 
