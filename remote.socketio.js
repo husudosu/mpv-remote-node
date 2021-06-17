@@ -37,7 +37,6 @@ async function start(){
 mpv.on("status", async (status) => {
     console.log(status);
     switch (status.property){
-        // TODO: Should deprecate pause IO event!
         case 'pause':
             await mpv.command("show-text", [status.value ? 'Pause' : 'Play']);
             io.emit("pause", status.value);
@@ -50,6 +49,10 @@ mpv.on("status", async (status) => {
             io.emit("propChange", status)
             let volume = await mpv.getProperty("volume")
             await mpv.command("show-text", [status.value ? "Mute" : `Volume ${volume}`])
+            break;
+        case 'playlist-count':
+        case 'playlist-pos':
+            io.emit("propChange", {property: "playlist", value: await getPlaylist()});
             break;
     }
 });
@@ -166,7 +169,28 @@ async function getTracks(){
     return tracks;
 }
 
-async function get_mpv_props(){
+async function getPlaylist(){
+    const count = await mpv.getProperty("playlist-count");
+
+    let playlist = [];
+    for (let i = 0; i < count; i++){
+        try {
+            playlist.push({
+                index: i,
+                id: await handle(mpv.getProperty(`playlist/${i}/id`)).then((resp) => resp[0]),
+                filename: await handle(mpv.getProperty(`playlist/${i}/filename`)).then((resp) => resp[0]),
+                current: await handle(mpv.getProperty(`playlist/${i}/current`)).then((resp) => resp[0]),
+                title: await handle(mpv.getProperty(`playlist/${i}/title`)).then((resp) => resp[0]),
+            });
+        }
+        catch (exc){
+            console.log(exc);
+        }
+    }
+    return playlist;
+}
+
+async function getMPVProps(){
     let props = {
         filename: null,
         duration: '00:00:00',
@@ -188,7 +212,7 @@ async function get_mpv_props(){
         props.playback_time = formatTime(await mpv.getProperty("playback-time")) || '00:00:00';
         props.percent_pos = Math.ceil(await mpv.getProperty("percent-pos")) || 0;
         props.media_title = await mpv.getProperty("media-title");
-        props.playlist = await mpv.getProperty("playlist") || [];
+        props.playlist = await getPlaylist() || [];
         props.currentTracks = await getCurrentTracks();
     
     } catch (exc) {
@@ -206,7 +230,7 @@ io.on("connection", (socket) => {
     console.log("User connected");
     // TODO: Create a method for this!
     
-    get_mpv_props().then((resp) => {
+    getMPVProps().then((resp) => {
         socket.emit("playerData", resp);
     });
     // Send duration for new connections.
@@ -227,12 +251,12 @@ io.on("connection", (socket) => {
     });
     socket.on("openFile", async function(data) {
         await mpv.load(data.filename, data.appendToPlaylist ? "append-play" : "replace");
-        socket.emit('playerData', await get_mpv_props());
+        io.emit('playerData', await getMPVProps());
     });
 
     socket.on("stopPlayback", async function(data) {
         await mpv.stop();
-        socket.emit("playerData", await get_mpv_props());
+        io.emit("playerData", await getMPVProps());
     });
 
     socket.on("seek", async function(data) {
@@ -254,19 +278,24 @@ io.on("connection", (socket) => {
         await new Promise((r) => setTimeout(r, 500));
         // Also start playing new file
         await mpv.play();
-        socket.emit("playerData", await get_mpv_props());
+        io.emit("playerData", await getMPVProps());
     });
     
     socket.on("playlistMove", async function(data) {
-        console.log(`Moving playlist element ${data}`);
-        await mpv.command("playlist-move", [data.fromIndex, data.toIndex]);
-        // TODO: Playlist changed event
+        console.log(`Moving playlist element ${JSON.stringify(data)}`);
+        // FIXME: Olyan mintha random nem működne a playlist-move command
+        try{
+            // let res = await mpv.command("playlist-move", [data.fromIndex, data.toIndex]);
+            await mpv.playlistMove(data.fromIndex, data.toIndex);
+        }
+        catch (exc){
+            console.log(exc)
+        }
     });
 
     socket.on("playlistRemove", async function(data){ 
         console.log(`Removing index ${data}`);
-        await mpv.command("playlist-remove", data);
-        // TODO: Playlist changed event
+        await mpv.playlistRemove(data);
     })
 
 });
