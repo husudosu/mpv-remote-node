@@ -1,8 +1,15 @@
 const process = require('process');
 const express = require("express");
 const app = express();
+var cors = require("cors");
 const http = require("http");
-const server = http.createServer(app);
+const server = http.createServer(app, function(req, res){
+    res.setHeader("Content-Type", "application/json");
+});
+const fs_async = require('fs/promises');
+const fs = require('fs');
+const path = require('path');
+
 const { Server } = require("socket.io");
 const io = new Server(server, {
     cors: {
@@ -10,7 +17,9 @@ const io = new Server(server, {
     }
 });
 const SERVER_PORT = 8000;
-
+const CORSOPTIONS = {
+    origin: '*'
+};
 
 const mpvAPI = require("node-mpv");
 
@@ -33,6 +42,36 @@ async function start(){
         console.log(error);
     }
 }
+
+/* 
+File browser on express server
+*/
+
+app.get("/fileman", cors(CORSOPTIONS), async(req, res) => {
+    let directories = [];
+    let files = [];
+    let qpath = req.query.path;
+    
+    if (!fs.existsSync(qpath)) res.status(404).send("Path not exists!");
+
+    for (const item of await fs_async.readdir(qpath)){
+        if (fs.lstatSync(path.join(qpath,item)).isDirectory()) {
+            directories.push(
+                {
+                    name: item,
+                    fullPath: path.join(qpath, item)
+                }
+            );
+        }
+        else {
+            files.push({
+                name: item,
+                fullPath: path.join(qpath, item)
+            });
+        }
+    }
+    res.json({dirname: path.basename(qpath), prevDir: path.resolve(qpath, '..'), cwd: qpath, directories, files});
+}) 
 
 mpv.on("status", async (status) => {
     console.log(status);
@@ -281,12 +320,13 @@ io.on("connection", (socket) => {
         io.emit("playerData", await getMPVProps());
     });
     
-    socket.on("playlistMove", async function(data) {
+    socket.on("playlistMove", async function(data, cb) {
         console.log(`Moving playlist element ${JSON.stringify(data)}`);
         // FIXME: Olyan mintha random nem működne a playlist-move command
         try{
             // let res = await mpv.command("playlist-move", [data.fromIndex, data.toIndex]);
             await mpv.playlistMove(data.fromIndex, data.toIndex);
+            cb({playlist: await getPlaylist()});
         }
         catch (exc){
             console.log(exc)
@@ -296,6 +336,10 @@ io.on("connection", (socket) => {
     socket.on("playlistRemove", async function(data){ 
         console.log(`Removing index ${data}`);
         await mpv.playlistRemove(data);
+    })
+
+    socket.on("playlistClear", async function(){
+        await mpv.clearPlaylist();
     })
 
 });
