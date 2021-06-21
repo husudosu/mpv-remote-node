@@ -1,7 +1,7 @@
 const process = require('process');
 const express = require("express");
 const app = express();
-var cors = require("cors");
+const cors = require("cors");
 const http = require("http");
 const server = http.createServer(app, function(req, res){
     res.setHeader("Content-Type", "application/json");
@@ -93,6 +93,13 @@ mpv.on("status", async (status) => {
         case 'playlist-pos':
             io.emit("propChange", {property: "playlist", value: await getPlaylist()});
             break;
+        case 'duration':
+            playerData = await getMPVProps();
+            if (status.value){
+                await mpv.command("show-text", [`Playing: ${playerData.media_title || playerData.filename}`]);
+                io.emit("playerData", playerData);
+            }
+            break;
     }
 });
 
@@ -111,21 +118,6 @@ sub-reload <id>
 Command:
 sub-step <skip>
 Change subtitle timing such, that the subtitle event after the next <skip> subtitle events is displayed. <skip> can be negative to step backwards.
-
-
-Playlist commands:
-
-playlist-clear
-Clear the playlist, except the currently played file.
-
-playlist-remove <index>
-Remove the playlist entry at the given index. Index values start counting with 0.
-The special value current removes the current entry. Note that removing the current entry also stops playback and starts playing the next entry.
-
-playlist-move <index1> <index2>
-Move the playlist entry at index1, so that it takes the place of the entry index2.
-(Paradoxically, the moved playlist entry will not have the index value index2 after moving if index1 was lower than index2, 
-because index2 refers to the target entry, not the index the entry will have after moving.)
 
 Subtitle options:
 
@@ -160,6 +152,10 @@ mpv.on("seek", async (data) => {
         playback_time: formatTime(data.end),
         percent_pos: Math.ceil(await mpv.getProperty("percent-pos"))
     });
+});
+
+mpv.on("started", async() => {
+    io.emit("pause", false);
 });
 
 
@@ -261,10 +257,6 @@ async function getMPVProps(){
     return props
 }
 
-/*
-TODO List:
-- Exception handling (maybe send to frontned too.)
-*/
 io.on("connection", (socket) => {
     console.log("User connected");
     // TODO: Create a method for this!
@@ -290,12 +282,12 @@ io.on("connection", (socket) => {
     });
     socket.on("openFile", async function(data) {
         await mpv.load(data.filename, data.appendToPlaylist ? "append-play" : "replace");
-        io.emit('playerData', await getMPVProps());
+        // io.emit('playerData', await getMPVProps());
     });
 
     socket.on("stopPlayback", async function(data) {
         await mpv.stop();
-        io.emit("playerData", await getMPVProps());
+        // io.emit("playerData", await getMPVProps());
     });
 
     socket.on("seek", async function(data) {
@@ -312,17 +304,15 @@ io.on("connection", (socket) => {
     socket.on("playlistPlayIndex", async function(data) {
         console.log(`Playlist index change: ${JSON.stringify(data)}`);
         await mpv.command("playlist-play-index", [data]);
-
-        // We wait for playlist change.
-        await new Promise((r) => setTimeout(r, 500));
-        // Also start playing new file
         await mpv.play();
-        io.emit("playerData", await getMPVProps());
+        // We wait for playlist change.
+        // await new Promise((r) => setTimeout(r, 500));
+        // Also start playing new file
+        // io.emit("playerData", await getMPVProps());
     });
     
     socket.on("playlistMove", async function(data, cb) {
         console.log(`Moving playlist element ${JSON.stringify(data)}`);
-        // FIXME: Olyan mintha random nem működne a playlist-move command
         try{
             // let res = await mpv.command("playlist-move", [data.fromIndex, data.toIndex]);
             await mpv.playlistMove(data.fromIndex, data.toIndex);
@@ -340,6 +330,14 @@ io.on("connection", (socket) => {
 
     socket.on("playlistClear", async function(){
         await mpv.clearPlaylist();
+    })
+
+    socket.on("playlistNext", async function(){
+        await mpv.next();
+    })
+
+    socket.on("playlistPrev", async function() {
+        await mpv.prev();
     })
 
 });
