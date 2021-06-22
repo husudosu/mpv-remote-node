@@ -191,6 +191,7 @@ async function getTracks(){
     for (let i = 0; i < count; i++){
         try{            
             tracks.push({
+                index: i,
                 id: await handle(mpv.getProperty(`track-list/${i}/id`)).then((resp) => resp[0]),
                 type: await handle(mpv.getProperty(`track-list/${i}/type`)).then((resp) => resp[0]),
                 lang: await handle(mpv.getProperty(`track-list/${i}/lang`)).then((resp) => resp[0]),
@@ -295,8 +296,11 @@ io.on("connection", (socket) => {
         catch(exc){ console.log(exc); }
     });
 
-    socket.on("tracks", async function() {
-        socket.emit("tracksResponse", await getTracks());
+    socket.on("tracks", async function(data, cb) {
+        let tracks = await getTracks();
+        console.log(`Tracks ${JSON.stringify(tracks)}`);
+        console.log("Calling callback");
+        cb({tracks: await getTracks()});
     });
 
 
