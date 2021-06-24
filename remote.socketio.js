@@ -154,9 +154,11 @@ mpv.on("seek", async (data) => {
     });
 });
 
-mpv.on("started", async() => {
-    io.emit("pause", false);
-});
+// FIXME: This causes interval creation. started event
+// mpv.on("resumed", async(data) => {
+//     console.log(`Started playback ${JSON.stringify(data)}`);
+//     io.emit("pause", false);
+// });
 
 
 function formatTime(param){
@@ -351,6 +353,14 @@ io.on("connection", (socket) => {
 
     socket.on("subReload", async function(id) {
         await mpv.selectSubtitles(id);
+    })
+
+    socket.on("adjustSubtitleTiming", async function(seconds){
+        await mpv.adjustSubtitleTiming(seconds);
+    });
+
+    socket.on("subSettings", async function(data, cb){
+        cb({subDelay: await mpv.getProperty('sub-delay')});
     })
 });
 
