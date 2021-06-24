@@ -196,6 +196,7 @@ async function getTracks(){
                 type: await handle(mpv.getProperty(`track-list/${i}/type`)).then((resp) => resp[0]),
                 lang: await handle(mpv.getProperty(`track-list/${i}/lang`)).then((resp) => resp[0]),
                 external_filename: await handle(mpv.getProperty(`track-list/${i}/external-filename`)).then((resp) => resp[0]),
+                selected: await handle(mpv.getProperty(`track-list/${i}/selected`)).then((resp) => resp[0])
             });
         }
         catch(exc){
@@ -330,20 +331,27 @@ io.on("connection", (socket) => {
     socket.on("playlistRemove", async function(data){ 
         console.log(`Removing index ${data}`);
         await mpv.playlistRemove(data);
-    })
+    });
 
     socket.on("playlistClear", async function(){
         await mpv.clearPlaylist();
-    })
+    });
 
     socket.on("playlistNext", async function(){
         await mpv.next();
-    })
+    });
 
     socket.on("playlistPrev", async function() {
         await mpv.prev();
-    })
+    });
+    
+    socket.on("audioReload", async function(id) {
+        await mpv.selectAudioTrack(id);
+    });
 
+    socket.on("subReload", async function(id) {
+        await mpv.selectSubtitles(id);
+    })
 });
 
 
