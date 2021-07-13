@@ -103,43 +103,6 @@ mpv.on("status", async (status) => {
     }
 });
 
-/* 
-TODO: Implement these
-Track change commands:
-Change audio track command:
-audio-reload <id>
-
-Change video track:
-video-reload <id>
-
-Change subtitle:
-sub-reload <id>
-
-Command:
-sub-step <skip>
-Change subtitle timing such, that the subtitle event after the next <skip> subtitle events is displayed. <skip> can be negative to step backwards.
-
-Subtitle options:
-
---sub-scale=<0-100>
-Factor for the text subtitle font size (default: 1).
-
-
---sub-ass-force-style=<[Style.]Param=Value[,...]>
-    Override some style or script info parameters.
-
-    This is a string list option. See List Options for details.
-
-    Examples
-
-    --sub-ass-force-style=FontName=Arial,Default.Bold=1
-    --sub-ass-force-style=PlayResY=768
-    Note
-
-    Using this option may lead to incorrect subtitle rendering.
-
-*/
-
 mpv.on("stopped", async() => {
     io.emit("stopped");
 });
@@ -155,10 +118,10 @@ mpv.on("seek", async (data) => {
 });
 
 // FIXME: This causes interval creation. started event
-// mpv.on("resumed", async(data) => {
-//     console.log(`Started playback ${JSON.stringify(data)}`);
-//     io.emit("pause", false);
-// });
+mpv.on("resumed", async(data) => {
+    console.log(`Started playback ${JSON.stringify(data)}`);
+    io.emit("pause", false);
+});
 
 
 function formatTime(param){
@@ -198,7 +161,14 @@ async function getTracks(){
                 type: await handle(mpv.getProperty(`track-list/${i}/type`)).then((resp) => resp[0]),
                 lang: await handle(mpv.getProperty(`track-list/${i}/lang`)).then((resp) => resp[0]),
                 external_filename: await handle(mpv.getProperty(`track-list/${i}/external-filename`)).then((resp) => resp[0]),
-                selected: await handle(mpv.getProperty(`track-list/${i}/selected`)).then((resp) => resp[0])
+                selected: await handle(mpv.getProperty(`track-list/${i}/selected`)).then((resp) => resp[0]),
+                codec: await handle(mpv.getProperty(`track-list/${i}/codec`)).then((resp) => resp[0]),
+                demuxW: await handle(mpv.getProperty(`track-list/${i}/demux-w`)).then((resp) => resp[0]),
+                demuxH: await handle(mpv.getProperty(`track-list/${i}/demux-h`)).then((resp) => resp[0]),
+                demuxChannelCount: await handle(mpv.getProperty(`track-list/${i}/demux-channel-count`)).then((resp) => resp[0]),
+                demuxChannels: await handle(mpv.getProperty(`track-list/${i}/demux-channels`)).then((resp) => resp[0]),
+                demuxSamplerate: await handle(mpv.getProperty(`track-list/${i}/demux-samplerate`)).then((resp) => resp[0]),
+                demuxBitrate: await handle(mpv.getProperty(`track-list/${i}/demux-bitrate`)).then((resp) => resp[0]),
             });
         }
         catch(exc){
@@ -252,7 +222,7 @@ async function getMPVProps(){
         props.percent_pos = Math.ceil(await mpv.getProperty("percent-pos")) || 0;
         props.media_title = await mpv.getProperty("media-title");
         props.playlist = await getPlaylist() || [];
-        props.currentTracks = await getCurrentTracks();
+        props.currentTracks = await getTracks();
     
     } catch (exc) {
         console.log("No playback.");
@@ -361,6 +331,11 @@ io.on("connection", (socket) => {
 
     socket.on("subSettings", async function(data, cb){
         cb({subDelay: await mpv.getProperty('sub-delay')});
+    })
+
+    socket.on("fullscreen", async function(){ 
+        const fullscreen = await mpv.getProperty('fullscreen')
+        await mpv.setProperty('fullscreen', !fullscreen);
     })
 });
 
