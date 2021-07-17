@@ -9,7 +9,7 @@ const os = require("os");
 const fs = require("fs");
 
 const pluginDir = path.join(__dirname, "mpvremote");
-const pluginTarget = path.join(getScriptFolder(), "mpvremote");
+const pluginTarget = path.join(getScriptFolder());
 
 const target = path.join(__dirname, "remote.socketio.js");
 const link = path.join(getScriptFolder(), "mpvremote", "remote.socketio.js");
@@ -20,12 +20,17 @@ console.log(
   [
     `mpv-remote`,
     "",
+    `${
+      os.platform() === "win32"
+        ? "You should run these commands as Administrator!"
+        : ""
+    }`,
     "First copy mpvremote plugin to your MPV plugins folder:",
     "",
     `  ${
       os.platform() === "win32"
-        ? `copy "${pluginDir}" "${pluginTarget}"`
-        : `cp -r "${pluginDir}" "${pluginTarget}"`
+        ? `xcopy /i "${pluginDir}" "${path.join(pluginTarget, "mpvremote")}"`
+        : `mkdir -p "${pluginTarget}" && cp -r "${pluginDir}" "${pluginTarget}"`
     }`,
     "",
     "You need to symlink the script file to your MPV scripts folder:",

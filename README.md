@@ -7,9 +7,10 @@ This plugin needed for MPV-Remote Android application to work.
 Required dependencies:
 
 - MPV
+- Git
 - Node.JS with NPM installed on your PC.
 - youtube-dl for playing youtube videos,
-- MPV Remote android application
+- [MPV Remote android application](https://github.com/husudosu/mpv-remote-app/blob/master/android/app/release/app-release.apk)
 
 This plugin & app currently only a development version, so not available on NPM yet.
 
@@ -46,4 +47,5 @@ Tested on Linux, Windows 10
 - Put the project into NPM registry,
 - Provide easier web port changing method,
 - Tidy up the code,
-- Better README
+- Better README,
+- Make installing way easier, (dunno how right now)
