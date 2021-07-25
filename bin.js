@@ -22,7 +22,7 @@ console.log(
     "",
     `${
       os.platform() === "win32"
-        ? "You should run these commands as Administrator!"
+        ? "On Windows you can't create symlink without Administrator privileges!"
         : ""
     }`,
     "First copy mpvremote plugin to your MPV plugins folder:",
@@ -43,6 +43,7 @@ console.log(
 
     "",
     `You can edit your port settings here: ${link}`,
+    "Download the Android app here: https://github.com/husudosu/mpv-remote-app/blob/master/android/app/release/app-release.apk",
   ].join("\n")
 );
 

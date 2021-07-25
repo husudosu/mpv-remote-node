@@ -2,6 +2,9 @@
 
 This plugin needed for MPV-Remote Android application to work.
 
+NOTE:
+This project under heavy development right now, so it can break anytime!
+
 ## Installation
 
 Required dependencies:
@@ -36,7 +39,10 @@ The MPV remote plugin runs on port 8000 by default.
 
 ## Supported systems
 
-Tested on Linux, Windows 10
+Tested on Linux, Windows 7, Windows 10
+
+Note:
+Newer Node.JS versions not supported on Windows 7, but you can install an older one like 13.14.0 LTS (I've tested with that version)
 
 ## Limitations
 
@@ -49,3 +55,4 @@ Tested on Linux, Windows 10
 - Tidy up the code,
 - Better README,
 - Make installing way easier, (dunno how right now)
+- Audio & Subtitles not being detected on Windows 10 when playing from SMB
