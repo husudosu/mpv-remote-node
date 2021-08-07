@@ -1,20 +1,37 @@
-const process = require("process");
-const express = require("express");
 const os = require("os");
+const process = require("process");
+const fs = require("fs");
+const fs_async = require("fs").promises;
+const path = require("path");
+const URL = require("url").URL;
+
+const express = require("express");
 const cors = require("cors");
 const http = require("http");
-const fs_async = require("fs").promises;
-const fs = require("fs");
-const path = require("path");
 const { Server } = require("socket.io");
 const nodeDiskInfo = require("node-disk-info");
 const mpvAPI = require("node-mpv");
 
-const sqlite3 = require("sqlite3");
-const { open } = require("sqlite");
+const FILE_FORMATS = require("./fileformats").FILE_FORMATS;
+const {
+  initDB,
+  createCollection,
+  getCollections,
+  updateCollection,
+  deleteCollection,
+  createCollectionEntry,
+  deleteCollectionEntry,
+  getMediastatusEntries,
+} = require("./crud");
 
-const DB_PATH = path.join(getScriptFolder(), "mpvremote", "remote.db");
-let db;
+// Handle CLI args
+const cliArgs = process.argv.slice(2);
+
+const socketName = cliArgs[0];
+if (!socketName) {
+  console.log("No socket provided");
+  process.exit();
+}
 
 const app = express();
 app.use(express.json());
@@ -22,9 +39,6 @@ app.use(express.urlencoded({ extended: true }));
 
 const server = http.createServer(app, function (req, res) {
   res.setHeader("Content-Type", "application/json");
-
-  // FIXME: Find better method for database handling.
-  console.log(DB_PATH);
 });
 
 // Enable foreign key handling
@@ -44,189 +58,19 @@ const CORSOPTIONS = {
   methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH"],
 };
 
-const cliArgs = process.argv.slice(2);
-const socketName = cliArgs[0];
-if (!socketName) {
-  console.log("No socket provided");
-  process.exit();
-}
-
 const mpv = new mpvAPI({
   socket: socketName,
   verbose: false,
 });
 
-/*
-Supported file formats by MPV
-Gonna render differently in frontend.
-*/
-const FILE_FORMATS = {
-  audio: [
-    ".ac3",
-    ".a52",
-    ".eac3",
-    ".mlp",
-    ".dts",
-    ".dts-hd",
-    ".dtshd",
-    ".true-hd",
-    ".thd",
-    ".truehd",
-    ".thd+ac3",
-    ".tta",
-    ".pcm",
-    ".wav",
-    ".aiff",
-    ".aif",
-    ".aifc",
-    ".amr",
-    ".awb",
-    ".au",
-    ".snd",
-    ".lpcm",
-    ".ape",
-    ".wv",
-    ".shn",
-    ".adts",
-    ".adt",
-    ".mpa",
-    ".m1a",
-    ".m2a",
-    ".mp1",
-    ".mp2",
-    ".mp3",
-    ".m4a",
-    ".aac",
-    ".flac",
-    ".oga",
-    ".ogg",
-    ".opus",
-    ".spx",
-    ".mka",
-    ".weba",
-    ".wma",
-    ".f4a",
-    ".ra",
-    ".ram",
-    ".3ga",
-    ".3ga2",
-    ".ay",
-    ".gbs",
-    ".gym",
-    ".hes",
-    ".kss",
-    ".nsf",
-    ".nsfe",
-    ".sap",
-    ".spc",
-    ".vgm",
-    ".vgz",
-    ".cue",
-  ],
-  video: [
-    ".yuv",
-    ".y4m",
-    ".m2ts",
-    ".m2t",
-    ".mts",
-    ".mtv",
-    ".ts",
-    ".tsv",
-    ".tsa",
-    ".tts",
-    ".trp",
-    ".mpeg",
-    ".mpg",
-    ".mpe",
-    ".mpeg2",
-    ".m1v",
-    ".m2v",
-    ".mp2v",
-    ".mpv",
-    ".mpv2",
-    ".mod",
-    ".tod",
-    ".vob",
-    ".vro",
-    ".evob",
-    ".evo",
-    ".mpeg4",
-    ".m4v",
-    ".mp4",
-    ".mp4v",
-    ".mpg4",
-    ".h264",
-    ".avc",
-    ".x264",
-    ".264",
-    ".hevc",
-    ".h265",
-    ".x265",
-    ".265",
-    ".ogv",
-    ".ogm",
-    ".ogx",
-    ".mkv",
-    ".mk3d",
-    ".webm",
-    ".avi",
-    ".vfw",
-    ".divx",
-    ".3iv",
-    ".xvid",
-    ".nut",
-    ".flic",
-    ".fli",
-    ".flc",
-    ".nsv",
-    ".gxf",
-    ".mxf",
-    ".wm",
-    ".wmv",
-    ".asf",
-    ".dvr-ms",
-    ".dvr",
-    ".wt",
-    ".dv",
-    ".hdv",
-    ".flv",
-    ".f4v",
-    ".qt",
-    ".mov",
-    ".hdmov",
-    ".rm",
-    ".rmvb",
-    ".3gpp",
-    ".3gp",
-    ".3gp2",
-    ".3g2",
-  ],
-  playlist: [".m3u", ".m3u8", ".pls"],
-  subtitle: [
-    ".aqt",
-    ".cvd",
-    ".dks",
-    ".jss",
-    ".sub",
-    ".ttxt",
-    ".mpl",
-    ".sub",
-    ".pjs",
-    ".psb",
-    ".rt",
-    ".smi",
-    ".ssf",
-    ".srt",
-    ".ssa",
-    ".ass",
-    ".sub",
-    ".svcd",
-    ".usf",
-    ".sub",
-    ".idx",
-    ".txt",
-  ],
-};
+function stringIsAValidUrl(s) {
+  try {
+    new URL(s);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
 
 function detectFileType(extension) {
   extension = extension.toLowerCase();
@@ -243,74 +87,95 @@ function detectFileType(extension) {
 }
 
 async function getDirectoryContents(qpath) {
+  // TODO Handle exceptions
   let content = [];
+
+  // Add path seperator to qpath end
+  /*
+  Interesting because C: (System partition) needs a path seperator to work correctly,
+  but for my network drives works without path sep.
+  */
+  if (qpath[qpath.length - 1] != path.sep) qpath += path.sep;
+
+  const mediaStatus = await getMediastatusEntries(null, qpath);
   for (const item of await fs_async.readdir(qpath)) {
-    if (fs.lstatSync(path.join(qpath, item)).isDirectory()) {
-      content.push({
-        priority: 1,
-        type: "directory",
-        name: item,
-        fullPath: path.join(qpath, item),
-      });
-    } else {
-      let fileType = detectFileType(path.extname(item));
-      // Render only media, sub types.
-      if (fileType !== "file") {
+    try {
+      if (fs.lstatSync(path.join(qpath, item)).isDirectory()) {
         content.push({
-          priority: 2,
-          type: fileType,
+          priority: 1,
+          type: "directory",
           name: item,
           fullPath: path.join(qpath, item),
         });
+      } else {
+        let fileType = detectFileType(path.extname(item));
+        // Render only media, sub types.
+        if (fileType !== "file") {
+          content.push({
+            priority: 2,
+            type: fileType,
+            name: item,
+            fullPath: path.join(qpath, item),
+            mediaStatus: mediaStatus.find((el) => el.file_name == item),
+          });
+        }
       }
+    } catch (exc) {
+      console.log(exc);
     }
   }
   return content;
 }
 
 app.get("/fileman", cors(CORSOPTIONS), async (req, res) => {
-  let qpath = req.query.path;
-  let qcollection = req.query.collection;
+  try {
+    let qpath = req.query.path;
+    let qcollection = req.query.collection;
 
-  let retval = {};
-  retval.content = [];
+    let retval = {};
+    retval.content = [];
 
-  if (qpath) {
-    if (!fs.existsSync(qpath)) res.status(404).send("Path not exists!");
-    retval.content = await getDirectoryContents(qpath);
-    retval.dirname = path.basename(qpath);
-    retval.prevDir = path.resolve(qpath, "..");
-    retval.cwd = qpath;
-  } else if (qcollection) {
-    // Get collection
-    let collection = await getCollections(qcollection);
-    await Promise.all(
-      collection.paths.map(async (item) => {
-        if (fs.existsSync(item.path)) {
-          const dir = await getDirectoryContents(item.path);
-          retval.content = [...retval.content, ...dir];
-        } else {
-          console.log(`Path not exists ${item.path}`);
-        }
-      })
-    );
-    retval.collection_id = qcollection;
-  } else {
-    qpath = os.homedir();
-    content = await getDirectoryContents(qpath);
-    retval.dirname = path.basename(qpath);
-    retval.prevDir = path.resolve(qpath, "..");
-    retval.cwd = qpath;
-    retval.content = content;
+    if (qpath) {
+      if (!fs.existsSync(qpath)) res.status(404).send("Path not exists!");
+      retval.content = await getDirectoryContents(qpath);
+      retval.dirname = path.basename(qpath);
+      retval.prevDir = path.resolve(qpath, "..");
+      retval.cwd = qpath;
+    } else if (qcollection) {
+      // Get collection
+      let collection = await getCollections(qcollection);
+      if (!collection) res.status(404).send("Collection not exists!");
+      await Promise.all(
+        collection.paths.map(async (item) => {
+          if (fs.existsSync(item.path)) {
+            const dir = await getDirectoryContents(item.path);
+            retval.content = [...retval.content, ...dir];
+          } else {
+            console.log(`Path not exists ${item.path}`);
+          }
+        })
+      );
+      retval.collection_id = qcollection;
+    } else {
+      qpath = os.homedir();
+      content = await getDirectoryContents(qpath);
+      retval.dirname = path.basename(qpath);
+      retval.prevDir = path.resolve(qpath, "..");
+      retval.cwd = qpath;
+      retval.content = content;
+    }
+    retval.content.sort((a, b) => {
+      return (
+        a.priority - b.priority ||
+        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+      );
+    });
+
+    res.json(retval);
+  } catch (exc) {
+    console.log(exc);
+    res.json(500, { error: exc });
   }
-  retval.content.sort((a, b) => {
-    return (
-      a.priority - b.priority ||
-      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-    );
-  });
-
-  res.json(retval);
 });
 
 app.get("/drivelist/", cors(CORSOPTIONS), async (req, res) => {
@@ -320,36 +185,6 @@ app.get("/drivelist/", cors(CORSOPTIONS), async (req, res) => {
     console.error(e);
   }
 });
-
-async function getCollectionEntries(collection_id) {
-  return await db.all(
-    "SELECT * FROM collection_entry WHERE collection_id=?",
-    collection_id
-  );
-}
-
-async function getCollections(id = null) {
-  if (id) {
-    let collection = await db.get("SELECT * FROM collection WHERE id=?", id);
-
-    if (collection) {
-      collection.paths = await getCollectionEntries(collection.id);
-      return collection;
-    } else {
-      return null;
-    }
-  } else {
-    let collections = await db.all("SELECT * FROM collection");
-    return collections;
-    // Snippet for mapping & async/await
-    /*collections = await Promise.all(
-      collections.map(async (collection) => {
-        collection.paths = await getCollectionEntries(collection.id);
-        return collection;
-      })
-    );*/
-  }
-}
 
 app.options("/collections/", cors(CORSOPTIONS));
 app.get("/collections/:id?", cors(CORSOPTIONS), async (req, res) => {
@@ -367,34 +202,7 @@ app.get("/collections/:id?", cors(CORSOPTIONS), async (req, res) => {
 app.post("/collections/", cors(CORSOPTIONS), async (req, res) => {
   // TODO Some validation.
   try {
-    const dbres = await db.run(
-      "INSERT INTO collection (name, type) VALUES (?, ?)",
-      req.body.name,
-      req.body.type || 1
-    );
-
-    // Get new object
-    let collection = await db.get(
-      "SELECT * FROM collection WHERE id=?",
-      dbres.lastID
-    );
-    collection.paths = [];
-    if (req.body.paths && req.body.paths.length > 0) {
-      req.body.paths.forEach(async (element) => {
-        // Add path
-        const entryRes = await db.run(
-          "INSERT INTO collection_entry (collection_id, path) VALUES (?, ?)",
-          collection.id,
-          element.path
-        );
-        // Get path
-        const entry = await db.get(
-          "SELECT * FROM collection_entry WHERE id=?",
-          entryRes.lastID
-        );
-        collection.paths.push(entry);
-      });
-    }
+    const collection = await createCollection(req.body);
     res.json(collection);
   } catch (exc) {
     console.log(exc);
@@ -403,13 +211,24 @@ app.post("/collections/", cors(CORSOPTIONS), async (req, res) => {
 });
 
 app.options("/collections/:collection_id/", cors(CORSOPTIONS));
+app.patch(
+  "/collections/:collection_id/",
+  cors(CORSOPTIONS),
+  async (req, res) => {
+    try {
+      res.json(await updateCollection(req.params.collection_id, req.body));
+    } catch (exc) {
+      console.log(exc);
+    }
+  }
+);
 app.delete(
   "/collections/:collection_id/",
   cors(CORSOPTIONS),
   async (req, res) => {
     const collection_id = req.params.collection_id;
     try {
-      await db.run("DELETE FROM collection WHERE id=?", collection_id);
+      deleteCollection(collection_id);
       res.json({});
     } catch (exc) {
       res.status(500).json({ error: exc });
@@ -421,23 +240,41 @@ app.post(
   "/collections/:collection_id/entries/",
   cors(CORSOPTIONS),
   async (req, res) => {
-    const collection_id = req.params.collection_id;
     try {
-      const dbres = await db.run(
-        "INSERT INTO collection_entry (collection_id, path) VALUES (?, ?)",
-        collection_id,
-        req.body.path
-      );
-      const collection_entry = await db.get(
-        "SELECT * FROM collection_entry WHERE id=?",
-        dbres.lastID
+      const collection_entry = await createCollectionEntry(
+        req.params.collection_id,
+        req.body
       );
       res.json(collection_entry);
     } catch (exc) {
-      res.status(422).json({ error: exc });
+      res.status(500).json({ error: exc });
     }
   }
 );
+
+app.options("/collections/entries/:id", cors(CORSOPTIONS));
+app.delete("/collections/entries/:id", cors(CORSOPTIONS), async (req, res) => {
+  try {
+    deleteCollectionEntry(req.params.id);
+    res.json({});
+  } catch (exc) {
+    res.status(500).json({ error: exc });
+  }
+});
+
+app.get("/mediastatus", cors(CORSOPTIONS), async (req, res) => {
+  try {
+    if (req.query.directory) {
+      res.json(await getMediastatusEntries(null, req.query.directory));
+    } else if (req.query.filepath) {
+      res.json(await getMediastatusEntries(req.query.filepath));
+    }
+
+    res.json(await getMediastatusEntries());
+  } catch (exc) {
+    res.status(500).json({ error: exc });
+  }
+});
 
 mpv.on("status", async (status) => {
   console.log(status);
@@ -476,12 +313,13 @@ mpv.on("status", async (status) => {
   }
 });
 
-mpv.on("stopped", async () => {
+mpv.on("stopped", async (ev) => {
+  const playback = await getMPVProps();
+  console.log(playback);
   io.emit("stopped");
 });
 
 mpv.on("seek", async (data) => {
-  // FIXME: Probably not the best solution
   console.log(data);
   await mpv.command("show-text", [`Seek: ${formatTime(data.end)}`]);
   io.emit("playbackTimeResponse", {
@@ -647,12 +485,16 @@ async function getMPVProps() {
   return props;
 }
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
   console.log("User connected");
   // TODO: Create a method for this!
 
   getMPVProps().then((resp) => {
     socket.emit("playerData", resp);
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log(`Client disconnected: ${reason}`);
   });
   // Send duration for new connections.
   socket.on("playbackTime", async function (data) {
@@ -674,7 +516,10 @@ io.on("connection", (socket) => {
   });
   socket.on("openFile", async function (data) {
     try {
-      if (fs.lstatSync(data.filename).isDirectory()) {
+      if (
+        !stringIsAValidUrl(data.filename) &&
+        fs.lstatSync(data.filename).isDirectory()
+      ) {
         for (const item of await fs_async.readdir(data.filename)) {
           let type = detectFileType(path.extname(item));
           if (type === "video" || type == "audio") {
@@ -682,10 +527,14 @@ io.on("connection", (socket) => {
           }
         }
       } else {
+        console.log(data);
         await mpv.load(
           data.filename,
           data.appendToPlaylist ? "append-play" : "replace"
         );
+        if (data.seekTo) {
+          await mpv.seek(data.seekTo, "absolute");
+        }
       }
     } catch (exc) {
       console.log(exc);
@@ -748,10 +597,12 @@ io.on("connection", (socket) => {
 
   socket.on("audioReload", async function (id) {
     await mpv.selectAudioTrack(id);
+    socket.emit("playerData", await getMPVProps());
   });
 
   socket.on("subReload", async function (id) {
     await mpv.selectSubtitles(id);
+    socket.emit("playerData", await getMPVProps());
   });
 
   socket.on("adjustSubtitleTiming", async function (seconds) {
@@ -772,71 +623,10 @@ server.listen(SERVER_PORT, () => {
   console.log(`listening on *:${SERVER_PORT}`);
 });
 
-// ! Move DB stuff to other file
-async function init_tables() {
-  // Collections
-  // TYPE Can be: Movies - 1, TVShows - 2, Music - 3
-  await db.exec(
-    `CREATE TABLE IF NOT EXISTS collection(
-        id INTEGER PRIMARY KEY ASC, name TEXT NOT NULL, type INTEGER NOT NULL
-      )`
-  );
-
-  // Collection entry
-  await db.exec(
-    `CREATE TABLE IF NOT EXISTS collection_entry(
-        id INTEGER PRIMARY KEY ASC,
-        collection_id INTEGER NOT NULL,
-        path TEXT NOT NULL,
-        CONSTRAINT fk_collection
-          FOREIGN KEY (collection_id)
-          REFERENCES collection(id)
-          ON DELETE CASCADE
-      )`
-  );
-
-  // Media status
-  await db.exec(
-    `CREATE TABLE IF NOT EXISTS mediastatus(
-        id INTEGER PRIMARY KEY ASC,
-        file_name TEXT NOT NULL,
-        current_time TEXT,
-        finsihed INTEGER
-      )`
-  );
-}
-
-// Get scripts folder
-function getScriptFolder() {
-  let mpvHome;
-
-  if (os.platform() === "win32") {
-    // TODO Get appdata
-    mpvHome =
-      process.env["MPV_HOME"] ||
-      path.join(os.homedir(), "AppData", "Roaming", "mpv");
-  } else {
-    mpvHome = process.env["MPV_HOME"];
-    if (!mpvHome) {
-      const xdgConfigHome =
-        process.env["XDG_CONFIG_HOME"] || `${os.homedir()}/.config`;
-      mpvHome = path.join(xdgConfigHome, "mpv");
-    }
-  }
-
-  return path.join(mpvHome, "scripts");
-}
-
 async function main() {
   try {
-    db = await open({
-      filename: DB_PATH,
-      driver: sqlite3.Database,
-    });
-    await db.get("PRAGMA foreign_keys=on;");
-    await init_tables();
     await mpv.start();
-    console.log("Success!");
+    await initDB();
   } catch (error) {
     // handle errors here
     console.log(error);

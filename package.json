@@ -2,7 +2,7 @@
   "name": "mpv-remote",
   "version": "1.0.0",
   "description": "MPV Socket.IO remote control",
-  "main": "main.js",
+  "main": "./remote.socketio.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,7 +14,7 @@
     "express": "^4.17.1",
     "node-disk-info": "^1.3.0",
     "node-mpv": "^2.0.0-beta.2",
-    "socket.io": "^4.1.2",
+    "socket.io": "^4.1.3",
     "sqlite": "^4.0.23",
     "sqlite3": "^5.0.2"
   },

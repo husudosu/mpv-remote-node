@@ -6,47 +6,70 @@ https://github.com/mrxdst/webtorrent-mpv-hook
 ES5 syntax works only.
 */
 
-var platform = mp.utils.getenv("windir") ? "win32": "unix";
+var platform = mp.utils.getenv("windir") ? "win32" : "unix";
+var pathsep = platform === "win32" ? "\\" : "/";
 
-function getMPVSocket(){
-    var socketName = mp.get_property('input-ipc-server'); 
-    
-    if (!socketName){        
-        // Process node.js module not working, so need to use a trick to get platform.
-        // mp.utils.getenv("windir") : Not works
-        // mp.utils.get_env_list(): Not works
-        // TODO: Need an idea which works here.
-        var fname = platform === "win32" ? "\\\\.\\pipe\\mpvremote" : "/tmp/mpvremote";        
-        mp.set_property('input-ipc-server', fname);
-        // Check socket
-        socketName = mp.get_property('input-ipc-server');
-    }
-    
-    // TODO raise error if socket still not exists!
-    return socketName;
+function getMPVSocket() {
+  var socketName = mp.get_property("input-ipc-server");
+
+  if (!socketName) {
+    var fname =
+      platform === "win32" ? "\\\\.\\pipe\\mpvremote" : "/tmp/mpvremote";
+    mp.set_property("input-ipc-server", fname);
+    // Check socket
+    socketName = mp.get_property("input-ipc-server");
+  }
+
+  // TODO raise error if socket still not exists!
+  return socketName;
 }
 
-
-function getScriptPath(){
-    var script = mp.get_script_file().replace(/\\/g, '\\\\');
-    var p = mp.command_native({
-        name: 'subprocess',
-        args: ['node', '-p', "require('fs').realpathSync('" + script + "')"],
-        playback_only: false,
-        capture_stdout: true
-    });
-    var pathsep = platform === "win32" ? "\\" : "/";
-    var s = p.stdout.split(pathsep);
-    s[s.length - 1] = "remote.socketio.js";
-    return s.join(pathsep);
+function getScriptPath(filename) {
+  var script = mp.get_script_file().replace(/\\/g, "\\\\");
+  var p = mp.command_native({
+    name: "subprocess",
+    args: ["node", "-p", "require('fs').realpathSync('" + script + "')"],
+    playback_only: false,
+    capture_stdout: true,
+  });
+  var s = p.stdout.split(pathsep);
+  s[s.length - 1] = filename;
+  return s.join(pathsep);
 }
 
-var scriptPath = getScriptPath();
+var scriptPath = getScriptPath("remote.socketio.js");
+var watchlistHandlerPath = getScriptPath("watchlisthandler.js");
+
 var socketName = getMPVSocket();
 
 mp.command_native_async({
-    name: 'subprocess',
-    args: ['node', scriptPath, socketName],
+  name: "subprocess",
+  args: ["node", scriptPath, socketName],
+  playback_only: false,
+  capture_stderr: true,
+});
+
+// On unload MPV, need this for saving playbacktime to database
+mp.add_hook("on_unload", 50, function () {
+  var currentPlaybackTime = mp.get_property("playback-time");
+  var currentFilename = mp.get_property("path");
+  var currentPercentPos = mp.get_property("percent-pos");
+
+  /* Calling binary,
+  not the ideal solution, but I can't find any information regarding hook supporting on JSON-IPC.
+  Fetch API not supported by MuJS
+  */
+  mp.command_native_async({
+    name: "subprocess",
+    args: [
+      "node",
+      watchlistHandlerPath,
+      currentFilename,
+      currentPlaybackTime,
+      currentPercentPos,
+    ],
     playback_only: false,
-    capture_stderr: true
+    capture_stderr: true,
+  });
+  mp.msg.info("Mediastatus updated");
 });
