@@ -605,14 +605,32 @@ io.on("connection", async (socket) => {
     socket.emit("playerData", await getMPVProps());
   });
 
+  socket.on("addSubtitles", async function (file) {
+    await mpv.addSubtitles(file);
+    socket.emit("playerData", await getMPVProps());
+  });
+
   socket.on("adjustSubtitleTiming", async function (seconds) {
     await mpv.adjustSubtitleTiming(seconds);
   });
 
   socket.on("subSettings", async function (data, cb) {
-    cb({ subDelay: await mpv.getProperty("sub-delay") });
+    cb({
+      subDelay: await mpv.getProperty("sub-delay"),
+      subVisibility: await mpv.getProperty("sub-visibility"),
+    });
   });
 
+  socket.on("getProperty", async function (data, cb) {
+    let retVal = {};
+    try {
+      cb(await mpv.getProperty(data));
+    } catch (exc) {
+      console.log(exc);
+      retVal[data] = "error";
+      cb(retVal);
+    }
+  });
   socket.on("fullscreen", async function () {
     const fullscreen = await mpv.getProperty("fullscreen");
     await mpv.setProperty("fullscreen", !fullscreen);
