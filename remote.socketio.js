@@ -174,7 +174,7 @@ app.get("/fileman", cors(CORSOPTIONS), async (req, res) => {
     res.json(retval);
   } catch (exc) {
     console.log(exc);
-    res.json(500, { error: exc });
+    res.status(500).json({ error: exc });
   }
 });
 
@@ -183,6 +183,7 @@ app.get("/drivelist/", cors(CORSOPTIONS), async (req, res) => {
     res.json(nodeDiskInfo.getDiskInfoSync());
   } catch (e) {
     console.error(e);
+    res.status(500).json({ error: exc });
   }
 });
 
@@ -196,6 +197,7 @@ app.get("/collections/:id?", cors(CORSOPTIONS), async (req, res) => {
     }
   } catch (exc) {
     console.log(exc);
+    res.status(500).json({ error: exc });
   }
 });
 
@@ -206,7 +208,7 @@ app.post("/collections/", cors(CORSOPTIONS), async (req, res) => {
     res.json(collection);
   } catch (exc) {
     console.log(exc);
-    res.status(422).json({ error: exc });
+    res.status(500).json({ error: exc });
   }
 });
 
@@ -219,6 +221,7 @@ app.patch(
       res.json(await updateCollection(req.params.collection_id, req.body));
     } catch (exc) {
       console.log(exc);
+      res.status(500).json({ error: exc });
     }
   }
 );
@@ -307,6 +310,8 @@ mpv.on("status", async (status) => {
         await mpv.command("show-text", [
           `Playing: ${playerData.media_title || playerData.filename}`,
         ]);
+        // Reset subdelay to 0
+        await mpv.setProperty("sub-delay", 0);
         io.emit("playerData", playerData);
       }
       break;
