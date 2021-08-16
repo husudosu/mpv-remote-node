@@ -8,7 +8,6 @@
   },
   "bin": "./bin.js",
   "author": "Ferenc Nánási",
-  "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
@@ -18,5 +17,19 @@
     "sqlite": "^4.0.23",
     "sqlite3": "^5.0.2"
   },
-  "type": "commonjs"
+  "type": "commonjs",
+  "keywords": [
+    "mpv",
+    "Audio",
+    "Video",
+    "Stream",
+    "multimedia"
+  ],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/husudosu/mpv-remote-node/blob/master/LICENSE.md"
+    }
+  ],
+  "homepage": "https://github.com/husudosu/mpv-remote-node"
 }

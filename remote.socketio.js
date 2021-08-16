@@ -24,6 +24,16 @@ const {
   getMediastatusEntries,
 } = require("./crud");
 
+// Get internal IP address
+const SERVER_IP = Object.values(os.networkInterfaces())
+  .flat()
+  .find((i) => i.family == "IPv4" && !i.internal).address;
+
+/* 
+! CHANGE WEB PORT HERE !
+*/
+const SERVER_PORT = 8000;
+
 // Handle CLI args
 const cliArgs = process.argv.slice(2);
 
@@ -49,10 +59,6 @@ const io = new Server(server, {
   },
 });
 
-/* 
-You can configure the port here!
-*/
-const SERVER_PORT = 8000;
 const CORSOPTIONS = {
   origin: "*",
   methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH"],
@@ -229,8 +235,8 @@ app.delete(
   "/collections/:collection_id/",
   cors(CORSOPTIONS),
   async (req, res) => {
-    const collection_id = req.params.collection_id;
     try {
+      const collection_id = req.params.collection_id;
       deleteCollection(collection_id);
       res.json({});
     } catch (exc) {
@@ -280,41 +286,45 @@ app.get("/mediastatus", cors(CORSOPTIONS), async (req, res) => {
 });
 
 mpv.on("status", async (status) => {
-  console.log(status);
-  switch (status.property) {
-    case "pause":
-      await mpv.command("show-text", [status.value ? "Pause" : "Play"]);
-      io.emit("pause", status.value);
-      break;
-    case "volume":
-      io.emit("propChange", status);
-      await mpv.command("show-text", [`Volume: ${status.value}%`]);
-      break;
-    case "mute":
-      io.emit("propChange", status);
-      let volume = await mpv.getProperty("volume");
-      await mpv.command("show-text", [
-        status.value ? "Mute" : `Volume ${volume}`,
-      ]);
-      break;
-    case "playlist-count":
-    case "playlist-pos":
-      io.emit("propChange", {
-        property: "playlist",
-        value: await getPlaylist(),
-      });
-      break;
-    case "duration":
-      playerData = await getMPVProps();
-      if (status.value) {
+  try {
+    console.log(status);
+    switch (status.property) {
+      case "pause":
+        await mpv.command("show-text", [status.value ? "Pause" : "Play"]);
+        io.emit("pause", status.value);
+        break;
+      case "volume":
+        io.emit("propChange", status);
+        await mpv.command("show-text", [`Volume: ${status.value}%`]);
+        break;
+      case "mute":
+        io.emit("propChange", status);
+        let volume = await mpv.getProperty("volume");
         await mpv.command("show-text", [
-          `Playing: ${playerData.media_title || playerData.filename}`,
+          status.value ? "Mute" : `Volume ${volume}`,
         ]);
-        // Reset subdelay to 0
-        await mpv.setProperty("sub-delay", 0);
-        io.emit("playerData", playerData);
-      }
-      break;
+        break;
+      case "playlist-count":
+      case "playlist-pos":
+        io.emit("propChange", {
+          property: "playlist",
+          value: await getPlaylist(),
+        });
+        break;
+      case "path":
+        playerData = await getMPVProps();
+        if (status.value) {
+          await mpv.command("show-text", [
+            `Playing: ${playerData.media_title || playerData.filename}`,
+          ]);
+          // Reset subdelay to 0
+          await mpv.setProperty("sub-delay", 0);
+          io.emit("playerData", playerData);
+        }
+        break;
+    }
+  } catch (exc) {
+    console.log(exc);
   }
 });
 
@@ -335,7 +345,6 @@ mpv.on("seek", async (data) => {
 
 // FIXME: This causes interval creation. started event
 mpv.on("resumed", async (data) => {
-  console.log(`Started playback ${JSON.stringify(data)}`);
   io.emit("pause", false);
 });
 
@@ -457,6 +466,22 @@ async function getPlaylist() {
   return playlist;
 }
 
+async function getChapters() {
+  const count = await mpv.getProperty("chapter-list/count");
+  let chapters = [];
+  for (let i = 0; i < count; i++) {
+    chapters.push({
+      title: await handle(mpv.getProperty(`chapter-list/${i}/title`)).then(
+        (resp) => resp[0]
+      ),
+      time: await handle(mpv.getProperty(`chapter-list/${i}/time`)).then(
+        (resp) => resp[0]
+      ),
+    });
+  }
+  return chapters;
+}
+
 async function getMPVProps() {
   let props = {
     filename: null,
@@ -466,6 +491,7 @@ async function getMPVProps() {
     media_title: null,
     playlist: [],
     currentTracks: [],
+    chapters: [],
   };
 
   try {
@@ -482,7 +508,8 @@ async function getMPVProps() {
     props.percent_pos = Math.ceil(await mpv.getProperty("percent-pos")) || 0;
     props.media_title = await mpv.getProperty("media-title");
     props.playlist = (await getPlaylist()) || [];
-    props.currentTracks = await getTracks();
+    props.currentTracks = (await getTracks()) || [];
+    props.chapters = await getChapters();
   } catch (exc) {
     console.log("No playback.");
   }
@@ -492,8 +519,6 @@ async function getMPVProps() {
 
 io.on("connection", async (socket) => {
   console.log("User connected");
-  // TODO: Create a method for this!
-
   getMPVProps().then((resp) => {
     socket.emit("playerData", resp);
   });
@@ -503,12 +528,24 @@ io.on("connection", async (socket) => {
   });
   // Send duration for new connections.
   socket.on("playbackTime", async function (data) {
-    const playbackTime = await mpv.getProperty("playback-time");
-    const percentPos = Math.ceil(await mpv.getProperty("percent-pos"));
-    socket.emit("playbackTimeResponse", {
-      playback_time: formatTime(playbackTime),
-      percent_pos: percentPos,
-    });
+    try {
+      const playbackTime =
+        (await handle(mpv.getProperty("playback-time")).then(
+          (resp) => resp[0]
+        )) || 0;
+      const percentPos = Math.ceil(
+        (await handle(mpv.getProperty("percent-pos")).then(
+          (resp) => resp[0]
+        )) || 0
+      );
+
+      socket.emit("playbackTimeResponse", {
+        playback_time: formatTime(playbackTime),
+        percent_pos: percentPos,
+      });
+    } catch (exc) {
+      console.log(exc);
+    }
   });
 
   socket.on("setPlayerProp", async function (data) {
@@ -552,7 +589,8 @@ io.on("connection", async (socket) => {
 
   socket.on("seek", async function (data) {
     try {
-      await mpv.command("seek", [data, "absolute-percent"]);
+      // TODO: Recieve seek type from the app!
+      await mpv.command("seek", [data.seekTo, data.flag]);
     } catch (exc) {
       console.log(exc);
     }
@@ -643,17 +681,26 @@ io.on("connection", async (socket) => {
 });
 
 server.listen(SERVER_PORT, () => {
-  console.log(`listening on *:${SERVER_PORT}`);
+  console.log(`listening on ${SERVER_IP}:${SERVER_PORT}`);
 });
 
 async function main() {
   try {
     await mpv.start();
     await initDB();
+    await mpv.command("show-text", [
+      `Remote access on: ${SERVER_IP}:${SERVER_PORT}`,
+      5000,
+    ]);
   } catch (error) {
     // handle errors here
     console.log(error);
   }
 }
+
+process.on("unhandledRejection", (error) => {
+  // Will print "unhandledRejection err is not defined"
+  console.log("unhandledRejection", JSON.stringify(error));
+});
 
 main();
