@@ -1,0 +1,374 @@
+# New API design
+
+I want to remove Socket.IO completly, it works fine, but want to make a more global API.
+Inspiration came from Lua API project https://github.com/open-dynaMIX/simple-mpv-webui.
+
+## DISCLAIMER
+
+The API also provides some basic functionalaties like saving collections to local database and saving media status too.
+If you don't want this behaviour use `mpvremote-uselocaldb=0` configuration variable.
+
+## /api/v1/status
+
+Methods: GET
+
+Response codes: 200
+
+Gets status of the player.
+
+Example response:
+
+```json
+{
+  "audio-delay": 0, // <-- milliseconds
+  "audio-devices": [
+    { "active": true, "description": "Autoselect device", "name": "auto" },
+    { "active": false, "description": "Default (alsa)", "name": "alsa" },
+    { "active": false, "description": "Default (jack)", "name": "jack" },
+    { "active": false, "description": "Default (sdl)", "name": "sdl" },
+    { "active": false, "description": "Default (sndio)", "name": "sndio" }
+  ],
+  "chapter": 0, // <-- current chapter
+  "chapters": 0, // <-- chapters count
+  "chapter-list": [
+    // Array length == "chapters".
+    {
+      "title": "Chapter 0",
+      "time": 0 // <-- start time in seconds
+    }
+  ],
+  "duration": 6.024, // <-- seconds
+  "filename": "01 - dummy.mp3",
+  "fullscreen": false,
+  "loop-file": false, // <-- false, true or integer
+  "loop-playlist": false, // <-- false, `inf`, `force` or integer
+  "metadata": {
+    // <-- all metadata available to MPV
+    "album": "Dummy Album",
+    "artist": "Dummy Artist",
+    "comment": "0",
+    "date": "2020",
+    "encoder": "Lavc57.10",
+    "genre": "Jazz",
+    "title": "First dummy"
+  },
+  "pause": true,
+  "playlist": [
+    {
+      "current": true,
+      "filename": "./environment/test_media/01 - dummy.mp3",
+      "playing": true
+    },
+    { "filename": "./environment/test_media/02 - dummy.mp3" },
+    { "filename": "./environment/test_media/03 - dummy.mp3" }
+  ],
+  "position": -0.0, // <-- seconds
+  "remaining": 6.024, // <-- seconds
+  "speed": 1, // <-- multiplier
+  "sub-delay": 0, // <-- milliseconds
+  "track-list": [
+    // <-- all available video, audio and sub tracks
+    {
+      "albumart": false,
+      "audio-channels": 2,
+      "codec": "mp3",
+      "decoder-desc": "mp3float (MP3 (MPEG audio layer 3))",
+      "default": false,
+      "demux-channel-count": 2,
+      "demux-channels": "stereo",
+      "demux-samplerate": 48000,
+      "dependent": false,
+      "external": false,
+      "ff-index": 0,
+      "forced": false,
+      "id": 1,
+      "selected": true,
+      "src-id": 0,
+      "type": "audio"
+    }
+  ],
+  "volume": 0,
+  "volume-max": 130
+}
+```
+
+# Playlist
+
+## /api/v1/playlist
+
+**Methods:** GET, POST
+
+**Response codes:** 200, 422
+
+**Related MPV documentation:** https://mpv.io/manual/master/#command-interface-[%3Coptions%3E]]
+
+### **GET**
+
+Gets Playlist items.
+
+Response JSON:
+
+```json
+[
+  {
+    "current": true,
+    "filename": "./environment/test_media/01 - dummy.mp3",
+    "playing": true
+  },
+  { "filename": "./environment/test_media/02 - dummy.mp3" },
+  { "filename": "./environment/test_media/03 - dummy.mp3" }
+]
+```
+
+### **POST**
+
+Puts an item to playlist.
+
+**Request JSON:**
+
+```JSON
+{
+    "filename": "/home/user/media/test.mkv", // Required can be any URL which supported by MPV
+    "flag": "append-play" // append-play the default
+}
+```
+
+**flag** possible values:
+
+- replace
+- append
+- append-play
+
+## /api/v1/playlist/remove/:index
+
+**Methods:** DELETE
+
+**Response codes:** 200, 404,
+
+Deletes a playlist item.
+
+## /api/v1/playlist/move?fromIndex=0&toIndex=1
+
+**Methods**: POST
+
+**Response codes:** 200, 422
+
+**Related MPV documentation:** https://mpv.io/manual/master/#command-interface-playlist-move
+
+**Query parameters**:
+
+- **fromIndex (REQUIRED):** Moves this item.
+- **toIndex (REQUIRED):** To this index.
+
+Moves a playlist item (fromIndex), to desired destination (toIndex).
+
+## /api/v1/playlist/play/:index
+
+**Methods**: POST
+
+**Response codes:** 200, 422
+
+Plays playlist item.
+
+Note: index can be current too, whcih gonna reload the current entry.
+
+## /api/v1/playlist/prev
+
+**Methods**: POST
+
+**Response codes:** 200, 422
+
+Playlist previous item on playlist
+
+## /api/v1/playlist/next
+
+**Methods**: POST
+
+**Response codes:** 200, 422
+
+Playlist next item on playlist
+
+## /api/v1/playlist/clear
+
+**Methods**: POST
+
+**Response codes:** 200, 422
+
+Clears playlist.
+
+## /api/v1/playlist/shuffle
+
+**Methods**: POST
+
+**Response codes:** 200
+
+Shuffle the playlist.
+
+## /api/v1/playlist/unshuffle
+
+**Methods**: POST
+
+**Response codes:** 200
+
+Unshuffles the playlist.
+
+# Filebrowser
+
+Basic filebrowser which only accepts paths which included at server configured variable `mpvremote-filebrowserpaths`
+
+## /api/v1/filebrowser/paths
+
+**Methods**: GET
+
+**Response codes:** 200
+
+Returns content of `mpvremote-filebrowserpaths` option paths indexed.
+
+Response JSON:
+
+```json
+[
+  {
+    "index": 0,
+    "path": "/home/usr/media1"
+  },
+  {
+    "index": 1,
+    "path": "/home/usr/media2"
+  },
+  {
+    "index": 2,
+    "path": "/home/usr/media3"
+  }
+]
+```
+
+## /api/v1/filebrowser/browse/:index
+
+**Methods**: GET
+
+**Response codes:** 200, 404
+
+**Optional query parameters:**
+
+- **sortBy (DEFAULT: filename):** Sorts by specified column, available values: createdDate, filename
+
+**Note:** Only MPV supported fileformats will return. [Supported file formats](https://github.com/husudosu/mpv-remote-node/blob/master/fileformats.js)
+
+Returns files with types:
+
+```json
+[
+  {
+    "filename": "St. Anger",
+    "type": "directory",
+    "path": "/home/usr/media1/St. Anger",
+    "createdDate": "1970-01-01 00:00:00"
+  },
+  {
+    "filename": "One Piece 01.mkv",
+    "type": "video",
+    "path": "/home/usr/media1/One Piece 01.mkv",
+    "createdDate": "1970-01-01 00:00:00",
+    "mediaStatus": {
+      "directory": "/home/usr/media1/",
+      "file_name": "One Piece 01.mkv",
+      "current_time": 100.2, // Float
+      "finished": 0 // 0 - Finished, 1 - unfinished
+    } // Media status appears only if enabled on backend!
+  },
+  {
+    "filename": "One Piece 01.ass",
+    "type": "subtitle",
+    "path": "/home/usr/media1/One Piece 01.ass",
+    "createdDate": "1970-01-01 00:00:00"
+  },
+  {
+    "filename": "Metallica - Orion.flac",
+    "type": "audio",
+    "path": "/home/usr/media1/Metallica - Orion.flac",
+    "createdDate": "1970-01-01 00:00:00"
+  }
+]
+```
+
+# Media controls
+
+## /api/v1/controls/play-pause
+
+**Methods:** POST
+
+Plays or pauses playback
+
+## /api/v1/controls/stop
+
+**Methods:** POST
+
+Stops the playback, also clears playlist
+
+## /api/v1/controls/prev
+
+Alias for /playlist/prev
+
+## /api/v1/controls/next
+
+Alias for /playlist/next
+
+## /api/v1/controls/seek
+
+**Methods:** POST
+
+Seek
+
+Request JSON:
+
+```json
+{
+  "target": 10.0,
+  "flag": "absolute-percent" // if no flag provided defaults to relative
+}
+```
+
+### Flags
+
+- relative (Default)
+- absolute
+- absolute-percent
+- relative-percent
+- keyframes
+- exact
+
+# Tracks
+
+## /api/v1/tracks/audio/reload/:id
+
+**Methods:** POST
+
+Loads desired audio track ID
+
+## /api/v1/tracks/sub/reload/:id
+
+**Methods:** POST
+
+Loads desired subtitle track ID
+
+## /api/v1/tracks/sub/add
+
+**Methods:** POST
+
+Add subtitle file.
+
+**Request JSON:**
+
+```json
+{
+  "filename": "/home/usr/mysub.srt",
+  "flag": "select" // if no flag provided defaults to select
+}
+```
+
+### Flags
+
+- select
+- auto
+- cached
