@@ -8,6 +8,23 @@ Inspiration came from Lua API project https://github.com/open-dynaMIX/simple-mpv
 The API also provides some basic functionalaties like saving collections to local database and saving media status too.
 If you don't want this behaviour use `mpvremote-uselocaldb=0` configuration variable.
 
+## Configuration variables
+
+You can configure server by using `--script-opts` flag of MPV like this (options seperated by ,):
+
+```
+mpv --script-opts=mpvremote-filebrowserpaths=/home/sudosu,mpvremote-uselocaldb=0
+```
+
+## Available options:
+
+| Option name                | Description                                                                  | Default value       | Available options/example             |
+| -------------------------- | ---------------------------------------------------------------------------- | ------------------- | ------------------------------------- |
+| mpvremote-uselocaldb       | Use local database to store media statuses and collections.                  | 1                   | 0 - Disabled <br /> 1 - Enabled       |
+| mpvremote-filebrowserpaths | Stores paths which can be browsable by users it's a semicolon seperated list | N/A                 | "/home/usr/media1";"/home/usr/media2" |
+| mpvremote-webport          | Port of MPV backend engine                                                   | 8000                | Any port within correct range         |
+| mpvreomte-address          | Server address                                                               | Your first local IP | 127.0.0.1                             |
+
 ## /api/v1/status
 
 Methods: GET
@@ -314,6 +331,24 @@ Alias for /playlist/prev
 
 Alias for /playlist/next
 
+## /api/v1/controls/fullscreen
+
+**Methods:** POST
+
+Toggles fullscreen mode
+
+## /api/v1/controls/mute
+
+**Methods:** POST
+
+Mutes volume
+
+## /api/v1/controls/volume/:value
+
+**Methods:** POST
+
+Sets volume
+
 ## /api/v1/controls/seek
 
 **Methods:** POST
@@ -352,6 +387,43 @@ Loads desired audio track ID
 
 Loads desired subtitle track ID
 
+## /api/v1/tracks/sub/delay/:seconds
+
+**Methods:** POST
+
+Sets sub delay to provided value, can be negative number.
+
+## /api/v1/tracks/sub/ass-override/:value
+
+**Methods:** POST
+
+Changes default behaviour of rendering ASS/SSA subtitles.
+MPV mostly renders ASS/SSA subtitles correctly, but if you need it, use it.
+
+**MPV related documentation:** https://mpv.io/manual/master/#options-sub-ass-override
+
+**BE VERY CAREFUL SOME VALUES CAN BREAK PLAYBACK CHECK DOCUMENTATION ABOVE**
+
+Possible values:
+
+- no
+- yes
+- force
+- scale
+- strip
+
+## /api/v1/tracks/sub/font-size/:size
+
+**Methods:** POST
+
+Changes subtitle sizes to provided value.
+
+## /api/v1/tracks/sub/toggle-visibility
+
+**Methods:** POST
+
+Toggles subtitle visibility
+
 ## /api/v1/tracks/sub/add
 
 **Methods:** POST
@@ -372,3 +444,28 @@ Add subtitle file.
 - select
 - auto
 - cached
+
+# Collections
+
+Local collection handling. Collections only works if you have enabled `mpvremote-uselocaldb`
+Collections entries only can be opened if `mpvremote-filebrowserpaths` contains the required paths.
+
+## /api/v1/collections
+
+**Methods:** GET, POST, PATCH, DELETE
+
+### GET
+
+Gets collections
+
+### POST
+
+Creates a new collection
+
+### PATCH
+
+Updates a collection.
+
+### DELETE
+
+Delete a collection.
