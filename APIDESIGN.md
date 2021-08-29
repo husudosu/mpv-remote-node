@@ -18,12 +18,12 @@ mpv --script-opts=mpvremote-filebrowserpaths=/home/sudosu,mpvremote-uselocaldb=0
 
 ## Available options:
 
-| Option name                | Description                                                                  | Default value       | Available options/example             |
-| -------------------------- | ---------------------------------------------------------------------------- | ------------------- | ------------------------------------- |
-| mpvremote-uselocaldb       | Use local database to store media statuses and collections.                  | 1                   | 0 - Disabled <br /> 1 - Enabled       |
-| mpvremote-filebrowserpaths | Stores paths which can be browsable by users it's a semicolon seperated list | N/A                 | "/home/usr/media1";"/home/usr/media2" |
-| mpvremote-webport          | Port of MPV backend engine                                                   | 8000                | Any port within correct range         |
-| mpvreomte-address          | Server address                                                               | Your first local IP | 127.0.0.1                             |
+| Option name                | Description                                                                  | Default value       | Available options/example                    |
+| -------------------------- | ---------------------------------------------------------------------------- | ------------------- | -------------------------------------------- |
+| mpvremote-uselocaldb       | Use local database to store media statuses and collections.                  | 1                   | 0 - Disabled <br /> 1 - Enabled              |
+| mpvremote-filebrowserpaths | Stores paths which can be browsable by users it's a semicolon seperated list | N/A                 | "'/home/usr/Steins;Gate';'/home/usr/media2'" |
+| mpvremote-webport          | Port of MPV backend engine                                                   | 8000                | Any port within correct range                |
+| mpvreomte-address          | Server address                                                               | Your first local IP | 127.0.0.1                                    |
 
 ## /api/v1/status
 
@@ -38,13 +38,6 @@ Example response:
 ```json
 {
   "audio-delay": 0, // <-- milliseconds
-  "audio-devices": [
-    { "active": true, "description": "Autoselect device", "name": "auto" },
-    { "active": false, "description": "Default (alsa)", "name": "alsa" },
-    { "active": false, "description": "Default (jack)", "name": "jack" },
-    { "active": false, "description": "Default (sdl)", "name": "sdl" },
-    { "active": false, "description": "Default (sndio)", "name": "sndio" }
-  ],
   "chapter": 0, // <-- current chapter
   "chapters": 0, // <-- chapters count
   "chapter-list": [
@@ -83,27 +76,6 @@ Example response:
   "remaining": 6.024, // <-- seconds
   "speed": 1, // <-- multiplier
   "sub-delay": 0, // <-- milliseconds
-  "track-list": [
-    // <-- all available video, audio and sub tracks
-    {
-      "albumart": false,
-      "audio-channels": 2,
-      "codec": "mp3",
-      "decoder-desc": "mp3float (MP3 (MPEG audio layer 3))",
-      "default": false,
-      "demux-channel-count": 2,
-      "demux-channels": "stereo",
-      "demux-samplerate": 48000,
-      "dependent": false,
-      "external": false,
-      "ff-index": 0,
-      "forced": false,
-      "id": 1,
-      "selected": true,
-      "src-id": 0,
-      "type": "audio"
-    }
-  ],
   "volume": 0,
   "volume-max": 130
 }
@@ -146,7 +118,8 @@ Puts an item to playlist.
 ```JSON
 {
     "filename": "/home/user/media/test.mkv", // Required can be any URL which supported by MPV
-    "flag": "append-play" // append-play the default
+    "flag": "append-play",  // append-play the default
+    "seekTo": 50.1 // If you want to seek immediately after file loading.
 }
 ```
 
@@ -221,14 +194,6 @@ Clears playlist.
 
 Shuffle the playlist.
 
-## /api/v1/playlist/unshuffle
-
-**Methods**: POST
-
-**Response codes:** 200
-
-Unshuffles the playlist.
-
 # Filebrowser
 
 Basic filebrowser which only accepts paths which included at server configured variable `mpvremote-filebrowserpaths`
@@ -268,7 +233,7 @@ Response JSON:
 
 **Optional query parameters:**
 
-- **sortBy (DEFAULT: filename):** Sorts by specified column, available values: createdDate, filename
+- **sortBy (DEFAULT: filename):** Sorts by specified column, available values: lastModified, filename
 
 **Note:** Only MPV supported fileformats will return. [Supported file formats](https://github.com/husudosu/mpv-remote-node/blob/master/fileformats.js)
 
@@ -280,13 +245,13 @@ Returns files with types:
     "filename": "St. Anger",
     "type": "directory",
     "path": "/home/usr/media1/St. Anger",
-    "createdDate": "1970-01-01 00:00:00"
+    "lastModified": "1970-01-01 00:00:00"
   },
   {
     "filename": "One Piece 01.mkv",
     "type": "video",
     "path": "/home/usr/media1/One Piece 01.mkv",
-    "createdDate": "1970-01-01 00:00:00",
+    "lastModified": "1970-01-01 00:00:00",
     "mediaStatus": {
       "directory": "/home/usr/media1/",
       "file_name": "One Piece 01.mkv",
@@ -298,13 +263,13 @@ Returns files with types:
     "filename": "One Piece 01.ass",
     "type": "subtitle",
     "path": "/home/usr/media1/One Piece 01.ass",
-    "createdDate": "1970-01-01 00:00:00"
+    "lastModified": "1970-01-01 00:00:00"
   },
   {
     "filename": "Metallica - Orion.flac",
     "type": "audio",
     "path": "/home/usr/media1/Metallica - Orion.flac",
-    "createdDate": "1970-01-01 00:00:00"
+    "lastModified": "1970-01-01 00:00:00"
   }
 ]
 ```
@@ -375,11 +340,58 @@ Request JSON:
 
 # Tracks
 
+## /api/v1/tracks
+
+**Methods:** GET
+
+Gets all audio, video, subtitle tracks.
+
+TODO
+
+Example response:
+
+```json
+[]
+```
+
 ## /api/v1/tracks/audio/reload/:id
 
 **Methods:** POST
 
 Loads desired audio track ID
+
+## /api/v1/tracks/audio/cycle
+
+**Methods:** POST
+
+Cycles through audio tracks
+
+## /api/v1/tracks/audio/add
+
+**Methods:** POST
+
+Adds an audio track
+
+**Request JSON:**
+
+```json
+{
+  "filename": "/home/usr/myaudio.mp3",
+  "flag": "select" // if no flag provided defaults to select
+}
+```
+
+### Flags
+
+- select
+- auto
+- cached
+
+## /api/v1/tracks/audio/timing/:seconds
+
+**Methods:** POST
+
+Sets audio delay to provided second, can be negative.
 
 ## /api/v1/tracks/sub/reload/:id
 
@@ -387,7 +399,7 @@ Loads desired audio track ID
 
 Loads desired subtitle track ID
 
-## /api/v1/tracks/sub/delay/:seconds
+## /api/v1/tracks/sub/timing/:seconds
 
 **Methods:** POST
 

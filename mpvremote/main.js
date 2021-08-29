@@ -6,6 +6,16 @@ https://github.com/mrxdst/webtorrent-mpv-hook
 ES5 syntax works only.
 */
 
+var options = {
+  uselocaldb: 0,
+  filebrowserpaths: "",
+  webport: 8000,
+  address: "",
+};
+
+mp.options.read_options(options, "mpvremote");
+mp.msg.info("MPV settings");
+
 var platform = mp.utils.getenv("windir") ? "win32" : "unix";
 var pathsep = platform === "win32" ? "\\" : "/";
 
@@ -42,34 +52,47 @@ var watchlistHandlerPath = getScriptPath("watchlisthandler.js");
 
 var socketName = getMPVSocket();
 
+var serverArgs = ["node", scriptPath, socketName, "-p " + options.webport];
+
+if (options.uselocaldb) serverArgs.push("--uselocaldb");
+if (options.filebrowserpaths.length > 0) {
+  var pathsArr = options.filebrowserpaths.split("';");
+  serverArgs.push("--filebrowserpaths");
+  for (var i = 0; i < pathsArr.length; i++) {
+    serverArgs.push(pathsArr[i]);
+  }
+}
+
 mp.command_native_async({
   name: "subprocess",
-  args: ["node", scriptPath, socketName],
+  args: serverArgs,
   playback_only: false,
   capture_stderr: true,
 });
 
 // On unload MPV, need this for saving playbacktime to database
-mp.add_hook("on_unload", 50, function () {
-  var currentPlaybackTime = mp.get_property("playback-time");
-  var currentFilename = mp.get_property("path");
-  var currentPercentPos = mp.get_property("percent-pos");
+if (options.uselocaldb) {
+  mp.add_hook("on_unload", 50, function () {
+    var currentPlaybackTime = mp.get_property("playback-time");
+    var currentFilename = mp.get_property("path");
+    var currentPercentPos = mp.get_property("percent-pos");
 
-  /* Calling binary,
-  not the ideal solution, but I can't find any information regarding hook supporting on JSON-IPC.
-  Fetch API not supported by MuJS
-  */
-  mp.command_native_async({
-    name: "subprocess",
-    args: [
-      "node",
-      watchlistHandlerPath,
-      currentFilename,
-      currentPlaybackTime,
-      currentPercentPos,
-    ],
-    playback_only: false,
-    capture_stderr: true,
+    /* Calling binary,
+    not the ideal solution, but I can't find any information regarding hook supporting on JSON-IPC.
+    Fetch API not supported by MuJS
+    */
+    mp.command_native_async({
+      name: "subprocess",
+      args: [
+        "node",
+        watchlistHandlerPath,
+        currentFilename,
+        currentPlaybackTime,
+        currentPercentPos,
+      ],
+      playback_only: false,
+      capture_stderr: true,
+    });
+    mp.msg.info("Mediastatus updated");
   });
-  mp.msg.info("Mediastatus updated");
-});
+}
