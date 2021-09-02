@@ -18,12 +18,13 @@ mpv --script-opts=mpvremote-filebrowserpaths=/home/sudosu,mpvremote-uselocaldb=0
 
 ## Available options:
 
-| Option name                | Description                                                                  | Default value       | Available options/example                    |
-| -------------------------- | ---------------------------------------------------------------------------- | ------------------- | -------------------------------------------- |
-| mpvremote-uselocaldb       | Use local database to store media statuses and collections.                  | 1                   | 0 - Disabled <br /> 1 - Enabled              |
-| mpvremote-filebrowserpaths | Stores paths which can be browsable by users it's a semicolon seperated list | N/A                 | "'/home/usr/Steins;Gate';'/home/usr/media2'" |
-| mpvremote-webport          | Port of MPV backend engine                                                   | 8000                | Any port within correct range                |
-| mpvreomte-address          | Server address                                                               | Your first local IP | 127.0.0.1                                    |
+| Option name                  | Description                                                                                                                                                                                                                                      | Default value       | Available options/example                    |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- | -------------------------------------------- |
+| mpvremote-uselocaldb         | Use local database to store media statuses and collections.                                                                                                                                                                                      | 1                   | 0 - Disabled <br /> 1 - Enabled              |
+| mpvremote-filebrowserpaths   | Stores paths which can be browsable by users it's a semicolon seperated list                                                                                                                                                                     | N/A                 | "'/home/usr/Steins;Gate';'/home/usr/media2'" |
+| mpvremote-webport            | Port of MPV backend engine                                                                                                                                                                                                                       | 8000                | Any port within correct range                |
+| mpvreomte-address            | Server address                                                                                                                                                                                                                                   | Your first local IP | 127.0.0.1                                    |
+| mpvremote-unsafefilebrowsing | Allows you to browse your local filesystem. Be careful though, exposing your whole filesystem not the safest option. For security reasons filebrowser only send results of media files, playlists, subtitle files and of course subdirectories . | 0                   | 0 - Disabled<br/> 1 - Enabled                |
 
 ## /api/v1/status
 

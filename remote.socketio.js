@@ -7,8 +7,8 @@ const URL = require("url").URL;
 
 const express = require("express");
 const cors = require("cors");
-const http = require("http");
 const mpvAPI = require("node-mpv");
+const nodeDiskInfo = require("node-disk-info");
 
 const yargs = require("yargs");
 
@@ -39,6 +39,11 @@ const argv = yargs
   .option("filebrowserpaths", {
     description: "File browser paths, which can be accessed by the server",
     type: "array",
+  })
+  .option("unsafefilebrowsing", {
+    description: "Allows to browse your filesystem",
+    type: "boolean",
+    default: false,
   })
   .help()
   .alias("help", "h").argv;
@@ -157,6 +162,32 @@ async function getDirectoryContents(qpath) {
   }
   return content;
 }
+
+// TODO Add to API spec
+app.get("/api/v1/drives", cors(CORSOPTIONS), async (req, res) => {
+  try {
+    if (argv.unsafefilebrowsing) {
+      let disks = await nodeDiskInfo.getDiskInfo();
+      // ignore snap, flatpak stuff linux
+      disks = disks.filter(
+        (disk) =>
+          !disk._mounted.includes("snap") && !disk._mounted.includes("flatpak")
+      );
+      disks = disks.map((disk) => {
+        return {
+          path: disk._mounted,
+        };
+      });
+      return res.json(disks);
+    } else
+      return res
+        .status(403)
+        .json({ message: "mpvremote-unsafefilebrowsing disabled!" });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ error: exc });
+  }
+});
 
 app.get("/api/v1/status", async (req, res) => {
   try {
@@ -319,7 +350,7 @@ app.post("/api/v1/tracks/audio/timing/:seconds", async (req, res) => {
 */
 app.post("/api/v1/tracks/sub/timing/:seconds", async (req, res) => {
   try {
-    await mpv.adjustSubtitleTiming(req.query.seconds);
+    await mpv.adjustSubtitleTiming(req.params.seconds);
     return res.json({ message: "success" });
   } catch (exc) {
     console.log(exc);
@@ -348,11 +379,33 @@ app.post("/api/v1/tracks/sub/toggle-visibility", async (req, res) => {
   }
 });
 
-app.post("/api/v1/sub/add", async (req, res) => {
+// TODO: Missing from API spec
+app.post("/api/v1/tracks/sub/visibility/:value", async (req, res) => {
+  try {
+    let val = req.params.value.toLowerCase() == "true" ? true : false;
+    await mpv.setProperty("sub-visibility", val);
+    return res.json({ message: "success" });
+  } catch (exc) {
+    console.log(exc);
+    return res.status(500).json({ message: exc });
+  }
+});
+
+app.post("/api/v1/tracks/sub/add", async (req, res) => {
   try {
     // TODO: title, lang
     if (!req.body.flag) req.body.flag = "select";
     await mpv.addSubtitles(req.body.filename, req.body.flag);
+    return res.json({ message: "success" });
+  } catch (exc) {
+    console.log(exc);
+    return res.status(500).json({ message: exc });
+  }
+});
+
+app.post("/api/v1/tracks/sub/reload/:id", async (req, res) => {
+  try {
+    await mpv.selectSubtitles(req.params.id);
     return res.json({ message: "success" });
   } catch (exc) {
     console.log(exc);
@@ -470,37 +523,63 @@ app.get("/api/v1/filebrowser/paths", async (req, res) => {
   }
 });
 
-// TODO: Change API spec it's wrong way to do this
+// TODO: Change API spec
 app.post("/api/v1/filebrowser/browse", async (req, res) => {
   try {
     console.log(req.body);
     let p = req.body.path;
+    let collectionId = req.body.collection;
+
     // Find FILEBROWSER_PATH entry
-    if (!p)
+    if (!p && !collectionId)
       return res
         .status(400)
-        .json({ message: "path missing from request data!" });
+        .json({ message: "path or collection id missing from request data!" });
 
-    console.log(p);
-    let fbe = FILEBROWSER_PATHS.find((el) => {
-      console.log(el);
-      return p.includes(el.path);
-    });
-
-    if (!fbe)
-      return res
-        .status(400)
-        .send({ message: "Path not exists on filebrowserpaths!" });
-
-    if (!fs.existsSync(p))
-      return res.status(404).send({ message: "Path not exists!" });
-
-    // Get files from directory
     let retval = {};
-    retval.content = await getDirectoryContents(p);
-    retval.dirname = path.basename(p);
-    retval.prevDir = path.resolve(p, "..");
-    retval.cwd = p;
+    if (p) {
+      // If unsafe filebrowsing disabled we've to check FILEBROWSER_PATHS
+      if (!argv.unsafefilebrowsing) {
+        let fbe = FILEBROWSER_PATHS.find((el) => {
+          return p.includes(el.path);
+        });
+
+        if (!fbe)
+          return res
+            .status(400)
+            .send({ message: "Path not exists on filebrowserpaths!" });
+      }
+
+      if (!fs.existsSync(p))
+        return res.status(404).send({ message: "Path not exists!" });
+      // Get files from directory
+
+      retval.content = await getDirectoryContents(p);
+      retval.dirname = path.basename(p);
+      retval.prevDir = path.resolve(p, "..");
+      retval.cwd = p;
+    } else if (collectionId) {
+      // Get collection contents if local database enabled!
+      if (!argv.uselocaldb)
+        return res
+          .status(400)
+          .send({ message: "mpvremote-uselocaldb is disabled!" });
+
+      let collection = await getCollections(collectionId);
+      if (!collection) return res.status(404).send("Collection not exists!");
+      retval.content = [];
+      await Promise.all(
+        collection.paths.map(async (item) => {
+          if (fs.existsSync(item.path)) {
+            const dir = await getDirectoryContents(item.path);
+            retval.content = [...retval.content, ...dir];
+          } else {
+            console.log(`Path not exists ${item.path}`);
+          }
+        })
+      );
+      retval.collection_id = collectionId;
+    }
 
     // Sort content firstly by priority and alphabet order.
     retval.content.sort((a, b) => {
@@ -517,59 +596,7 @@ app.post("/api/v1/filebrowser/browse", async (req, res) => {
   }
 });
 
-app.get("/fileman", async (req, res) => {
-  try {
-    let qpath = req.query.path;
-    let qcollection = req.query.collection;
-
-    let retval = {};
-    retval.content = [];
-
-    if (qpath) {
-      if (!fs.existsSync(qpath))
-        return res.status(404).send("Path not exists!");
-      retval.content = await getDirectoryContents(qpath);
-      retval.dirname = path.basename(qpath);
-      retval.prevDir = path.resolve(qpath, "..");
-      retval.cwd = qpath;
-    } else if (qcollection) {
-      // Get collection
-      let collection = await getCollections(qcollection);
-      if (!collection) return res.status(404).send("Collection not exists!");
-      await Promise.all(
-        collection.paths.map(async (item) => {
-          if (fs.existsSync(item.path)) {
-            const dir = await getDirectoryContents(item.path);
-            retval.content = [...retval.content, ...dir];
-          } else {
-            console.log(`Path not exists ${item.path}`);
-          }
-        })
-      );
-      retval.collection_id = qcollection;
-    } else {
-      qpath = os.homedir();
-      content = await getDirectoryContents(qpath);
-      retval.dirname = path.basename(qpath);
-      retval.prevDir = path.resolve(qpath, "..");
-      retval.cwd = qpath;
-      retval.content = content;
-    }
-    retval.content.sort((a, b) => {
-      return (
-        a.priority - b.priority ||
-        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-      );
-    });
-
-    return res.json(retval);
-  } catch (exc) {
-    console.log(exc);
-    return res.status(500).json({ error: exc });
-  }
-});
-
-app.get("/collections/:id?", async (req, res) => {
+app.get("/api/v1/collections/:id?", async (req, res) => {
   try {
     if (!argv.uselocaldb)
       return res.status(400).json({
@@ -587,7 +614,7 @@ app.get("/collections/:id?", async (req, res) => {
   }
 });
 
-app.post("/collections/", async (req, res) => {
+app.post("/api/v1/collections", async (req, res) => {
   // TODO Some validation.
   try {
     if (!argv.uselocaldb)
@@ -602,7 +629,7 @@ app.post("/collections/", async (req, res) => {
   }
 });
 
-app.patch("/collections/:collection_id/", async (req, res) => {
+app.patch("/api/v1/collections/:collection_id/", async (req, res) => {
   try {
     if (!argv.uselocaldb)
       return res.status(400).json({
@@ -614,7 +641,7 @@ app.patch("/collections/:collection_id/", async (req, res) => {
     return res.status(500).json({ error: exc });
   }
 });
-app.delete("/collections/:collection_id/", async (req, res) => {
+app.delete("/api/v1/collections/:collection_id/", async (req, res) => {
   try {
     if (!argv.uselocaldb)
       return res.status(400).json({
@@ -628,7 +655,7 @@ app.delete("/collections/:collection_id/", async (req, res) => {
   }
 });
 
-app.post("/collections/:collection_id/entries/", async (req, res) => {
+app.post("/api/v1/collections/:collection_id/entries/", async (req, res) => {
   try {
     if (!argv.uselocaldb)
       return res.status(400).json({
@@ -644,7 +671,7 @@ app.post("/collections/:collection_id/entries/", async (req, res) => {
   }
 });
 
-app.delete("/collections/entries/:id", async (req, res) => {
+app.delete("/api/v1/collections/entries/:id", async (req, res) => {
   try {
     if (!argv.uselocaldb)
       return res.status(400).json({
@@ -652,6 +679,15 @@ app.delete("/collections/entries/:id", async (req, res) => {
       });
     deleteCollectionEntry(req.params.id);
     return res.json({});
+  } catch (exc) {
+    return res.status(500).json({ error: exc });
+  }
+});
+
+// TODO: Add to API spec
+app.get("/api/v1/mpvinfo", async (req, res) => {
+  try {
+    res.json(await getMPVInfo());
   } catch (exc) {
     return res.status(500).json({ error: exc });
   }
@@ -696,7 +732,6 @@ mpv.on("status", async (status) => {
 });
 
 mpv.on("seek", async (data) => {
-  console.log(data);
   await mpv.command("show-text", [`Seek: ${formatTime(data.end)}`]);
 });
 
@@ -722,6 +757,21 @@ function handle(promise) {
   return promise
     .then((data) => [data, undefined])
     .catch((error) => Promise.resolve([undefined, error]));
+}
+
+async function getMPVInfo() {
+  return {
+    "ffmpeg-version": await handle(mpv.getProperty("ffmpeg-version"))
+      .then((resp) => resp[0])
+      .catch(() => null),
+    "mpv-version": await handle(mpv.getProperty("mpv-version"))
+      .then((resp) => resp[0])
+      .catch(() => null),
+    "libass-version": await handle(mpv.getProperty("libass-version"))
+      .then((resp) => resp[0])
+      .catch(() => null),
+    mpvremoteConfig: argv,
+  };
 }
 
 async function getTracks() {
@@ -872,6 +922,7 @@ async function getMPVProps() {
     fullscreen: false,
     speed: 1,
     "sub-delay": 0,
+    "sub-visibility": true,
     "track-list": [],
   };
 
@@ -893,6 +944,7 @@ async function getMPVProps() {
     props["chapter-list"] = (await getChapters()) || [];
     props.speed = await mpv.getProperty("speed");
     props["sub-delay"] = (await mpv.getProperty("sub-delay")) || 0;
+    props["sub-visibility"] = (await mpv.getProperty("sub-visibility")) || 0;
     props.metadata = (await getMetaData()) || {};
     props["track-list"] = (await getTracks()) || [];
   } catch (exc) {

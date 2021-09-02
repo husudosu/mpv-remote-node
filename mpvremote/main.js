@@ -11,10 +11,10 @@ var options = {
   filebrowserpaths: "",
   webport: 8000,
   address: "",
+  unsafefilebrowsing: 0,
 };
 
 mp.options.read_options(options, "mpvremote");
-mp.msg.info("MPV settings");
 
 var platform = mp.utils.getenv("windir") ? "win32" : "unix";
 var pathsep = platform === "win32" ? "\\" : "/";
@@ -62,6 +62,7 @@ if (options.filebrowserpaths.length > 0) {
     serverArgs.push(pathsArr[i]);
   }
 }
+if (options.unsafefilebrowsing) serverArgs.push("--unsafefilebrowsing");
 
 mp.command_native_async({
   name: "subprocess",

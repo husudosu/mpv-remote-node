@@ -87,7 +87,7 @@ async function getMediastatusEntries(filepath = null, directory = null) {
 
       const directory = spl.join(path.sep);
       return await db.get(
-        "SELECT * FROM mediastatus WHERE directory=? AND file_name=?",
+        "SELECT * FROM mediastatus WHERE directory=? AND file_name=? ORDER BY file_name",
         [directory, fileName]
       );
     } else if (directory != null) {
@@ -95,7 +95,7 @@ async function getMediastatusEntries(filepath = null, directory = null) {
       if (directory[directory.length - 1] == path.sep)
         directory = directory.slice(0, -1);
       const entries = await db.all(
-        "SELECT * FROM mediastatus WHERE directory=?",
+        "SELECT * FROM mediastatus WHERE directory=? ORDER BY file_name",
         [directory]
       );
       return entries;
