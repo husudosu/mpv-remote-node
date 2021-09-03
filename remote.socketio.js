@@ -337,7 +337,7 @@ app.post("/api/v1/tracks/audio/add", async (req, res) => {
 
 app.post("/api/v1/tracks/audio/timing/:seconds", async (req, res) => {
   try {
-    await mpv.adjustAudioTiming(req.query.seconds);
+    await mpv.adjustAudioTiming(req.params.seconds);
     return res.json({ message: "success" });
   } catch (exc) {
     console.log(exc);
@@ -359,9 +359,18 @@ app.post("/api/v1/tracks/sub/timing/:seconds", async (req, res) => {
 });
 
 // TODO Ass override
-// TODO: Allow font-size if not ASS/SSA
+app.post("/api/v1/sub/ass-override/:value", async (req, res) => {
+  try {
+    await mpv.setProperty("sub-ass-override", req.params.value);
+  } catch (exc) {
+    console.log(exc);
+    return res.status(500).json({ message: exc });
+  }
+});
+
 app.post("/api/v1/tracks/sub/font-size/:size", async (req, res) => {
   try {
+    await mpv.setProperty("sub-font-size", req.params.size);
     return res.json({ message: "success" });
   } catch (exc) {
     console.log(exc);
@@ -924,6 +933,9 @@ async function getMPVProps() {
     "sub-delay": 0,
     "sub-visibility": true,
     "track-list": [],
+    "audio-delay": 0,
+    "sub-font-size": 55,
+    "sub-ass-override": "no",
   };
 
   try {
@@ -937,9 +949,9 @@ async function getMPVProps() {
     props.remaining = (await mpv.getProperty("time-remaining")) || 0.0;
     props.fullscreen = (await mpv.getProperty("fullscreen")) || false;
 
-    props["media-title"] = await mpv.getProperty("media-title");
     props.playlist = (await getPlaylist()) || [];
 
+    props["media-title"] = await mpv.getProperty("media-title");
     props.chapter = (await mpv.getProperty("chapter")) || 0;
     props["chapter-list"] = (await getChapters()) || [];
     props.speed = await mpv.getProperty("speed");
@@ -947,6 +959,10 @@ async function getMPVProps() {
     props["sub-visibility"] = (await mpv.getProperty("sub-visibility")) || 0;
     props.metadata = (await getMetaData()) || {};
     props["track-list"] = (await getTracks()) || [];
+    props["audio-delay"] = (await mpv.getProperty("audio-delay")) || 0;
+    props["sub-font-size"] = (await mpv.getProperty("sub-font-size")) || 55;
+    props["sub-ass-override"] =
+      (await mpv.getProperty("sub-ass-override")) || "no";
   } catch (exc) {
     if (exc.errmessage != "property unavailable") {
       console.log(exc);

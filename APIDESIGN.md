@@ -425,12 +425,6 @@ Possible values:
 - scale
 - strip
 
-## /api/v1/tracks/sub/font-size/:size
-
-**Methods:** POST
-
-Changes subtitle sizes to provided value.
-
 ## /api/v1/tracks/sub/toggle-visibility
 
 **Methods:** POST
