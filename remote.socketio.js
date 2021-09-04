@@ -4,6 +4,7 @@ const fs = require("fs");
 const fs_async = require("fs").promises;
 const path = require("path");
 const URL = require("url").URL;
+const exec = require("child_process").exec;
 
 const express = require("express");
 const cors = require("cors");
@@ -13,6 +14,12 @@ const nodeDiskInfo = require("node-disk-info");
 const yargs = require("yargs");
 
 const FILE_FORMATS = require("./fileformats").FILE_FORMATS;
+
+const WIN_SHUTDOWN_COMMAND = "shutdown /s /t 1";
+const WIN_REBOOT_COMMAND = "shutdown /r /t 1";
+const UNIX_SHUTDOWN_COMMAND = "/usr/sbin/shutdown now";
+const UNIX_REBOOT_COMMAND = "/usr/sbin/reboot";
+
 const {
   initDB,
   createCollection,
@@ -702,6 +709,23 @@ app.get("/api/v1/mpvinfo", async (req, res) => {
   }
 });
 
+function shutdownAction(action) {
+  if (action == "shutdown")
+    exec(os.platform == "win32" ? WIN_SHUTDOWN_COMMAND : UNIX_SHUTDOWN_COMMAND);
+  if (action == "reboot")
+    exec(os.platform == "win32" ? WIN_REBOOT_COMMAND : UNIX_REBOOT_COMMAND);
+}
+
+// TODO:  Add to API spec
+app.post("/api/v1/computer/:action", async (req, res) => {
+  try {
+    if (req.params.action != "shutdown" && req.params.action != "reboot") {
+      return res.status(400).json({ message: "Invalid action" });
+    }
+    shutdownAction(req.params.action);
+  } catch (exc) {}
+});
+
 mpv.on("status", async (status) => {
   try {
     console.log(status);
@@ -952,7 +976,8 @@ async function getMPVProps() {
     props.playlist = (await getPlaylist()) || [];
 
     props["media-title"] = await mpv.getProperty("media-title");
-    props.chapter = (await mpv.getProperty("chapter")) || 0;
+    // Chapter not works on Windows 10, interesting...
+    // props.chapter = (await mpv.getProperty("chapter")) || 0;
     props["chapter-list"] = (await getChapters()) || [];
     props.speed = await mpv.getProperty("speed");
     props["sub-delay"] = (await mpv.getProperty("sub-delay")) || 0;
