@@ -1,30 +1,14 @@
-# New API design
+# API Routes
 
-I want to remove Socket.IO completly, it works fine, but want to make a more global API.
-Inspiration came from Lua API project https://github.com/open-dynaMIX/simple-mpv-webui.
+- MPV Status
+- Playback controls
+- Playlist
+- Tracks
+- Filebrowser
+- Collection handling
+- Computer actions
 
-## DISCLAIMER
-
-The API also provides some basic functionalaties like saving collections to local database and saving media status too.
-If you don't want this behaviour use `mpvremote-uselocaldb=0` configuration variable.
-
-## Configuration variables
-
-You can configure server by using `--script-opts` flag of MPV like this (options seperated by ,):
-
-```
-mpv --script-opts=mpvremote-filebrowserpaths=/home/sudosu,mpvremote-uselocaldb=0
-```
-
-## Available options:
-
-| Option name                  | Description                                                                                                                                                                                                                                      | Default value       | Available options/example                    |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- | -------------------------------------------- |
-| mpvremote-uselocaldb         | Use local database to store media statuses and collections.                                                                                                                                                                                      | 1                   | 0 - Disabled <br /> 1 - Enabled              |
-| mpvremote-filebrowserpaths   | Stores paths which can be browsable by users it's a semicolon seperated list                                                                                                                                                                     | N/A                 | "'/home/usr/Steins;Gate';'/home/usr/media2'" |
-| mpvremote-webport            | Port of MPV backend engine                                                                                                                                                                                                                       | 8000                | Any port within correct range                |
-| mpvreomte-address            | Server address                                                                                                                                                                                                                                   | Your first local IP | 127.0.0.1                                    |
-| mpvremote-unsafefilebrowsing | Allows you to browse your local filesystem. Be careful though, exposing your whole filesystem not the safest option. For security reasons filebrowser only send results of media files, playlists, subtitle files and of course subdirectories . | 0                   | 0 - Disabled<br/> 1 - Enabled                |
+# Status
 
 ## /api/v1/status
 
@@ -81,6 +65,70 @@ Example response:
   "volume-max": 130
 }
 ```
+
+# Media controls
+
+## /api/v1/controls/play-pause
+
+**Methods:** POST
+
+Plays or pauses playback
+
+## /api/v1/controls/stop
+
+**Methods:** POST
+
+Stops the playback, also clears playlist
+
+## /api/v1/controls/prev
+
+Alias for /playlist/prev
+
+## /api/v1/controls/next
+
+Alias for /playlist/next
+
+## /api/v1/controls/fullscreen
+
+**Methods:** POST
+
+Toggles fullscreen mode
+
+## /api/v1/controls/mute
+
+**Methods:** POST
+
+Mutes volume
+
+## /api/v1/controls/volume/:value
+
+**Methods:** POST
+
+Sets volume
+
+## /api/v1/controls/seek
+
+**Methods:** POST
+
+Seek
+
+Request JSON:
+
+```json
+{
+  "target": 10.0,
+  "flag": "absolute-percent" // if no flag provided defaults to relative
+}
+```
+
+### Flags
+
+- relative (Default)
+- absolute
+- absolute-percent
+- relative-percent
+- keyframes
+- exact
 
 # Playlist
 
@@ -195,150 +243,6 @@ Clears playlist.
 
 Shuffle the playlist.
 
-# Filebrowser
-
-Basic filebrowser which only accepts paths which included at server configured variable `mpvremote-filebrowserpaths`
-
-## /api/v1/filebrowser/paths
-
-**Methods**: GET
-
-**Response codes:** 200
-
-Returns content of `mpvremote-filebrowserpaths` option paths indexed.
-
-Response JSON:
-
-```json
-[
-  {
-    "index": 0,
-    "path": "/home/usr/media1"
-  },
-  {
-    "index": 1,
-    "path": "/home/usr/media2"
-  },
-  {
-    "index": 2,
-    "path": "/home/usr/media3"
-  }
-]
-```
-
-## /api/v1/filebrowser/browse/:index
-
-**Methods**: GET
-
-**Response codes:** 200, 404
-
-**Optional query parameters:**
-
-- **sortBy (DEFAULT: filename):** Sorts by specified column, available values: lastModified, filename
-
-**Note:** Only MPV supported fileformats will return. [Supported file formats](https://github.com/husudosu/mpv-remote-node/blob/master/fileformats.js)
-
-Returns files with types:
-
-```json
-[
-  {
-    "filename": "St. Anger",
-    "type": "directory",
-    "path": "/home/usr/media1/St. Anger",
-    "lastModified": "1970-01-01 00:00:00"
-  },
-  {
-    "filename": "One Piece 01.mkv",
-    "type": "video",
-    "path": "/home/usr/media1/One Piece 01.mkv",
-    "lastModified": "1970-01-01 00:00:00",
-    "mediaStatus": {
-      "directory": "/home/usr/media1/",
-      "file_name": "One Piece 01.mkv",
-      "current_time": 100.2, // Float
-      "finished": 0 // 0 - Finished, 1 - unfinished
-    } // Media status appears only if enabled on backend!
-  },
-  {
-    "filename": "One Piece 01.ass",
-    "type": "subtitle",
-    "path": "/home/usr/media1/One Piece 01.ass",
-    "lastModified": "1970-01-01 00:00:00"
-  },
-  {
-    "filename": "Metallica - Orion.flac",
-    "type": "audio",
-    "path": "/home/usr/media1/Metallica - Orion.flac",
-    "lastModified": "1970-01-01 00:00:00"
-  }
-]
-```
-
-# Media controls
-
-## /api/v1/controls/play-pause
-
-**Methods:** POST
-
-Plays or pauses playback
-
-## /api/v1/controls/stop
-
-**Methods:** POST
-
-Stops the playback, also clears playlist
-
-## /api/v1/controls/prev
-
-Alias for /playlist/prev
-
-## /api/v1/controls/next
-
-Alias for /playlist/next
-
-## /api/v1/controls/fullscreen
-
-**Methods:** POST
-
-Toggles fullscreen mode
-
-## /api/v1/controls/mute
-
-**Methods:** POST
-
-Mutes volume
-
-## /api/v1/controls/volume/:value
-
-**Methods:** POST
-
-Sets volume
-
-## /api/v1/controls/seek
-
-**Methods:** POST
-
-Seek
-
-Request JSON:
-
-```json
-{
-  "target": 10.0,
-  "flag": "absolute-percent" // if no flag provided defaults to relative
-}
-```
-
-### Flags
-
-- relative (Default)
-- absolute
-- absolute-percent
-- relative-percent
-- keyframes
-- exact
-
 # Tracks
 
 ## /api/v1/tracks
@@ -451,6 +355,118 @@ Add subtitle file.
 - select
 - auto
 - cached
+
+# Filebrowser
+
+Basic filebrowser which only accepts paths which included at server configured variable `mpvremote-filebrowserpaths`
+
+## /api/v1/filebrowser/paths
+
+**Methods**: GET
+
+**Response codes:** 200
+
+Returns content of `mpvremote-filebrowserpaths` option paths indexed.
+
+Response JSON:
+
+```json
+[
+  {
+    "index": 0,
+    "path": "/home/usr/media1"
+  },
+  {
+    "index": 1,
+    "path": "/home/usr/media2"
+  },
+  {
+    "index": 2,
+    "path": "/home/usr/media3"
+  }
+]
+```
+
+## /api/v1/filebrowser/browse/:index
+
+**Methods**: GET
+
+**Response codes:** 200, 404
+
+**Optional query parameters:**
+
+- **sortBy (DEFAULT: filename):** Sorts by specified column, available values: lastModified, filename
+
+**Note:** Only MPV supported fileformats will return. [Supported file formats](https://github.com/husudosu/mpv-remote-node/blob/master/fileformats.js)
+
+Returns files with types:
+
+```json
+[
+  {
+    "filename": "St. Anger",
+    "type": "directory",
+    "path": "/home/usr/media1/St. Anger",
+    "lastModified": "1970-01-01 00:00:00"
+  },
+  {
+    "filename": "One Piece 01.mkv",
+    "type": "video",
+    "path": "/home/usr/media1/One Piece 01.mkv",
+    "lastModified": "1970-01-01 00:00:00",
+    "mediaStatus": {
+      "directory": "/home/usr/media1/",
+      "file_name": "One Piece 01.mkv",
+      "current_time": 100.2, // Float
+      "finished": 0 // 0 - Finished, 1 - unfinished
+    } // Media status appears only if enabled on backend!
+  },
+  {
+    "filename": "One Piece 01.ass",
+    "type": "subtitle",
+    "path": "/home/usr/media1/One Piece 01.ass",
+    "lastModified": "1970-01-01 00:00:00"
+  },
+  {
+    "filename": "Metallica - Orion.flac",
+    "type": "audio",
+    "path": "/home/usr/media1/Metallica - Orion.flac",
+    "lastModified": "1970-01-01 00:00:00"
+  }
+]
+```
+
+## /api/v1/drives
+
+Gets drives from server.
+Only if `mpvremote-unsafefilebrowsing=1`.
+
+If unsafe filebrowsing is disabled returns an error.
+
+Note for Linux users: snap, flatpak virtual drives will be excluded!
+
+**Response JSON:**
+
+```json
+// Windows Example
+[
+  {
+    "path": "C:\\"
+  },
+  {
+    "path": "D:\\"
+  }
+]
+// Unix systems
+[
+  {
+    "path": "/"
+  },
+  {
+    "path": "/home"
+  }
+]
+```
 
 # Collections
 
