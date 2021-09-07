@@ -365,10 +365,11 @@ app.post("/api/v1/tracks/sub/timing/:seconds", async (req, res) => {
   }
 });
 
-// TODO Ass override
+// TODO Check API spec
 app.post("/api/v1/sub/ass-override/:value", async (req, res) => {
   try {
     await mpv.setProperty("sub-ass-override", req.params.value);
+    return res.json({ message: "success" });
   } catch (exc) {
     console.log(exc);
     return res.status(500).json({ message: exc });
@@ -495,11 +496,13 @@ app.post("/api/v1/playlist/move", async (req, res) => {
   }
 });
 
+// TODO Change API SPEC
 app.post("/api/v1/playlist/play/:index", async (req, res) => {
   try {
     await mpv.command("playlist-play-index", [req.params.index]);
     await mpv.play();
-    return res.json({ message: "success" });
+    // return res.json({ message: "success" });
+    return res.json(await getPlaylist());
   } catch (exc) {
     console.log(exc);
     return res.status(500).json({ message: exc });
@@ -710,10 +713,16 @@ app.get("/api/v1/mpvinfo", async (req, res) => {
 });
 
 function shutdownAction(action) {
-  if (action == "shutdown")
-    exec(os.platform == "win32" ? WIN_SHUTDOWN_COMMAND : UNIX_SHUTDOWN_COMMAND);
-  if (action == "reboot")
-    exec(os.platform == "win32" ? WIN_REBOOT_COMMAND : UNIX_REBOOT_COMMAND);
+  switch (action) {
+    case "shutdown":
+      exec(
+        os.platform == "win32" ? WIN_SHUTDOWN_COMMAND : UNIX_SHUTDOWN_COMMAND
+      );
+      break;
+    case "reboot":
+      exec(os.platform == "win32" ? WIN_REBOOT_COMMAND : UNIX_REBOOT_COMMAND);
+      break;
+  }
 }
 
 // TODO:  Add to API spec
@@ -972,12 +981,8 @@ async function getMPVProps() {
     props.position = (await mpv.getProperty("time-pos")) || 0.0;
     props.remaining = (await mpv.getProperty("time-remaining")) || 0.0;
     props.fullscreen = (await mpv.getProperty("fullscreen")) || false;
-
     props.playlist = (await getPlaylist()) || [];
-
     props["media-title"] = await mpv.getProperty("media-title");
-    // Chapter not works on Windows 10, interesting...
-    // props.chapter = (await mpv.getProperty("chapter")) || 0;
     props["chapter-list"] = (await getChapters()) || [];
     props.speed = await mpv.getProperty("speed");
     props["sub-delay"] = (await mpv.getProperty("sub-delay")) || 0;
