@@ -12,7 +12,7 @@ Requirements:
 
 This plugin & app currently only a development version, so not available on NPM yet.
 
-You can find installer scripts for windows and linux. Simply download it and run it. On windows you should run the automated installer as Administrator.
+You can find installer scripts for windows and linux. Simply download it and run it. On windows you should run the automated installer as administrator.
 
 ## Manual installation
 
@@ -26,28 +26,10 @@ mpv-remote
 
 # How to run MPV
 
-If you don't want MPV close after playback finished use --idle flag
+If you don't want MPV close after playback finished use --idle flag or you can add `idle=yes` to your mpv.conf.
 
 ```
 mpv --idle
-```
-
-## Windows
-
-I'm gonna make an installer for the project, which will do everything for you on Windows.
-Until then:
-
-- Create a shortcut of MPV (to desktop)
-- Right click on shortcut and select properties
-- Add --idle to the end of target
-- Apply/Ok
-
-Now if you launch MPV with that shortcut it's gonna launch with idle mode.
-Also you can add this shortcut to startup.
-Startup directory can accessed by using Run (WINDOWS + R shortcut) and typing this:
-
-```
-Shell:startup
 ```
 
 # Configuration variables

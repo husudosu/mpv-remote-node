@@ -1,3 +1,19 @@
+# Responses
+
+Default responses, if not specified for the route:
+
+**On success (200):**
+
+```json
+{ "message": "success" }
+```
+
+**On failure (Internal server error 500):**
+
+```json
+{ "error": "JS exception message" }
+```
+
 # API Routes
 
 - MPV Status
@@ -22,47 +38,103 @@ Example response:
 
 ```json
 {
-  "audio-delay": 0, // <-- milliseconds
-  "chapter": 0, // <-- current chapter
-  "chapters": 0, // <-- chapters count
-  "chapter-list": [
-    // Array length == "chapters".
-    {
-      "title": "Chapter 0",
-      "time": 0 // <-- start time in seconds
-    }
-  ],
-  "duration": 6.024, // <-- seconds
-  "filename": "01 - dummy.mp3",
-  "fullscreen": false,
-  "loop-file": false, // <-- false, true or integer
-  "loop-playlist": false, // <-- false, `inf`, `force` or integer
-  "metadata": {
-    // <-- all metadata available to MPV
-    "album": "Dummy Album",
-    "artist": "Dummy Artist",
-    "comment": "0",
-    "date": "2020",
-    "encoder": "Lavc57.10",
-    "genre": "Jazz",
-    "title": "First dummy"
-  },
   "pause": true,
+  "mute": false,
+  "filename": "[SR] Gintama - 004 [DVDRip 1280x960 x264 AAC].mkv",
+  "duration": 1495.369,
+  "position": 1.71,
+  "remaining": 1493.659,
+  "media-title": "Gintama - 004",
   "playlist": [
     {
+      "index": 0,
+      "id": 1,
+      "filePath": "/home/sudosu/media1/[SR] Gintama - 004 [DVDRip 1280x960 x264 AAC].mkv",
       "current": true,
-      "filename": "./environment/test_media/01 - dummy.mp3",
-      "playing": true
-    },
-    { "filename": "./environment/test_media/02 - dummy.mp3" },
-    { "filename": "./environment/test_media/03 - dummy.mp3" }
+      "filename": "[SR] Gintama - 004 [DVDRip 1280x960 x264 AAC].mkv"
+    }
   ],
-  "position": -0.0, // <-- seconds
-  "remaining": 6.024, // <-- seconds
-  "speed": 1, // <-- multiplier
-  "sub-delay": 0, // <-- milliseconds
-  "volume": 0,
-  "volume-max": 130
+  "chapter-list": [
+    {
+      "title": "Intro",
+      "time": 0
+    },
+    {
+      "title": "OP",
+      "time": 40
+    },
+    {
+      "title": "Info A",
+      "time": 130.1
+    },
+    {
+      "title": "A part",
+      "time": 140.1
+    },
+    {
+      "title": "B part",
+      "time": 1089
+    },
+    {
+      "title": "C part",
+      "time": 1129
+    },
+    {
+      "title": "ED",
+      "time": 1374.9
+    },
+    {
+      "title": "Preview",
+      "time": 1464.9
+    },
+    {
+      "title": "Info B",
+      "time": 1479.9
+    },
+    {
+      "title": "Outro",
+      "time": 1489.9
+    }
+  ],
+  "volume": 100,
+  "fullscreen": false,
+  "speed": 1,
+  "sub-delay": 0,
+  "sub-visibility": true,
+  "track-list": [
+    {
+      "index": 0,
+      "id": 1,
+      "type": "video",
+      "selected": true,
+      "codec": "h264",
+      "demux-w": 1280,
+      "demux-h": 960
+    },
+    {
+      "index": 1,
+      "id": 1,
+      "type": "audio",
+      "selected": true,
+      "codec": "aac",
+      "demux-channel-count": 2,
+      "demux-channels": "unknown2",
+      "demux-samplerate": 48000,
+      "lang": "jpn"
+    },
+    {
+      "index": 2,
+      "id": 1,
+      "type": "sub",
+      "selected": true,
+      "codec": "ass",
+      "lang": "hun"
+    }
+  ],
+  "audio-delay": 0,
+  "sub-font-size": 55,
+  "sub-ass-override": true,
+  "metadata": {}
 }
 ```
 
@@ -251,12 +323,39 @@ Shuffle the playlist.
 
 Gets all audio, video, subtitle tracks.
 
-TODO
-
 Example response:
 
 ```json
-[]
+[
+  {
+    "index": 0,
+    "id": 1,
+    "type": "video",
+    "selected": true,
+    "codec": "h264",
+    "demux-w": 1280,
+    "demux-h": 960
+  },
+  {
+    "index": 1,
+    "id": 1,
+    "type": "audio",
+    "selected": true,
+    "codec": "aac",
+    "demux-channel-count": 2,
+    "demux-channels": "unknown2",
+    "demux-samplerate": 48000,
+    "lang": "jpn"
+  },
+  {
+    "index": 2,
+    "id": 1,
+    "type": "sub",
+    "selected": true,
+    "codec": "ass",
+    "lang": "hun"
+  }
+]
 ```
 
 ## /api/v1/tracks/audio/reload/:id
