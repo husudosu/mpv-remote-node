@@ -49,7 +49,6 @@ console.log(
         : `ln -s "${target1}" "${link1}"`
     }`,
     "",
-    `You can edit your port settings here: ${link}`,
     "Download the Android app here: https://github.com/husudosu/mpv-remote-app/blob/master/android/app/release/app-release.apk",
   ].join("\n")
 );
