@@ -712,14 +712,17 @@ app.get("/api/v1/mpvinfo", async (req, res) => {
   }
 });
 
-function shutdownAction(action) {
+async function shutdownAction(action) {
   switch (action) {
     case "shutdown":
+      // First stop MPV playback to save playback data
+      await mpv.stop();
       exec(
         os.platform == "win32" ? WIN_SHUTDOWN_COMMAND : UNIX_SHUTDOWN_COMMAND
       );
       break;
     case "reboot":
+      await mpv.stop();
       exec(os.platform == "win32" ? WIN_REBOOT_COMMAND : UNIX_REBOOT_COMMAND);
       break;
   }

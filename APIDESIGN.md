@@ -210,7 +210,7 @@ Request JSON:
 
 **Response codes:** 200, 422
 
-**Related MPV documentation:** https://mpv.io/manual/master/#command-interface-[%3Coptions%3E]]
+**Related MPV documentation:** https://mpv.io/manual/master/#command-interface-[%3Coptions%3E]
 
 ### **GET**
 
