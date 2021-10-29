@@ -15,7 +15,7 @@
     "node-mpv": "^2.0.0-beta.2",
     "sqlite": "^4.0.23",
     "sqlite3": "^5.0.2",
-    "yargs": "^17.1.1"
+    "yargs": "^17.2.1"
   },
   "type": "commonjs",
   "keywords": [

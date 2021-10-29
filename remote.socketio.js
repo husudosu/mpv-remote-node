@@ -277,7 +277,7 @@ app.post("/api/v1/controls/volume/:value", async (req, res) => {
 
 app.post("/api/v1/controls/mute", async (req, res) => {
   try {
-    await mpv.toggleMute();
+    await mpv.mute();
     return res.json({ message: "success" });
   } catch (exc) {
     console.log(exc);
