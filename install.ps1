@@ -1,5 +1,21 @@
 # Automated installer for mpvremote Windows version 
 
+$MPV_PATH = "%APPDATA%/mpv";
+if ($Env:MPV_HOME){
+    $MPV_PATH = $Env:MPV_HOME
+}
+
+# Script path for older Powershell versions.
+$scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
+
+$pluginPath = Join-Path -Path "$scriptPath" -ChildPath "mpvremote"
+$mainPath = Join-Path -Path "$scriptPath" -ChildPath "remote.socketio.js"
+$watchlistHandlerPath = Join-Path -Path "$scriptPath" -ChildPath "watchlisthandler.js"
+
+$destPluginPath = Join-Path -Path "$MPV_PATH" -ChildPath "\scripts\mpvremote"
+$destMainPath = Join-Path -Path "$destPluginPath" -ChildPath "remote.socketio.js"
+$destWatchlistHandlerPath = Join-Path -Path "$destPluginPath" -ChildPath "watchlisthandler.js"
+
 function Check-Command($cmdname)
 {
     return [bool](Get-Command -Name $cmdname -ErrorAction SilentlyContinue)
@@ -19,7 +35,7 @@ function Install-NodeJS(){
         Refresh-Path
     }
     else {
-        "Winget not exists on your system, you have to install it manually!"
+        "Winget not exists on your system, you have to install Node manually!"
         "You can download it from here:"
         "https://nodejs.org/en/download/"
         Read-Host "If you ready press enter"
@@ -28,7 +44,7 @@ function Install-NodeJS(){
 }
 
 # Node.JS and NPM required dependency. If there's winget binary we can install it for user.
-$npmExists = Check-Command -cmdname "npm1";
+$npmExists = Check-Command -cmdname "npm";
 $wingetExists = Check-Command -cmdname "winget";
 
 if (-NOT $npmExists){
@@ -43,5 +59,18 @@ if (-NOT $npmExists){
     }
     else {
         "Not installing"
+        Exit;
     }
 }
+
+# Check if still not exits
+$npmExists = Check-Command -cmdname "npm";
+if (-NOT $npmExists){
+    "Node JS still not installed, quiting.";
+    Exit;
+}
+
+"npm install ."
+"xcopy /i $pluginPath $destPluginPath"
+"New-Item -ItemType SymbolicLink -Path $destMainPath -Target $mainPath"
+"New-Item -ItemType SymbolicLink -Path $destWatchlistHandlerPath -Target $watchlistHandlerPath"
