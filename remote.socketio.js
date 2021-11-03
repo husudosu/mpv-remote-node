@@ -87,7 +87,7 @@ app.use(express.json());
 
 const mpv = new mpvAPI({
   socket: socketName,
-  verbose: false,
+  verbose: true,
 });
 
 function stringIsAValidUrl(s) {
@@ -215,6 +215,26 @@ app.post("/api/v1/controls/play-pause", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.log(exc);
+    return res.status(500).json({ message: exc });
+  }
+});
+
+// TODO: Add to API spec
+app.post("/api/v1/controls/play", async (req, res) => {
+  try {
+    await mpv.play();
+    return res.json({ messsage: "success" });
+  } catch (exc) {
+    return res.status(500).json({ message: exc });
+  }
+});
+
+// TODO: Add to API spec
+app.post("/api/v1/controls/pause", async (req, res) => {
+  try {
+    await mpv.pause();
+    return res.json({ messsage: "success" });
+  } catch (exc) {
     return res.status(500).json({ message: exc });
   }
 });
@@ -725,17 +745,28 @@ async function shutdownAction(action) {
       await mpv.stop();
       exec(os.platform == "win32" ? WIN_REBOOT_COMMAND : UNIX_REBOOT_COMMAND);
       break;
+    case "quit":
+      await mpv.stop();
+
+      break;
   }
 }
 
 // TODO:  Add to API spec
 app.post("/api/v1/computer/:action", async (req, res) => {
   try {
-    if (req.params.action != "shutdown" && req.params.action != "reboot") {
-      return res.status(400).json({ message: "Invalid action" });
+    switch (req.params.action) {
+      case "shutdown":
+      case "reboot":
+      case "quit":
+        shutdownAction(req.params.action);
+        break;
+      default:
+        return res.status(400).json({ message: "Invalid action" });
     }
-    shutdownAction(req.params.action);
-  } catch (exc) {}
+  } catch (exc) {
+    console.log(exc);
+  }
 });
 
 mpv.on("status", async (status) => {
