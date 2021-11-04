@@ -11,9 +11,9 @@ const fs = require("fs");
 const pluginDir = path.join(__dirname, "mpvremote");
 const pluginTarget = path.join(getScriptFolder());
 
-const target = path.join(__dirname, "remote.socketio.js");
+const target = path.join(__dirname, "remoteServer.js");
 const target1 = path.join(__dirname, "watchlisthandler.js");
-const link = path.join(getScriptFolder(), "mpvremote", "remote.socketio.js");
+const link = path.join(getScriptFolder(), "mpvremote", "remoteServer.js");
 const link1 = path.join(getScriptFolder(), "mpvremote", "watchlisthandler.js");
 
 // const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8'));

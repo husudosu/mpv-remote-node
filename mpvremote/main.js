@@ -7,11 +7,11 @@ ES5 syntax works only.
 */
 
 var options = {
-  uselocaldb: 0,
+  uselocaldb: 1,
   filebrowserpaths: "",
   webport: 8000,
   address: "",
-  unsafefilebrowsing: 0,
+  unsafefilebrowsing: 1,
 };
 
 mp.options.read_options(options, "mpvremote");
@@ -47,7 +47,7 @@ function getScriptPath(filename) {
   return s.join(pathsep);
 }
 
-var scriptPath = getScriptPath("remote.socketio.js");
+var scriptPath = getScriptPath("remoteServer.js");
 var watchlistHandlerPath = getScriptPath("watchlisthandler.js");
 
 var socketName = getMPVSocket();
