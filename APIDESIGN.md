@@ -1,6 +1,6 @@
 # Responses
 
-Default responses, if not specified for the route:
+Default responses:
 
 **On success (200):**
 
@@ -26,11 +26,15 @@ Default responses, if not specified for the route:
 
 # Status
 
+## /api/v1/mpvinfo
+
+**Methods:** GET
+
+Gets info about MPV. MPV remote plugin settings also included.
+
 ## /api/v1/status
 
-Methods: GET
-
-Response codes: 200
+**Methods:** GET
 
 Gets status of the player.
 
@@ -144,7 +148,19 @@ Example response:
 
 **Methods:** POST
 
-Plays or pauses playback
+Cycles between play and pause
+
+## /api/v1/controls/play
+
+**Methods:** POST
+
+Start playback
+
+## /api/v1/controls/pause
+
+**Methods:** POST
+
+Pause playback
 
 ## /api/v1/controls/stop
 
@@ -208,8 +224,6 @@ Request JSON:
 
 **Methods:** GET, POST
 
-**Response codes:** 200, 422
-
 **Related MPV documentation:** https://mpv.io/manual/master/#command-interface-[%3Coptions%3E]
 
 ### **GET**
@@ -254,15 +268,11 @@ Puts an item to playlist.
 
 **Methods:** DELETE
 
-**Response codes:** 200, 404,
-
 Deletes a playlist item.
 
 ## /api/v1/playlist/move?fromIndex=0&toIndex=1
 
 **Methods**: POST
-
-**Response codes:** 200, 422
 
 **Related MPV documentation:** https://mpv.io/manual/master/#command-interface-playlist-move
 
@@ -277,8 +287,6 @@ Moves a playlist item (fromIndex), to desired destination (toIndex).
 
 **Methods**: POST
 
-**Response codes:** 200, 422
-
 Plays playlist item.
 
 Note: index can be current too, whcih gonna reload the current entry.
@@ -287,15 +295,11 @@ Note: index can be current too, whcih gonna reload the current entry.
 
 **Methods**: POST
 
-**Response codes:** 200, 422
-
 Playlist previous item on playlist
 
 ## /api/v1/playlist/next
 
 **Methods**: POST
-
-**Response codes:** 200, 422
 
 Playlist next item on playlist
 
@@ -303,15 +307,11 @@ Playlist next item on playlist
 
 **Methods**: POST
 
-**Response codes:** 200, 422
-
 Clears playlist.
 
 ## /api/v1/playlist/shuffle
 
 **Methods**: POST
-
-**Response codes:** 200
 
 Shuffle the playlist.
 
@@ -434,6 +434,16 @@ Possible values:
 
 Toggles subtitle visibility
 
+## /api/v1/tracks/sub/visibility/:value
+
+**Methods:** POST
+Sets subtitle visibility
+
+Values can be:
+
+- true
+- false
+
 ## /api/v1/tracks/sub/add
 
 **Methods:** POST
@@ -463,8 +473,6 @@ Basic filebrowser which only accepts paths which included at server configured v
 
 **Methods**: GET
 
-**Response codes:** 200
-
 Returns content of `mpvremote-filebrowserpaths` option paths indexed.
 
 Response JSON:
@@ -489,8 +497,6 @@ Response JSON:
 ## /api/v1/filebrowser/browse/:index
 
 **Methods**: GET
-
-**Response codes:** 200, 404
 
 **Optional query parameters:**
 
@@ -574,20 +580,124 @@ Collections entries only can be opened if `mpvremote-filebrowserpaths` contains 
 
 ## /api/v1/collections
 
-**Methods:** GET, POST, PATCH, DELETE
+**Methods:** GET, POST
 
-### GET
+### **GET**
 
-Gets collections
+Get all collections
 
-### POST
+**Response JSON:**
 
-Creates a new collection
+Array of collection.
 
-### PATCH
+### **POST**
 
-Updates a collection.
+Creates a collection
 
-### DELETE
+**type** variable/enum created for future use:
 
-Delete a collection.
+- 1: Movies
+- 2: TVShows
+- 3: Music
+
+**Request JSON:**
+
+```
+  "name": "Anime",
+  "type": 1,
+  "paths": [
+    {
+      "path": "/home/usr/media1"
+    },
+    {
+      "path": "/home/usr/media2"
+    }
+  ]
+```
+
+## /api/v1/collections/:id
+
+**Methods:** GET, PATCH, DELETE
+
+### **GET**
+
+Gets collection
+
+**Response JSON:**
+
+```json
+{
+  "id": 1,
+  "name": "Anime",
+  "type": 1,
+  "paths": [
+    {
+      "id": 1
+      "path": "/home/usr/media1"
+    },
+    {
+      "id": 2,
+      "path": "/home/usr/media2"
+    }
+  ]
+}
+```
+
+### **PATCH**
+
+Updates collection.
+
+**Request JSON:**
+
+```json
+{
+  "name": "Anime ja nai",
+  "type": 2,
+  "paths": [
+    {
+      "path": "/home/usr/media3" // Adds new path
+    },
+    {
+      "id": 2,
+      "path": "/home/usr/media2_other" // Updates existing path
+    }
+  ]
+}
+```
+
+### **DELETE**
+
+Deletes collection.
+
+## /api/v1/collections/entries/:id
+
+**Methods:** DELETE
+
+Deletes a collection entry.
+
+## /api/v1/collections/:collection_id/entries
+
+Adds collection entry to collection.
+
+**Methods:** POST
+
+**Request JSON:**
+
+```json
+{
+  "collection_id": 1,
+  "path": "/home/usr/media4"
+}
+```
+
+# Computer actions
+
+## /api/v1/computer/:action
+
+**Methods:** POST
+
+action can be:
+
+- shutdown
+- reboot
+- quit

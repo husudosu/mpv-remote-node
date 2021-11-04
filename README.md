@@ -11,13 +11,13 @@ API documentation accessible here.
 
 ### Note about youtube-dl
 
-youtube-dl buffers too much for me, so I've changed to yt-dlp and no issues at all.
+youtube-dl buffers too much for me (Windows 10), so I've changed to yt-dlp and no issues at all.
 
 ### Install package
 
 ```bash
 npm install -g npm-package url
-mpv-remote # For instructions
+mpv-remote # Follow instructions
 ```
 
 # How to run MPV
@@ -55,7 +55,7 @@ Example configuration file:
 # ~/.config/mpv/script-opts/mpvremote.conf
 uselocaldb=1
 webport=8000
-unsafefilebrowsing=0
+unsafefilebrowsing=1
 filebrowserpaths="'/home/usr/Steins;Gate';'/home/usr/media2'"
 ```
 

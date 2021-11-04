@@ -9,12 +9,15 @@ const os = require("os");
 const fs = require("fs");
 
 const pluginDir = path.join(__dirname, "mpvremote");
-const pluginTarget = path.join(getScriptFolder());
+const MPVHome = getMPVHome();
+const scriptFolder = path.join(MPVHome, "scripts");
+const scriptOptsFolder = path.join(MPVHome, "script-opts");
 
 const target = path.join(__dirname, "remoteServer.js");
 const target1 = path.join(__dirname, "watchlisthandler.js");
-const link = path.join(getScriptFolder(), "mpvremote", "remoteServer.js");
-const link1 = path.join(getScriptFolder(), "mpvremote", "watchlisthandler.js");
+const target2 = path.join(__dirname, "mpvremote.conf");
+const link = path.join(scriptFolder, "mpvremote", "remoteServer.js");
+const link1 = path.join(scriptFolder, "mpvremote", "watchlisthandler.js");
 
 // const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8'));
 
@@ -31,8 +34,8 @@ console.log(
     "",
     `  ${
       os.platform() === "win32"
-        ? `xcopy /i "${pluginDir}" "${path.join(pluginTarget, "mpvremote")}"`
-        : `mkdir -p "${pluginTarget}" && cp -r "${pluginDir}" "${pluginTarget}"`
+        ? `xcopy /i "${pluginDir}" "${path.join(scriptFolder, "mpvremote")}"`
+        : `mkdir -p "${scriptFolder}" && cp -r "${pluginDir}" "${scriptFolder}"`
     }`,
     "",
     "You need to symlink the script file to your MPV scripts folder:",
@@ -42,18 +45,23 @@ console.log(
         ? `mklink "${link}" "${target}"\n  or\n  New-Item -ItemType SymbolicLink -Path "${link}" -Target "${target}"`
         : `ln -s "${target}" "${link}"`
     }`,
+    "Copy default config file by using:",
+    `  ${
+      os.platform() === "win32"
+        ? `echo f | xcopy /f /y ${scriptOptsFolder} ${target2}"`
+        : `mkdir -p "${scriptOptsFolder}" && cp -r "${target2}" "${scriptOptsFolder}"`
+    }`,
     "If you want save media status do this:",
     `  ${
       os.platform() === "win32"
         ? `mklink "${link1}" "${target1}"\n  or\n  New-Item -ItemType SymbolicLink -Path "${link1}" -Target "${target1}"`
         : `ln -s "${target1}" "${link1}"`
     }`,
-    "",
     "Download the Android app here: https://github.com/husudosu/mpv-remote-app/blob/master/android/app/release/app-release.apk",
   ].join("\n")
 );
 
-function getScriptFolder() {
+function getMPVHome() {
   let mpvHome;
 
   if (os.platform() === "win32") {
@@ -65,6 +73,5 @@ function getScriptFolder() {
       mpvHome = path.join(xdgConfigHome, "mpv");
     }
   }
-
-  return path.join(mpvHome, "scripts");
+  return mpvHome;
 }

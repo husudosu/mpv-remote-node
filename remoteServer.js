@@ -115,7 +115,6 @@ function detectFileType(extension) {
 
 async function getDirectoryContents(qpath) {
   // TODO Handle exceptions
-  // TODO: Sorting
   let content = [];
 
   // Add path seperator to qpath end
@@ -170,7 +169,6 @@ async function getDirectoryContents(qpath) {
   return content;
 }
 
-// TODO Add to API spec
 app.get("/api/v1/drives", cors(CORSOPTIONS), async (req, res) => {
   try {
     if (argv.unsafefilebrowsing) {
@@ -219,7 +217,6 @@ app.post("/api/v1/controls/play-pause", async (req, res) => {
   }
 });
 
-// TODO: Add to API spec
 app.post("/api/v1/controls/play", async (req, res) => {
   try {
     await mpv.play();
@@ -229,7 +226,6 @@ app.post("/api/v1/controls/play", async (req, res) => {
   }
 });
 
-// TODO: Add to API spec
 app.post("/api/v1/controls/pause", async (req, res) => {
   try {
     await mpv.pause();
@@ -385,7 +381,6 @@ app.post("/api/v1/tracks/sub/timing/:seconds", async (req, res) => {
   }
 });
 
-// TODO Check API spec
 app.post("/api/v1/sub/ass-override/:value", async (req, res) => {
   try {
     await mpv.setProperty("sub-ass-override", req.params.value);
@@ -416,7 +411,6 @@ app.post("/api/v1/tracks/sub/toggle-visibility", async (req, res) => {
   }
 });
 
-// TODO: Missing from API spec
 app.post("/api/v1/tracks/sub/visibility/:value", async (req, res) => {
   try {
     let val = req.params.value.toLowerCase() == "true" ? true : false;
