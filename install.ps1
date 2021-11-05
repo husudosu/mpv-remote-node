@@ -18,7 +18,38 @@ $destScriptOptsPath = Join-Path "$MPV_PATH" -ChildPath "\script-opts\mpvremote.c
 $destMainPath = Join-Path -Path "$destPluginPath" -ChildPath "remoteServer.js"
 $destWatchlistHandlerPath = Join-Path -Path "$destPluginPath" -ChildPath "watchlisthandler.js"
 
-"xcopy /i $pluginPath $destPluginPath"
-"echo f | xcopy /f /y $scriptOptsPath $destscriptOptsPath"
-"New-Item -ItemType SymbolicLink -Path $destMainPath -Target $mainPath"
-"New-Item -ItemType SymbolicLink -Path $destWatchlistHandlerPath -Target $watchlistHandlerPath"
+function Check-IsElevated
+ {
+    $id = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+    $p = New-Object System.Security.Principal.WindowsPrincipal($id)
+    if ($p.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator))
+   { Write-Output $true }      
+    else
+   { Write-Output $false }   
+ }
+
+
+if (-NOT(Check-IsElevated)){
+    "For creating symbolic links, you need run this script as administrator!"
+    Exit
+}
+
+# Copy base plugin directory
+xcopy /i $pluginPath $destPluginPath
+# Symlink for remoteServer.js
+New-Item -ItemType SymbolicLink -Path $destMainPath -Target $mainPath
+
+$shouldUseWatchlist = Read-Host "Use watchlist handler? [Y/N](Default:Y)"
+if ($shouldUseWatchlist -ne "N"){
+    New-Item -ItemType SymbolicLink -Path $destWatchlistHandlerPath -Target $watchlistHandlerPath
+}
+
+$shouldCopyConfig = Read-Host "Copy default config? [Y/N](Default:Y)"
+
+if ($shouldCopyConfig.ToUpper() -ne "N"){
+    echo "f" | xcopy /f /y $scriptOptsPath $destscriptOptsPath
+}
+
+
+"Wizzard done. MPV remote should launch when running MPV"
+"Download the Android app here: https://github.com/husudosu/mpv-remote-app/blob/master/android/app/release/app-release.apk"
