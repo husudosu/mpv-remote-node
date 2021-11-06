@@ -1,6 +1,6 @@
 # Postman
 
-[You can download Postman collection and environment here](postman)
+[You can download Postman collection and environment here](https://github.com/husudosu/mpv-remote-node/tree/master/postman)
 
 For safety reasons computer actions route not included!
 
