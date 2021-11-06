@@ -18,14 +18,14 @@ youtube-dl buffers too much for me (Windows 10 & 11), so I've changed to yt-dlp 
 **Linux:**
 
 ```bash
-sudo npm install -g npm-package url
+sudo npm install -g mpv-remote
 mpv-remote # Follow instructions
 ```
 
 **Windows:**
 
 ```bash
-npm install -g npm-package url
+npm install -g mpv-remote
 mpv-remote # Follow instructions
 ```
 
