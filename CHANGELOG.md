@@ -9,5 +9,5 @@
 - Get MPV version info and plugin settings via route, can be useful when building your own implementation of frontend.
 - Filebrowser entries improved and extended with file/directory last modified date
 - Ability to change audio timing
-- Installer PowerShell script
+- Installer PowerShell and bash script
 - remote.socketio.js renamed to remoteServer.js

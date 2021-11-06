@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 /*
 Launcher came from here.
 https://github.com/mrxdst/webtorrent-mpv-hook/blob/master/src/bin.ts
@@ -21,7 +20,6 @@ const bashInstaller = path.join(__dirname, "install.sh");
 const link = path.join(scriptFolder, "mpvremote", "remoteServer.js");
 const link1 = path.join(scriptFolder, "mpvremote", "watchlisthandler.js");
 
-// const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8'));
 const readline = require("readline");
 const rl = readline.createInterface({
   input: process.stdin,
@@ -110,10 +108,3 @@ rl.question("Would you like use wizzard installer? [Y/N]:", (answer) => {
       break;
   }
 });
-
-// rl.question("What is your name ? ", function (name) {
-//   rl.question("Where do you live ? ", function (country) {
-//     console.log(`${name}, is a citizen of ${country}`);
-//     rl.close();
-//   });
-// });
