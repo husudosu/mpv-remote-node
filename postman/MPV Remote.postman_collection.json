@@ -1,0 +1,1860 @@
+{
+	"info": {
+		"_postman_id": "f303aa5d-e14d-4fb1-99f7-c65c5e50badf",
+		"name": "MPV Remote",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Status",
+			"item": [
+				{
+					"name": "MPV Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/mpvinfo",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"mpvinfo"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "MPV Info",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/mpvinfo",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"mpvinfo"
+									]
+								}
+							},
+							"_postman_previewlanguage": "json",
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"ffmpeg-version\": \"git-2021-10-10-b4d665bf6\",\r\n    \"mpv-version\": \"mpv 0.33.0-360-gb3f3c3fec0\",\r\n    \"libass-version\": 22028288,\r\n    \"mpvremoteConfig\": {\r\n        \"_\": [\r\n            \"\\\\\\\\.\\\\pipe\\\\mpvremote\"\r\n        ],\r\n        \"p\": 8000,\r\n        \"webport\": 8000,\r\n        \"uselocaldb\": true,\r\n        \"unsafefilebrowsing\": true,\r\n        \"$0\": \"AppData\\\\Roaming\\\\mpv\\\\scripts\\\\mpvremote\\\\remoteServer.js\"\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Playback status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/status",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"status"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "No active playback",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/status",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"status"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "300"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"12c-EqkziURYVn/MlxExvXBUS8Tj3mg\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 06 Nov 2021 08:18:38 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"pause\": false,\n    \"mute\": false,\n    \"filename\": null,\n    \"duration\": 0,\n    \"position\": 0,\n    \"remaining\": 0,\n    \"media-title\": null,\n    \"playlist\": [],\n    \"chapter\": 0,\n    \"chapter-list\": [],\n    \"volume\": 100,\n    \"fullscreen\": false,\n    \"speed\": 1,\n    \"sub-delay\": 0,\n    \"sub-visibility\": true,\n    \"track-list\": [],\n    \"audio-delay\": 0,\n    \"sub-font-size\": 55,\n    \"sub-ass-override\": \"no\"\n}"
+						},
+						{
+							"name": "Active playback",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/status",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"status"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1773"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"6ed-XFDKN7pIkjXe/MozYKQiDZDb9SU\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 06 Nov 2021 08:26:18 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"pause\": true,\n    \"mute\": false,\n    \"filename\": \"Dorohedoro 02 - In the Bag - Eat Quietly During Meals - My Neighbor the Sorcerer.mkv\",\n    \"duration\": 1422.061,\n    \"position\": 71.787,\n    \"remaining\": 1350.274,\n    \"media-title\": \"Dorohedoro 02 - In the Bag | Eat Quietly During Meals | My Neighbor the Sorcerer\",\n    \"playlist\": [\n        {\n            \"index\": 0,\n            \"id\": 1,\n            \"filePath\": \"V:\\\\anime\\\\Vivy - Fluorite Eye's Song S01 1080p\\\\Vivy - Fluorite Eye's Song - E02.mkv\",\n            \"filename\": \"Vivy - Fluorite Eye's Song - E02.mkv\"\n        },\n        {\n            \"index\": 1,\n            \"id\": 2,\n            \"filePath\": \"V:\\\\anime\\\\Dorohedoro S01+OVA (BD 1080p)\\\\Dorohedoro 02 - In the Bag - Eat Quietly During Meals - My Neighbor the Sorcerer.mkv\",\n            \"current\": true,\n            \"filename\": \"Dorohedoro 02 - In the Bag - Eat Quietly During Meals - My Neighbor the Sorcerer.mkv\"\n        }\n    ],\n    \"chapter\": 0,\n    \"chapter-list\": [\n        {\n            \"title\": \"Intro\",\n            \"time\": 0\n        },\n        {\n            \"title\": \"OP\",\n            \"time\": 68.986\n        },\n        {\n            \"title\": \"Part A\",\n            \"time\": 159.034\n        },\n        {\n            \"title\": \"Part B\",\n            \"time\": 589.089\n        },\n        {\n            \"title\": \"ED\",\n            \"time\": 1316.023\n        },\n        {\n            \"title\": \"Preview\",\n            \"time\": 1406.03\n        }\n    ],\n    \"volume\": 100,\n    \"fullscreen\": false,\n    \"speed\": 1,\n    \"sub-delay\": 0,\n    \"sub-visibility\": true,\n    \"track-list\": [\n        {\n            \"index\": 0,\n            \"id\": 1,\n            \"type\": \"video\",\n            \"selected\": true,\n            \"codec\": \"hevc\",\n            \"demux-w\": 1920,\n            \"demux-h\": 1080\n        },\n        {\n            \"index\": 1,\n            \"id\": 1,\n            \"type\": \"audio\",\n            \"selected\": true,\n            \"codec\": \"opus\",\n            \"demux-channel-count\": 2,\n            \"demux-channels\": \"unknown2\",\n            \"demux-samplerate\": 48000,\n            \"lang\": \"jpn\"\n        },\n        {\n            \"index\": 2,\n            \"id\": 2,\n            \"type\": \"audio\",\n            \"selected\": false,\n            \"codec\": \"opus\",\n            \"demux-channel-count\": 2,\n            \"demux-channels\": \"unknown2\",\n            \"demux-samplerate\": 48000,\n            \"lang\": \"eng\"\n        },\n        {\n            \"index\": 3,\n            \"id\": 1,\n            \"type\": \"sub\",\n            \"selected\": true,\n            \"codec\": \"subrip\",\n            \"lang\": \"hun\"\n        },\n        {\n            \"index\": 4,\n            \"id\": 2,\n            \"type\": \"sub\",\n            \"selected\": false,\n            \"codec\": \"ass\",\n            \"lang\": \"eng\"\n        },\n        {\n            \"index\": 5,\n            \"id\": 3,\n            \"type\": \"sub\",\n            \"selected\": false,\n            \"codec\": \"ass\",\n            \"lang\": \"eng\"\n        }\n    ],\n    \"audio-delay\": 0,\n    \"sub-font-size\": 55,\n    \"sub-ass-override\": true,\n    \"metadata\": {}\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Media controls",
+			"item": [
+				{
+					"name": "Play-Pause",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/controls/play-pause",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"controls",
+								"play-pause"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Play",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/controls/play",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"controls",
+								"play"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pause",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/controls/pause",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"controls",
+								"pause"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Stop",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/controls/stop",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"controls",
+								"stop"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cycle fullscreen",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/controls/fullscreen",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"controls",
+								"fullscreen"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cycle mute",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/controls/mute",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"controls",
+								"mute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Set volume to 50%",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/controls/volume/50",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"controls",
+								"volume",
+								"50"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Seek",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"target\": 50.0,\r\n    \"flag\": \"relative\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/controls/seek",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"controls",
+								"seek"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Seek relative pos",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"target\": 50.0,\r\n    \"flag\": \"relative\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/controls/seek",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"controls",
+										"seek"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "21"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"15-ga8EF/lp+ThIsc8w/OHbk4hPrME\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 06 Nov 2021 08:38:51 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"success\"\n}"
+						},
+						{
+							"name": "Seek absolute pos",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"target\": 30.0,\r\n    \"flag\": \"absolute\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/controls/seek",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"controls",
+										"seek"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "21"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"15-ga8EF/lp+ThIsc8w/OHbk4hPrME\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 06 Nov 2021 08:39:38 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"success\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Playlist",
+			"item": [
+				{
+					"name": "Get items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/playlist",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"playlist"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get items",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/playlist",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"playlist"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "550"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"226-bTB/dVgK9PfqTZO93rsmWG+eGiI\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 06 Nov 2021 08:42:27 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"index\": 0,\n        \"id\": 2,\n        \"filePath\": \"V:\\\\anime\\\\Dorohedoro S01+OVA (BD 1080p)\\\\Dorohedoro 02 - In the Bag - Eat Quietly During Meals - My Neighbor the Sorcerer.mkv\",\n        \"current\": true,\n        \"filename\": \"Dorohedoro 02 - In the Bag - Eat Quietly During Meals - My Neighbor the Sorcerer.mkv\"\n    },\n    {\n        \"index\": 1,\n        \"id\": 3,\n        \"filePath\": \"V:\\\\anime\\\\Dorohedoro S01+OVA (BD 1080p)\\\\Dorohedoro 03 - Night of the Dead ~ Duel! ~ In Front of the Main Department Store.mkv\",\n        \"filename\": \"Dorohedoro 03 - Night of the Dead ~ Duel! ~ In Front of the Main Department Store.mkv\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Add playlist item",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"filename\": \"https://www.youtube.com/watch?v=LXb3EKWsInQ\",\r\n    \"flag\": \"replace\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/playlist",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"playlist"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Append to playlist",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"filename\": \"V:\\\\anime\\\\Vivy - Fluorite Eye's Song S01 1080p\\\\Vivy - Fluorite Eye's Song - E02.mkv\",\r\n    \"flag\": \"append-play\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/playlist",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"playlist"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "21"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"15-ga8EF/lp+ThIsc8w/OHbk4hPrME\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 06 Nov 2021 08:47:21 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"success\"\n}"
+						},
+						{
+							"name": "Replace playlist",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"filename\": \"V:\\\\anime\\\\Vivy - Fluorite Eye's Song S01 1080p\\\\Vivy - Fluorite Eye's Song - E02.mkv\",\r\n    \"flag\": \"replace\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/playlist",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"playlist"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "21"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"15-ga8EF/lp+ThIsc8w/OHbk4hPrME\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 06 Nov 2021 08:48:13 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"success\"\n}"
+						},
+						{
+							"name": "Play Youtube video",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"filename\": \"https://www.youtube.com/watch?v=LXb3EKWsInQ\",\r\n    \"flag\": \"replace\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/playlist",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"playlist"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "21"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"15-ga8EF/lp+ThIsc8w/OHbk4hPrME\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 06 Nov 2021 08:49:48 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"success\"\n}"
+						},
+						{
+							"name": "Replace playlist and seek file to 60 seconds",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"filename\": \"V:\\\\anime\\\\Vivy - Fluorite Eye's Song S01 1080p\\\\Vivy - Fluorite Eye's Song - E02.mkv\",\r\n    \"flag\": \"replace\",\r\n    \"seekTo\": 60.0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/playlist",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"playlist"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "21"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"15-ga8EF/lp+ThIsc8w/OHbk4hPrME\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 06 Nov 2021 08:51:43 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Remove first item",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/playlist/remove/0",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"playlist",
+								"remove",
+								"0"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Move item",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/playlist/move?fromIndex=0&toIndex=2",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"playlist",
+								"move"
+							],
+							"query": [
+								{
+									"key": "fromIndex",
+									"value": "0"
+								},
+								{
+									"key": "toIndex",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Play an item",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/playlist/play/1",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"playlist",
+								"play",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Clear playlist",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/playlist/clear",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"playlist",
+								"clear"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Shuffle",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/playlist/shuffle",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"playlist",
+								"shuffle"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tracks",
+			"item": [
+				{
+					"name": "Audio",
+					"item": [
+						{
+							"name": "Cycle between tracks",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/tracks/audio/cycle",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"tracks",
+										"audio",
+										"cycle"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Reload track ID:2",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/tracks/audio/reload/2",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"tracks",
+										"audio",
+										"reload",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Set audio timing",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/tracks/audio/timing/5",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"tracks",
+										"audio",
+										"timing",
+										"5"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Subtitle",
+					"item": [
+						{
+							"name": "Reload track ID: 2",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/tracks/sub/reload/2",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"tracks",
+										"sub",
+										"reload",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Subtitle timing",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/tracks/sub/timing/0",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"tracks",
+										"sub",
+										"timing",
+										"0"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "ASS Override",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/tracks/sub/ass-override/yes",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"tracks",
+										"sub",
+										"ass-override",
+										"yes"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Toggle visibility",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/tracks/sub/toggle-visibility",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"tracks",
+										"sub",
+										"toggle-visibility"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Set visibility",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/tracks/sub/visibility/true",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"tracks",
+										"sub",
+										"visibility",
+										"true"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add track",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"filename\": \"V:\\\\anime\\\\Dorohedoro S01+OVA (BD 1080p)\\\\Feliratok\\\\[Judas] Dorohedoro - 03 [1080p][HEVC x265 10bit][Multi-Subs].srt\",\r\n    \"flag\": \"select\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/tracks/sub/add",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"tracks",
+										"sub",
+										"add"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Get tracks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/tracks",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"tracks"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get tracks",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/tracks",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"tracks"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "637"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"27d-suKNO6rn4DGM3+CnAnzqyYORMUU\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 06 Nov 2021 09:06:20 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"index\": 0,\n        \"id\": 1,\n        \"type\": \"video\",\n        \"selected\": true,\n        \"codec\": \"hevc\",\n        \"demux-w\": 1920,\n        \"demux-h\": 1080\n    },\n    {\n        \"index\": 1,\n        \"id\": 1,\n        \"type\": \"audio\",\n        \"selected\": true,\n        \"codec\": \"opus\",\n        \"demux-channel-count\": 2,\n        \"demux-channels\": \"unknown2\",\n        \"demux-samplerate\": 48000,\n        \"lang\": \"jpn\"\n    },\n    {\n        \"index\": 2,\n        \"id\": 2,\n        \"type\": \"audio\",\n        \"selected\": false,\n        \"codec\": \"opus\",\n        \"demux-channel-count\": 2,\n        \"demux-channels\": \"unknown2\",\n        \"demux-samplerate\": 48000,\n        \"lang\": \"eng\"\n    },\n    {\n        \"index\": 3,\n        \"id\": 1,\n        \"type\": \"sub\",\n        \"selected\": true,\n        \"codec\": \"subrip\",\n        \"lang\": \"hun\"\n    },\n    {\n        \"index\": 4,\n        \"id\": 2,\n        \"type\": \"sub\",\n        \"selected\": false,\n        \"codec\": \"ass\",\n        \"lang\": \"eng\"\n    },\n    {\n        \"index\": 5,\n        \"id\": 3,\n        \"type\": \"sub\",\n        \"selected\": false,\n        \"codec\": \"ass\",\n        \"lang\": \"eng\"\n    }\n]"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Filebrowser",
+			"item": [
+				{
+					"name": "Browse path",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"path\": \"V:\\\\anime\\\\Dorohedoro S01+OVA (BD 1080p)\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/filebrowser/browse",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"filebrowser",
+								"browse"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Browse path",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"path\": \"V:\\\\anime\\\\Dorohedoro S01+OVA (BD 1080p)\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/filebrowser/browse",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"filebrowser",
+										"browse"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "4366"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"110e-W2Hs55tXyLo4W7snTrwtjT/R+fU\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 06 Nov 2021 09:32:38 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"content\": [\n    {\n      \"priority\": 1,\n      \"type\": \"directory\",\n      \"name\": \"Feliratok\",\n      \"fullPath\": \"V:\\\\anime\\\\Dorohedoro S01+OVA (BD 1080p)\\\\Feliratok\",\n      \"lastModified\": \"2021-05-03T19:10:16.008Z\"\n    },\n    {\n      \"priority\": 2,\n      \"type\": \"video\",\n      \"name\": \"Dorohedoro 01 - Caiman.mkv\",\n      \"fullPath\": \"V:\\\\anime\\\\Dorohedoro S01+OVA (BD 1080p)\\\\Dorohedoro 01 - Caiman.mkv\",\n      \"lastModified\": \"2021-05-03T19:09:21.857Z\",\n      \"mediaStatus\": {\n        // Media status appears only when localdb enabled!\n        \"id\": 2,\n        \"directory\": \"V:\\\\anime\\\\Dorohedoro S01+OVA (BD 1080p)\",\n        \"file_name\": \"Dorohedoro 01 - Caiman.mkv\",\n        \"current_time\": 1422.0545,\n        \"finished\": 1\n      }\n    },\n    {\n      \"priority\": 2,\n      \"type\": \"video\",\n      \"name\": \"Dorohedoro 02 - In the Bag - Eat Quietly During Meals - My Neighbor the Sorcerer.mkv\",\n      \"fullPath\": \"V:\\\\anime\\\\Dorohedoro S01+OVA (BD 1080p)\\\\Dorohedoro 02 - In the Bag - Eat Quietly During Meals - My Neighbor the Sorcerer.mkv\",\n      \"lastModified\": \"2021-05-03T19:04:05.410Z\",\n      \"mediaStatus\": {\n        \"id\": 1,\n        \"directory\": \"V:\\\\anime\\\\Dorohedoro S01+OVA (BD 1080p)\",\n        \"file_name\": \"Dorohedoro 02 - In the Bag - Eat Quietly During Meals - My Neighbor the Sorcerer.mkv\",\n        \"current_time\": 596.853,\n        \"finished\": 0\n      }\n    },\n    {\n      \"priority\": 2,\n      \"type\": \"video\",\n      \"name\": \"Dorohedoro 03 - Night of the Dead ~ Duel! ~ In Front of the Main Department Store.mkv\",\n      \"fullPath\": \"V:\\\\anime\\\\Dorohedoro S01+OVA (BD 1080p)\\\\Dorohedoro 03 - Night of the Dead ~ Duel! ~ In Front of the Main Department Store.mkv\",\n      \"lastModified\": \"2021-05-03T19:04:26.434Z\"\n    }\n  ],\n  \"dirname\": \"Dorohedoro S01+OVA (BD 1080p)\",\n  \"prevDir\": \"V:\\\\anime\",\n  \"cwd\": \"V:\\\\anime\\\\Dorohedoro S01+OVA (BD 1080p)\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Paths (Only interesting if mpvremote-filebrowserpaths defined)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/filebrowser/paths",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"filebrowser",
+								"paths"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Browse path index 1 (Only interesting if mpvremote-filebrowserpaths defined)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/filebrowser/paths/1",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"filebrowser",
+								"paths",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get drives",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/drives",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"drives"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get drives (Windows)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/drives",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"drives"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "99"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"63-OKbKxXRqyUYRQu2WGQHNRCkbFbM\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 06 Nov 2021 09:44:40 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"path\": \"C:\"\n    },\n    {\n        \"path\": \"D:\"\n    },\n    {\n        \"path\": \"E:\"\n    },\n    {\n        \"path\": \"V:\"\n    },\n    {\n        \"path\": \"W:\"\n    },\n    {\n        \"path\": \"X:\"\n    },\n    {\n        \"path\": \"Y:\"\n    }\n]"
+						},
+						{
+							"name": "Get drives (Linux)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/drives",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"drives"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "160"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a0-1FoXGAYfoynPfQoMfagnvt9tpvs\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 06 Nov 2021 13:12:14 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"path\": \"/dev\"\n    },\n    {\n        \"path\": \"/run\"\n    },\n    {\n        \"path\": \"/\"\n    },\n    {\n        \"path\": \"/dev/shm\"\n    },\n    {\n        \"path\": \"/run/lock\"\n    },\n    {\n        \"path\": \"/sys/fs/cgroup\"\n    },\n    {\n        \"path\": \"/boot/efi\"\n    },\n    {\n        \"path\": \"/run/user/1000\"\n    }\n]"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Collections",
+			"item": [
+				{
+					"name": "Entries",
+					"item": [
+						{
+							"name": "Delete collection entry",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/collections/1",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"collections",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add collection entry",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"path\": \"W:\\\\anime\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/collections/1/entries",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"collections",
+										"1",
+										"entries"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Collection not exists",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"path\": \"V:\\\\torrent\\\\anime\\\\\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseURL}}/collections/1/entries",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"collections",
+												"1",
+												"entries"
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "49"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"31-oc9di03fr86OECBCbVUILmxLPiA\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 06 Nov 2021 09:54:43 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"error\": {\n        \"errno\": 19,\n        \"code\": \"SQLITE_CONSTRAINT\"\n    }\n}"
+								},
+								{
+									"name": "Add collection entry",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"path\": \"W:\\\\anime\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseURL}}/collections/1/entries",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"collections",
+												"1",
+												"entries"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "56"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"38-KvFbZUM2MBsM16wAq8cMIRAvf9c\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 06 Nov 2021 09:55:58 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"id\": 2,\n    \"collection_id\": 1,\n    \"path\": \"W:\\\\anime\\\\\"\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Get collections",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/collections",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"collections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add collection",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Anime\",\r\n    \"type\": 2,\r\n    \"paths\": [\r\n        {\r\n            \"path\": \"V:\\\\anime\"\r\n        },\r\n        {\r\n            \"path\": \"W:\\\\anime\"\r\n        }\r\n        \r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/collections",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"collections"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Add collection",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Anime\",\r\n    \"type\": 2,\r\n    \"paths\": [\r\n        {\r\n            \"path\": \"V:\\\\anime\"\r\n        },\r\n        {\r\n            \"path\": \"W:\\\\anime\"\r\n        }\r\n        \r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/collections",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"collections"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "43"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"2b-tO5RPbhP0CPR6TPKxgW7R4AeumY\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 06 Nov 2021 09:47:54 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 1,\n    \"name\": \"Anime\",\n    \"type\": 2,\n    \"paths\": []\n}"
+						}
+					]
+				},
+				{
+					"name": "Update collection",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": null
+					},
+					"response": [
+						{
+							"name": "Update collection",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Anime ja nai\",\r\n  \"type\": 2,\r\n  \"paths\": [\r\n    {\r\n      \"path\": \"/home/usr/media3\"\r\n    },\r\n    {\r\n      \"id\": 2,\r\n      \"path\": \"/home/usr/media2_other\"\r\n    }\r\n  ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/collections/1",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"collections",
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "216"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"d8-Or2otxB/wzQXXaLZEiK3M+vRhj4\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 06 Nov 2021 09:50:09 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 1,\n    \"name\": \"Anime ja nai\",\n    \"type\": 2,\n    \"paths\": [\n        {\n            \"id\": 1,\n            \"collection_id\": 1,\n            \"path\": \"V:\\\\anime\"\n        },\n        {\n            \"id\": 2,\n            \"collection_id\": 1,\n            \"path\": \"/home/usr/media2_other\"\n        },\n        {\n            \"id\": 3,\n            \"collection_id\": 1,\n            \"path\": \"/home/usr/media3\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete collection",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/collections/1",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"collections",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

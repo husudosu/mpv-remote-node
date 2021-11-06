@@ -1,7 +1,7 @@
 {
   "name": "mpv-remote",
   "version": "1.0.2",
-  "description": "MPV Socket.IO remote control",
+  "description": "MPV remote control",
   "main": "./remote.socketio.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

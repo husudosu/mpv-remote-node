@@ -64,12 +64,19 @@ if (options.filebrowserpaths.length > 0) {
 }
 if (options.unsafefilebrowsing) serverArgs.push("--unsafefilebrowsing");
 
-mp.command_native_async({
-  name: "subprocess",
-  args: serverArgs,
-  playback_only: false,
-  capture_stderr: true,
-});
+mp.command_native_async(
+  {
+    name: "subprocess",
+    args: serverArgs,
+    playback_only: false,
+    capture_stderr: true,
+  },
+  function (success, result, error) {
+    mp.msg.info(success);
+    mp.msg.info(result);
+    mp.msg.info(error);
+  }
+);
 
 // On unload MPV, need this for saving playbacktime to database
 if (options.uselocaldb) {

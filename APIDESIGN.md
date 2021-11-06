@@ -1,3 +1,9 @@
+# Postman
+
+[You can download Postman collection and environment here]()
+
+For safety reasons computer actions route not included!
+
 # Responses
 
 Default responses:
@@ -44,20 +50,27 @@ Example response:
 {
   "pause": true,
   "mute": false,
-  "filename": "[SR] Gintama - 004 [DVDRip 1280x960 x264 AAC].mkv",
-  "duration": 1495.369,
-  "position": 1.71,
-  "remaining": 1493.659,
-  "media-title": "Gintama - 004",
+  "filename": "Dorohedoro 02 - In the Bag - Eat Quietly During Meals - My Neighbor the Sorcerer.mkv",
+  "duration": 1422.061,
+  "position": 71.787,
+  "remaining": 1350.274,
+  "media-title": "Dorohedoro 02 - In the Bag | Eat Quietly During Meals | My Neighbor the Sorcerer",
   "playlist": [
     {
       "index": 0,
       "id": 1,
-      "filePath": "/home/sudosu/media1/[SR] Gintama - 004 [DVDRip 1280x960 x264 AAC].mkv",
+      "filePath": "V:\\anime\\Vivy - Fluorite Eye's Song S01 1080p\\Vivy - Fluorite Eye's Song - E02.mkv",
+      "filename": "Vivy - Fluorite Eye's Song - E02.mkv"
+    },
+    {
+      "index": 1,
+      "id": 2,
+      "filePath": "V:\\anime\\Dorohedoro S01+OVA (BD 1080p)\\Dorohedoro 02 - In the Bag - Eat Quietly During Meals - My Neighbor the Sorcerer.mkv",
       "current": true,
-      "filename": "[SR] Gintama - 004 [DVDRip 1280x960 x264 AAC].mkv"
+      "filename": "Dorohedoro 02 - In the Bag - Eat Quietly During Meals - My Neighbor the Sorcerer.mkv"
     }
   ],
+  "chapter": 0,
   "chapter-list": [
     {
       "title": "Intro",
@@ -65,39 +78,23 @@ Example response:
     },
     {
       "title": "OP",
-      "time": 40
+      "time": 68.986
     },
     {
-      "title": "Info A",
-      "time": 130.1
+      "title": "Part A",
+      "time": 159.034
     },
     {
-      "title": "A part",
-      "time": 140.1
-    },
-    {
-      "title": "B part",
-      "time": 1089
-    },
-    {
-      "title": "C part",
-      "time": 1129
+      "title": "Part B",
+      "time": 589.089
     },
     {
       "title": "ED",
-      "time": 1374.9
+      "time": 1316.023
     },
     {
       "title": "Preview",
-      "time": 1464.9
-    },
-    {
-      "title": "Info B",
-      "time": 1479.9
-    },
-    {
-      "title": "Outro",
-      "time": 1489.9
+      "time": 1406.03
     }
   ],
   "volume": 100,
@@ -111,16 +108,16 @@ Example response:
       "id": 1,
       "type": "video",
       "selected": true,
-      "codec": "h264",
-      "demux-w": 1280,
-      "demux-h": 960
+      "codec": "hevc",
+      "demux-w": 1920,
+      "demux-h": 1080
     },
     {
       "index": 1,
       "id": 1,
       "type": "audio",
       "selected": true,
-      "codec": "aac",
+      "codec": "opus",
       "demux-channel-count": 2,
       "demux-channels": "unknown2",
       "demux-samplerate": 48000,
@@ -128,11 +125,38 @@ Example response:
     },
     {
       "index": 2,
+      "id": 2,
+      "type": "audio",
+      "selected": false,
+      "codec": "opus",
+      "demux-channel-count": 2,
+      "demux-channels": "unknown2",
+      "demux-samplerate": 48000,
+      "lang": "eng"
+    },
+    {
+      "index": 3,
       "id": 1,
       "type": "sub",
       "selected": true,
-      "codec": "ass",
+      "codec": "subrip",
       "lang": "hun"
+    },
+    {
+      "index": 4,
+      "id": 2,
+      "type": "sub",
+      "selected": false,
+      "codec": "ass",
+      "lang": "eng"
+    },
+    {
+      "index": 5,
+      "id": 3,
+      "type": "sub",
+      "selected": false,
+      "codec": "ass",
+      "lang": "eng"
     }
   ],
   "audio-delay": 0,
@@ -213,10 +237,6 @@ Request JSON:
 
 - relative (Default)
 - absolute
-- absolute-percent
-- relative-percent
-- keyframes
-- exact
 
 # Playlist
 
@@ -235,12 +255,18 @@ Response JSON:
 ```json
 [
   {
+    "index": 0,
+    "id": 1,
+    "filePath": "V:\\anime\\Vivy - Fluorite Eye's Song S01 1080p\\Vivy - Fluorite Eye's Song - E02.mkv",
     "current": true,
-    "filename": "./environment/test_media/01 - dummy.mp3",
-    "playing": true
+    "filename": "Vivy - Fluorite Eye's Song - E02.mkv"
   },
-  { "filename": "./environment/test_media/02 - dummy.mp3" },
-  { "filename": "./environment/test_media/03 - dummy.mp3" }
+  {
+    "index": 1,
+    "id": 2,
+    "filePath": "V:\\anime\\Dorohedoro S01+OVA (BD 1080p)\\Dorohedoro 02 - In the Bag - Eat Quietly During Meals - My Neighbor the Sorcerer.mkv",
+    "filename": "Dorohedoro 02 - In the Bag - Eat Quietly During Meals - My Neighbor the Sorcerer.mkv"
+  }
 ]
 ```
 
@@ -252,9 +278,9 @@ Puts an item to playlist.
 
 ```JSON
 {
-    "filename": "/home/user/media/test.mkv", // Required can be any URL which supported by MPV
-    "flag": "append-play",  // append-play the default
-    "seekTo": 50.1 // If you want to seek immediately after file loading.
+    "filename": "V:\\anime\\Vivy - Fluorite Eye's Song S01 1080p\\Vivy - Fluorite Eye's Song - E02.mkv",
+    "flag": "replace",
+    "seekTo": 60.0 // seekTo works only if flag is replace. Format seconds
 }
 ```
 
@@ -262,7 +288,7 @@ Puts an item to playlist.
 
 - replace
 - append
-- append-play
+- append-play (Default)
 
 ## /api/v1/playlist/remove/:index
 
@@ -332,16 +358,16 @@ Example response:
     "id": 1,
     "type": "video",
     "selected": true,
-    "codec": "h264",
-    "demux-w": 1280,
-    "demux-h": 960
+    "codec": "hevc",
+    "demux-w": 1920,
+    "demux-h": 1080
   },
   {
     "index": 1,
     "id": 1,
     "type": "audio",
     "selected": true,
-    "codec": "aac",
+    "codec": "opus",
     "demux-channel-count": 2,
     "demux-channels": "unknown2",
     "demux-samplerate": 48000,
@@ -349,11 +375,38 @@ Example response:
   },
   {
     "index": 2,
+    "id": 2,
+    "type": "audio",
+    "selected": false,
+    "codec": "opus",
+    "demux-channel-count": 2,
+    "demux-channels": "unknown2",
+    "demux-samplerate": 48000,
+    "lang": "eng"
+  },
+  {
+    "index": 3,
     "id": 1,
     "type": "sub",
     "selected": true,
-    "codec": "ass",
+    "codec": "subrip",
     "lang": "hun"
+  },
+  {
+    "index": 4,
+    "id": 2,
+    "type": "sub",
+    "selected": false,
+    "codec": "ass",
+    "lang": "eng"
+  },
+  {
+    "index": 5,
+    "id": 3,
+    "type": "sub",
+    "selected": false,
+    "codec": "ass",
+    "lang": "eng"
   }
 ]
 ```
@@ -498,47 +551,61 @@ Response JSON:
 
 **Methods**: GET
 
-**Optional query parameters:**
-
-- **sortBy (DEFAULT: filename):** Sorts by specified column, available values: lastModified, filename
-
 **Note:** Only MPV supported fileformats will return. [Supported file formats](https://github.com/husudosu/mpv-remote-node/blob/master/fileformats.js)
 
 Returns files with types:
 
 ```json
-[
-  {
-    "filename": "St. Anger",
-    "type": "directory",
-    "path": "/home/usr/media1/St. Anger",
-    "lastModified": "1970-01-01 00:00:00"
-  },
-  {
-    "filename": "One Piece 01.mkv",
-    "type": "video",
-    "path": "/home/usr/media1/One Piece 01.mkv",
-    "lastModified": "1970-01-01 00:00:00",
-    "mediaStatus": {
-      "directory": "/home/usr/media1/",
-      "file_name": "One Piece 01.mkv",
-      "current_time": 100.2, // Float
-      "finished": 0 // 0 - Finished, 1 - unfinished
-    } // Media status appears only if enabled on backend!
-  },
-  {
-    "filename": "One Piece 01.ass",
-    "type": "subtitle",
-    "path": "/home/usr/media1/One Piece 01.ass",
-    "lastModified": "1970-01-01 00:00:00"
-  },
-  {
-    "filename": "Metallica - Orion.flac",
-    "type": "audio",
-    "path": "/home/usr/media1/Metallica - Orion.flac",
-    "lastModified": "1970-01-01 00:00:00"
-  }
-]
+{
+  "content": [
+    {
+      "priority": 1,
+      "type": "directory",
+      "name": "Feliratok",
+      "fullPath": "V:\\anime\\Dorohedoro S01+OVA (BD 1080p)\\Feliratok",
+      "lastModified": "2021-05-03T19:10:16.008Z"
+    },
+    {
+      "priority": 2,
+      "type": "video",
+      "name": "Dorohedoro 01 - Caiman.mkv",
+      "fullPath": "V:\\anime\\Dorohedoro S01+OVA (BD 1080p)\\Dorohedoro 01 - Caiman.mkv",
+      "lastModified": "2021-05-03T19:09:21.857Z",
+      "mediaStatus": {
+        // Media status appears only when localdb enabled!
+        "id": 2,
+        "directory": "V:\\anime\\Dorohedoro S01+OVA (BD 1080p)",
+        "file_name": "Dorohedoro 01 - Caiman.mkv",
+        "current_time": 1422.0545,
+        "finished": 1
+      }
+    },
+    {
+      "priority": 2,
+      "type": "video",
+      "name": "Dorohedoro 02 - In the Bag - Eat Quietly During Meals - My Neighbor the Sorcerer.mkv",
+      "fullPath": "V:\\anime\\Dorohedoro S01+OVA (BD 1080p)\\Dorohedoro 02 - In the Bag - Eat Quietly During Meals - My Neighbor the Sorcerer.mkv",
+      "lastModified": "2021-05-03T19:04:05.410Z",
+      "mediaStatus": {
+        "id": 1,
+        "directory": "V:\\anime\\Dorohedoro S01+OVA (BD 1080p)",
+        "file_name": "Dorohedoro 02 - In the Bag - Eat Quietly During Meals - My Neighbor the Sorcerer.mkv",
+        "current_time": 596.853,
+        "finished": 0
+      }
+    },
+    {
+      "priority": 2,
+      "type": "video",
+      "name": "Dorohedoro 03 - Night of the Dead ~ Duel! ~ In Front of the Main Department Store.mkv",
+      "fullPath": "V:\\anime\\Dorohedoro S01+OVA (BD 1080p)\\Dorohedoro 03 - Night of the Dead ~ Duel! ~ In Front of the Main Department Store.mkv",
+      "lastModified": "2021-05-03T19:04:26.434Z"
+    }
+  ],
+  "dirname": "Dorohedoro S01+OVA (BD 1080p)",
+  "prevDir": "V:\\anime",
+  "cwd": "V:\\anime\\Dorohedoro S01+OVA (BD 1080p)"
+}
 ```
 
 ## /api/v1/drives
@@ -556,10 +623,10 @@ Note for Linux users: snap, flatpak virtual drives will be excluded!
 // Windows Example
 [
   {
-    "path": "C:\\"
+    "path": "C"
   },
   {
-    "path": "D:\\"
+    "path": "D:"
   }
 ]
 // Unix systems

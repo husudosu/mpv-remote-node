@@ -6,7 +6,6 @@ https://github.com/mrxdst/webtorrent-mpv-hook/blob/master/src/bin.ts
 */
 const path = require("path");
 const os = require("os");
-const fs = require("fs");
 
 const pluginDir = path.join(__dirname, "mpvremote");
 const MPVHome = getMPVHome();
@@ -17,6 +16,7 @@ const target = path.join(__dirname, "remoteServer.js");
 const target1 = path.join(__dirname, "watchlisthandler.js");
 const target2 = path.join(__dirname, "mpvremote.conf");
 const powershellInstaller = path.join(__dirname, "install.ps1");
+const bashInstaller = path.join(__dirname, "install.sh");
 
 const link = path.join(scriptFolder, "mpvremote", "remoteServer.js");
 const link1 = path.join(scriptFolder, "mpvremote", "watchlisthandler.js");
@@ -27,7 +27,6 @@ const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
-const { exec } = require("child_process");
 
 function printInsturctions() {
   console.log(
@@ -93,7 +92,7 @@ function automatedInstaller() {
       `Open PowerShell as admin and run this command: ${powershellInstaller}`
     );
   } else {
-    console.log("");
+    console.log(`Run this script: ${bashInstaller}`);
   }
 }
 

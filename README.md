@@ -11,11 +11,12 @@ API documentation accessible here.
 
 ### Note about youtube-dl
 
-youtube-dl buffers too much for me (Windows 10), so I've changed to yt-dlp and no issues at all.
+youtube-dl buffers too much for me (Windows 10 & 11), so I've changed to yt-dlp and no issues at all.
 
 ### Install package
 
 ```bash
+sudo apt install npm # Only on linux if using Windows install Node.JS
 npm install -g npm-package url
 mpv-remote # Follow instructions
 ```
@@ -68,6 +69,32 @@ filebrowserpaths="'/home/usr/Steins;Gate';'/home/usr/media2'"
 | mpvremote-webport            | Port of MPV backend engine                                                                                                                                                                                                            | 8000                | Any port within correct range                |
 | mpvreomte-address            | Server address                                                                                                                                                                                                                        | Your first local IP | 127.0.0.1                                    |
 | mpvremote-unsafefilebrowsing | Allows you to browse your local filesystem. Be careful though, exposing your whole filesystem not the safest option. For security reasons filebrowser only send results of media files, playlists, subtitle files and subdirectories. | 1                   | 0 - Disabled<br/> 1 - Enabled                |
+
+# Troubleshooting
+
+If the server not starts, try run it manually, to get the exception (From terminal/command prompt):
+
+```bash
+node ~/.config/mpv/scripts/mpvremote/remoteServer.js # On linux systems
+node %APPDATA%/mpv/scripts/mpvremote/remoteServer.js # On Windows from command prompt.
+```
+
+If you report server non starting issue copy the output of this command.
+
+If you get "No socket provided" output the server works fine, so there's something up with the plugin or MPV itself.
+
+## Youtube playback issues
+
+I recommend using [yt-dlp](https://github.com/yt-dlp/yt-dlp) for playing Youtube videos, but if you use youtube-dl:
+
+- If you can't play Youtube videos then try to update the **youtube-dl** package (as admin): `pip3 install --upgrade youtube-dl`
+
+## Common issues on Linux
+
+yargs requires 12 or newer version of Node.JS so you should update your Node.JS version. For example this error occours on Ubuntu 20.04.3 LTS.
+
+- [How to update Node.JS](https://askubuntu.com/questions/426750/how-can-i-update-my-nodejs-to-the-latest-version)
+- [If still not works, try update MPV to newer version](https://linuxhint.com/install-mpv-video-player-linux/)
 
 # Limitations
 

@@ -381,7 +381,7 @@ app.post("/api/v1/tracks/sub/timing/:seconds", async (req, res) => {
   }
 });
 
-app.post("/api/v1/sub/ass-override/:value", async (req, res) => {
+app.post("/api/v1/tracks/sub/ass-override/:value", async (req, res) => {
   try {
     await mpv.setProperty("sub-ass-override", req.params.value);
     return res.json({ message: "success" });
