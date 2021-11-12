@@ -12,6 +12,7 @@ var options = {
   webport: 8000,
   address: "",
   unsafefilebrowsing: 1,
+  verbose: 0,
 };
 
 mp.options.read_options(options, "mpvremote");
@@ -54,6 +55,7 @@ var socketName = getMPVSocket();
 
 var serverArgs = ["node", scriptPath, socketName, "-p " + options.webport];
 
+if (options.verbose) serverArgs.push("--verbose");
 if (options.uselocaldb) serverArgs.push("--uselocaldb");
 if (options.filebrowserpaths.length > 0) {
   var pathsArr = options.filebrowserpaths.split("';");

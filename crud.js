@@ -7,12 +7,16 @@ const DB_PATH = path.join(getScriptFolder(), "mpvremote", "remote.db");
 
 let db;
 
+function NotFoundException(message) {
+  this.message = message || "Object not found";
+  this.name = "NotFoundException";
+}
+
 // Get scripts folder
 function getScriptFolder() {
   let mpvHome;
 
   if (os.platform() === "win32") {
-    // TODO Get appdata
     mpvHome =
       process.env["MPV_HOME"] ||
       path.join(os.homedir(), "AppData", "Roaming", "mpv");
@@ -249,6 +253,12 @@ async function deleteCollection(id) {
   ***
 */
 async function createCollectionEntry(collection_id, data) {
+  // Check if collection exists
+  const collectionExists = await getCollections(collection_id);
+  if (!collectionExists) {
+    throw new NotFoundException("Collection not exists.");
+  }
+
   const dbres = await db.run(
     "INSERT INTO collection_entry (collection_id, path) VALUES (?, ?)",
     collection_id,
@@ -271,6 +281,9 @@ async function getCollectionEntries(collection_id) {
 async function deleteCollectionEntry(id) {
   await db.run("DELETE FROM collection_entry WHERE id=?", id);
 }
+
+// Exceptions
+exports.NotFoundException = NotFoundException;
 
 exports.initDB = initDB;
 // Media status entries

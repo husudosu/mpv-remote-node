@@ -9,27 +9,20 @@ const exec = require("child_process").exec;
 const express = require("express");
 const cors = require("cors");
 const mpvAPI = require("node-mpv");
-const nodeDiskInfo = require("node-disk-info");
 
 const yargs = require("yargs");
-
-const FILE_FORMATS = require("./fileformats").FILE_FORMATS;
 
 const WIN_SHUTDOWN_COMMAND = "shutdown /s /t 1";
 const WIN_REBOOT_COMMAND = "shutdown /r /t 1";
 const UNIX_SHUTDOWN_COMMAND = "/usr/sbin/shutdown now";
 const UNIX_REBOOT_COMMAND = "/usr/sbin/reboot";
 
-const {
-  initDB,
-  createCollection,
-  getCollections,
-  updateCollection,
-  deleteCollection,
-  createCollectionEntry,
-  deleteCollectionEntry,
-  getMediastatusEntries,
-} = require("./crud");
+const { initDB } = require("./crud");
+
+const filebrowser = require("./filebrowser");
+const collections = require("./collections");
+const { detectFileType } = require("./filebrowser");
+const { loadSettings, settings, CORSOPTIONS } = require("./settings");
 
 const argv = yargs
   .option("webport", {
@@ -52,42 +45,31 @@ const argv = yargs
     type: "boolean",
     default: false,
   })
+  .option("verbose", {
+    description: "Activates MPV node verbose log",
+    type: "boolean",
+    default: false,
+  })
   .help()
   .alias("help", "h").argv;
 
-// Get internal IP address
-const SERVER_IP = Object.values(os.networkInterfaces())
-  .flat()
-  .find((i) => i.family == "IPv4" && !i.internal).address;
-const SERVER_PORT = argv.webport;
-let FILEBROWSER_PATHS = argv.filebrowserpaths || [];
-
-FILEBROWSER_PATHS = FILEBROWSER_PATHS.map((el, index) => {
-  return {
-    index,
-    path: el,
-  };
-});
-
-const socketName = argv._[0];
 if (argv._.length == 0) {
   console.log("No socket provided");
   process.exit();
 }
 
-console.log(argv);
-const CORSOPTIONS = {
-  origin: "*",
-  methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH"],
-};
+loadSettings(argv);
 
 const app = express();
 app.use(cors(CORSOPTIONS));
 app.use(express.json());
 
+app.use("/", filebrowser);
+app.use("/api/v1/collections", collections);
+
 const mpv = new mpvAPI({
-  socket: socketName,
-  verbose: true,
+  socket: settings.socketName,
+  verbose: settings.verbose,
 });
 
 function stringIsAValidUrl(s) {
@@ -98,101 +80,6 @@ function stringIsAValidUrl(s) {
     return false;
   }
 }
-
-function detectFileType(extension) {
-  extension = extension.toLowerCase();
-
-  if (FILE_FORMATS.video.includes(extension)) {
-    return "video";
-  } else if (FILE_FORMATS.audio.includes(extension)) {
-    return "audio";
-  } else if (FILE_FORMATS.subtitle.includes(extension)) {
-    return "subtitle";
-  } else {
-    return "file";
-  }
-}
-
-async function getDirectoryContents(qpath) {
-  // TODO Handle exceptions
-  let content = [];
-
-  // Add path seperator to qpath end
-  /*
-  Interesting because C: (System partition) needs a path seperator to work correctly,
-  but for my network drives works without path sep.
-  */
-  if (qpath[qpath.length - 1] != path.sep) qpath += path.sep;
-  let mediaStatus = [];
-
-  if (argv.uselocaldb) mediaStatus = await getMediastatusEntries(null, qpath);
-
-  for (const item of await fs_async.readdir(qpath)) {
-    try {
-      if (fs.lstatSync(path.join(qpath, item)).isDirectory()) {
-        let entry = {
-          priority: 1,
-          type: "directory",
-          name: item,
-          fullPath: path.join(qpath, item),
-        };
-        entry.lastModified = await fs_async
-          .stat(entry.fullPath)
-          .then((stat) => stat.mtime)
-          .catch(() => null);
-
-        content.push(entry);
-      } else {
-        let fileType = detectFileType(path.extname(item));
-        // Render only media, sub types.
-        if (fileType !== "file") {
-          let entry = {
-            priority: 2,
-            type: fileType,
-            name: item,
-            fullPath: path.join(qpath, item),
-          };
-          entry.lastModified = await fs_async
-            .stat(entry.fullPath)
-            .then((stat) => stat.mtime)
-            .catch(() => null);
-          if (argv.uselocaldb)
-            entry.mediaStatus = mediaStatus.find((el) => el.file_name == item);
-
-          content.push(entry);
-        }
-      }
-    } catch (exc) {
-      console.log(exc);
-    }
-  }
-  return content;
-}
-
-app.get("/api/v1/drives", cors(CORSOPTIONS), async (req, res) => {
-  try {
-    if (argv.unsafefilebrowsing) {
-      let disks = await nodeDiskInfo.getDiskInfo();
-      // ignore snap, flatpak stuff linux
-      disks = disks.filter(
-        (disk) =>
-          !disk._mounted.includes("snap") && !disk._mounted.includes("flatpak")
-      );
-      disks = disks.map((disk) => {
-        return {
-          path: disk._mounted,
-        };
-      });
-      return res.json(disks);
-    } else
-      return res
-        .status(403)
-        .json({ message: "mpvremote-unsafefilebrowsing disabled!" });
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({ error: exc });
-  }
-});
 
 app.get("/api/v1/status", async (req, res) => {
   try {
@@ -510,7 +397,6 @@ app.post("/api/v1/playlist/move", async (req, res) => {
   }
 });
 
-// TODO Change API SPEC
 app.post("/api/v1/playlist/play/:index", async (req, res) => {
   try {
     await mpv.command("playlist-play-index", [req.params.index]);
@@ -543,186 +429,11 @@ app.post("/api/v1/playlist/shuffle", async (req, res) => {
   }
 });
 
-/*
-  FILE BROWSER
-*/
-
-app.get("/api/v1/filebrowser/paths", async (req, res) => {
-  try {
-    return res.json(FILEBROWSER_PATHS);
-  } catch (exc) {
-    console.log(exc);
-    return res.status(500).json({ message: exc });
-  }
-});
-
-// TODO: Change API spec
-app.post("/api/v1/filebrowser/browse", async (req, res) => {
-  try {
-    console.log(req.body);
-    let p = req.body.path;
-    let collectionId = req.body.collection;
-
-    // Find FILEBROWSER_PATH entry
-    if (!p && !collectionId)
-      return res
-        .status(400)
-        .json({ message: "path or collection id missing from request data!" });
-
-    let retval = {};
-    if (p) {
-      // If unsafe filebrowsing disabled we've to check FILEBROWSER_PATHS
-      if (!argv.unsafefilebrowsing) {
-        let fbe = FILEBROWSER_PATHS.find((el) => {
-          return p.includes(el.path);
-        });
-
-        if (!fbe)
-          return res
-            .status(400)
-            .send({ message: "Path not exists on filebrowserpaths!" });
-      }
-
-      if (!fs.existsSync(p))
-        return res.status(404).send({ message: "Path not exists!" });
-      // Get files from directory
-
-      retval.content = await getDirectoryContents(p);
-      retval.dirname = path.basename(p);
-      retval.prevDir = path.resolve(p, "..");
-      retval.cwd = p;
-    } else if (collectionId) {
-      // Get collection contents if local database enabled!
-      if (!argv.uselocaldb)
-        return res
-          .status(400)
-          .send({ message: "mpvremote-uselocaldb is disabled!" });
-
-      let collection = await getCollections(collectionId);
-      if (!collection) return res.status(404).send("Collection not exists!");
-      retval.content = [];
-      await Promise.all(
-        collection.paths.map(async (item) => {
-          if (fs.existsSync(item.path)) {
-            const dir = await getDirectoryContents(item.path);
-            retval.content = [...retval.content, ...dir];
-          } else {
-            console.log(`Path not exists ${item.path}`);
-          }
-        })
-      );
-      retval.collection_id = collectionId;
-    }
-
-    // Sort content firstly by priority and alphabet order.
-    retval.content.sort((a, b) => {
-      return (
-        a.priority - b.priority ||
-        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-      );
-    });
-
-    return res.json(retval);
-  } catch (exc) {
-    console.log(exc);
-    return res.status(500).json({ message: exc });
-  }
-});
-
-app.get("/api/v1/collections/:id?", async (req, res) => {
-  try {
-    if (!argv.uselocaldb)
-      return res.status(400).json({
-        message: "mpvremote-uselocaldb disabled!",
-      });
-
-    if (req.params.id) {
-      return res.json(await getCollections(req.params.id));
-    } else {
-      return res.json(await getCollections());
-    }
-  } catch (exc) {
-    console.log(exc);
-    return res.status(500).json({ error: exc });
-  }
-});
-
-app.post("/api/v1/collections", async (req, res) => {
-  // TODO Some validation.
-  try {
-    if (!argv.uselocaldb)
-      return res.status(400).json({
-        message: "mpvremote-uselocaldb disabled!",
-      });
-    const collection = await createCollection(req.body);
-    return res.json(collection);
-  } catch (exc) {
-    console.log(exc);
-    return res.status(500).json({ error: exc });
-  }
-});
-
-app.patch("/api/v1/collections/:collection_id/", async (req, res) => {
-  try {
-    if (!argv.uselocaldb)
-      return res.status(400).json({
-        message: "mpvremote-uselocaldb disabled!",
-      });
-    return res.json(await updateCollection(req.params.collection_id, req.body));
-  } catch (exc) {
-    console.log(exc);
-    return res.status(500).json({ error: exc });
-  }
-});
-app.delete("/api/v1/collections/:collection_id/", async (req, res) => {
-  try {
-    if (!argv.uselocaldb)
-      return res.status(400).json({
-        message: "mpvremote-uselocaldb disabled!",
-      });
-    const collection_id = req.params.collection_id;
-    deleteCollection(collection_id);
-    return res.json({});
-  } catch (exc) {
-    return res.status(500).json({ error: exc });
-  }
-});
-
-app.post("/api/v1/collections/:collection_id/entries/", async (req, res) => {
-  try {
-    if (!argv.uselocaldb)
-      return res.status(400).json({
-        message: "mpvremote-uselocaldb disabled!",
-      });
-    const collection_entry = await createCollectionEntry(
-      req.params.collection_id,
-      req.body
-    );
-    return res.json(collection_entry);
-  } catch (exc) {
-    return res.status(500).json({ error: exc });
-  }
-});
-
-app.delete("/api/v1/collections/entries/:id", async (req, res) => {
-  try {
-    if (!argv.uselocaldb)
-      return res.status(400).json({
-        message: "mpvremote-uselocaldb disabled!",
-      });
-    deleteCollectionEntry(req.params.id);
-    return res.json({});
-  } catch (exc) {
-    return res.status(500).json({ error: exc });
-  }
-});
-
-// TODO: Add to API spec
 app.get("/api/v1/mpvinfo", async (req, res) => {
   try {
     res.json(await getMPVInfo());
   } catch (exc) {
-    return res.status(500).json({ error: exc });
+    return res.status(500).json({ message: exc });
   }
 });
 
@@ -746,7 +457,6 @@ async function shutdownAction(action) {
   }
 }
 
-// TODO:  Add to API spec
 app.post("/api/v1/computer/:action", async (req, res) => {
   try {
     switch (req.params.action) {
@@ -765,7 +475,6 @@ app.post("/api/v1/computer/:action", async (req, res) => {
 
 mpv.on("status", async (status) => {
   try {
-    console.log(status);
     switch (status.property) {
       case "pause":
         await mpv.command("show-text", [status.value ? "Pause" : "Play"]);
@@ -840,7 +549,7 @@ async function getMPVInfo() {
     "libass-version": await handle(mpv.getProperty("libass-version"))
       .then((resp) => resp[0])
       .catch(() => null),
-    mpvremoteConfig: argv,
+    mpvremoteConfig: settings,
   };
 }
 
@@ -958,11 +667,12 @@ async function getChapters() {
 async function getMetaData() {
   const count = await mpv.getProperty("metadata/list/count");
   let metadata = {};
-
+  console.log(`Get METADATA count: ${count}`);
   for (let i = 0; i < count; i++) {
     const key = await handle(mpv.getProperty(`metadata/${i}/key`)).then(
       (resp) => resp[0]
     );
+    console.log(`Property name: ${key}`);
 
     if (key) {
       const value = await handle(mpv.getProperty(`metadata/${i}/value`)).then(
@@ -1030,17 +740,17 @@ async function getMPVProps() {
   return props;
 }
 
-app.listen(SERVER_PORT, () => {
-  console.log(`listening on ${SERVER_IP}:${SERVER_PORT}`);
+app.listen(settings.serverPort, () => {
+  console.log(`listening on ${settings.serverIP}:${settings.serverPort}`);
 });
 
 async function main() {
   try {
     await mpv.start();
 
-    if (argv.uselocaldb) await initDB();
+    if (settings.uselocaldb) await initDB();
     await mpv.command("show-text", [
-      `Remote access on: ${SERVER_IP}:${SERVER_PORT}`,
+      `Remote access on: ${settings.serverIP}:${settings.serverPort}`,
       5000,
     ]);
   } catch (error) {

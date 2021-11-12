@@ -66,6 +66,7 @@ uselocaldb=1
 webport=8000
 unsafefilebrowsing=1
 filebrowserpaths="'/home/usr/Steins;Gate';'/home/usr/media2'"
+verbose=0
 ```
 
 ## Available options:
@@ -77,6 +78,7 @@ filebrowserpaths="'/home/usr/Steins;Gate';'/home/usr/media2'"
 | mpvremote-webport            | Port of MPV backend engine                                                                                                                                                                                                            | 8000                | Any port within correct range                |
 | mpvreomte-address            | Server address                                                                                                                                                                                                                        | Your first local IP | 127.0.0.1                                    |
 | mpvremote-unsafefilebrowsing | Allows you to browse your local filesystem. Be careful though, exposing your whole filesystem not the safest option. For security reasons filebrowser only send results of media files, playlists, subtitle files and subdirectories. | 1                   | 0 - Disabled<br/> 1 - Enabled                |
+| mpvremote-verbose            | Verbose logging of MPV socket                                                                                                                                                                                                         | 0                   | 0 - Disabled<br/> 1 - Enabled                |
 
 # Troubleshooting
 

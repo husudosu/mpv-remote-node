@@ -11,3 +11,9 @@
 - Ability to change audio timing
 - Installer PowerShell and bash script
 - remote.socketio.js renamed to remoteServer.js
+
+## 1.0.3
+
+- Code tidy up
+- MPV socket Verbose mode made optional
+- Better structure and error handling for collections

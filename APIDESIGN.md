@@ -6,18 +6,10 @@ For safety reasons computer actions route not included!
 
 # Responses
 
-Default responses:
-
-**On success (200):**
+Default response:
 
 ```json
-{ "message": "success" }
-```
-
-**On failure (Internal server error 500):**
-
-```json
-{ "error": "JS exception message" }
+{ "message": "success or error message" }
 ```
 
 # API Routes
