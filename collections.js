@@ -52,11 +52,16 @@ router.post("", async (req, res) => {
 });
 
 router.patch("/:collection_id/", async (req, res) => {
+  // TODO: Patch not working correctly
   try {
     return res.json(await updateCollection(req.params.collection_id, req.body));
   } catch (exc) {
-    console.log(exc);
-    return res.status(500).json({ message: exc });
+    if (exc instanceof NotFoundException)
+      return res.status(404).json({ message: exc.message });
+    else {
+      console.log(exc);
+      return res.status(500).json({ message: exc });
+    }
   }
 });
 
@@ -89,7 +94,9 @@ router.delete("/entries/:id", async (req, res) => {
     deleteCollectionEntry(req.params.id);
     return res.json({});
   } catch (exc) {
-    return res.status(500).json({ message: exc });
+    if (exc instanceof NotFoundException)
+      return res.status(404).json({ message: exc.message });
+    else return res.status(500).json({ message: exc });
   }
 });
 

@@ -4,6 +4,7 @@ const os = require("os");
 const sqlite3 = require("sqlite3");
 const { open } = require("sqlite");
 const DB_PATH = path.join(getScriptFolder(), "mpvremote", "remote.db");
+const fs = require("fs");
 
 let db;
 
@@ -159,8 +160,20 @@ async function addMediaStatusEntry(filepath, time, percentPos) {
     COLLECTIONS CRUD
   ***
 */
+function validateEntry(data) {
+  if (!fs.existsSync(data.path)) {
+    throw new NotFoundException(`${data.path} not exists.`);
+  }
+}
 
 async function createCollection(data) {
+  // Validate entry path
+  // if (data.paths && data.paths.length > 0) {
+  //   data.paths.forEach((el) => {
+  //     validateEntry(el);
+  //   });
+  // }
+
   const dbres = await db.run(
     "INSERT INTO collection (name, type) VALUES (?, ?)",
     data.name,
@@ -175,17 +188,7 @@ async function createCollection(data) {
   collection.paths = [];
   if (data.paths && data.paths.length > 0) {
     data.paths.forEach(async (element) => {
-      // Add path
-      const entryRes = await db.run(
-        "INSERT INTO collection_entry (collection_id, path) VALUES (?, ?)",
-        collection.id,
-        element.path
-      );
-      // Get path
-      const entry = await db.get(
-        "SELECT * FROM collection_entry WHERE id=?",
-        entryRes.lastID
-      );
+      const entry = await createCollectionEntry(collection.id, element);
       collection.paths.push(entry);
     });
   }
@@ -210,40 +213,36 @@ async function getCollections(id = null) {
 }
 
 async function updateCollection(id, data) {
-  let collection = await db.get("SELECT * FROM collection WHERE id=?", id);
-  // TODO Raise an error
-  if (!collection) res.status(404);
+  // Validate entry paths.
+  // TODO: Rollbacking on validation error would be better.
+  // if (data.paths && data.paths.length > 0) {
+  //   data.paths.forEach((el) => {
+  //     validateEntry(el);
+  //   });
+  // }
 
+  let collection = await db.get("SELECT * FROM collection WHERE id=?", id);
+  if (!collection) throw new NotFoundException("Collection not exists.");
   // Update collection
   await db.run(
-    "UPDATE collection SET name=COALESCE(?,name), type=COALESCE(?, type) WHERE id=?",
+    "UPDATE collection SET name=COALESCE(?, name), type=COALESCE(?, type) WHERE id=?",
     [data.name, data.type, id]
   );
-
   // Update paths
   if (data.paths) {
     data.paths.forEach(async (element) => {
       // Add collection entry
-      if (!element.id) {
-        await db.run(
-          "INSERT INTO collection_entry (collection_id, path) VALUES (?, ?)",
-          collection.id,
-          element.path
-        );
-      }
+      if (!element.id) await createCollectionEntry(collection.id, element);
       // Update path
-      else {
-        await db.run(
-          "UPDATE collection_entry SET path=COALESCE(?, path) WHERE id=?",
-          [element.path, element.id]
-        );
-      }
+      else await updateCollectionEntry(element.id, element);
     });
   }
   return await getCollections(id);
 }
 
 async function deleteCollection(id) {
+  const collection = getCollections(id);
+  if (!collection) throw new NotFoundException("Collection not exists.");
   await db.run("DELETE FROM collection WHERE id=?", id);
 }
 
@@ -255,9 +254,7 @@ async function deleteCollection(id) {
 async function createCollectionEntry(collection_id, data) {
   // Check if collection exists
   const collectionExists = await getCollections(collection_id);
-  if (!collectionExists) {
-    throw new NotFoundException("Collection not exists.");
-  }
+  if (!collectionExists) throw new NotFoundException("Collection not exists.");
 
   const dbres = await db.run(
     "INSERT INTO collection_entry (collection_id, path) VALUES (?, ?)",
@@ -278,7 +275,26 @@ async function getCollectionEntries(collection_id) {
   );
 }
 
+async function getCollectionEntry(id) {
+  return await db.get("SELECT * FROM collection_entry WHERE id=?", id);
+}
+
+async function updateCollectionEntry(id, data) {
+  const collectionEntry = await getCollectionEntry(id);
+  if (!collectionEntry)
+    throw new NotFoundException("Collection entry not exists.");
+  await db.run(
+    "UPDATE collection_entry SET path=COALESCE(?, path) WHERE id=?",
+    [data.path, id]
+  );
+
+  return await getCollectionEntry(id);
+}
+
 async function deleteCollectionEntry(id) {
+  const collectionEntry = await getCollectionEntry(id);
+  if (!collectionEntry)
+    throw new NotFoundException("Collection entry not exists.");
   await db.run("DELETE FROM collection_entry WHERE id=?", id);
 }
 
@@ -300,3 +316,4 @@ exports.deleteCollection = deleteCollection;
 exports.createCollectionEntry = createCollectionEntry;
 exports.getCollectionEntries = getCollectionEntries;
 exports.deleteCollectionEntry = deleteCollectionEntry;
+exports.updateCollection = updateCollectionEntry;

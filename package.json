@@ -1,6 +1,6 @@
 {
   "name": "mpv-remote",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "MPV remote control",
   "main": "./remote.socketio.js",
   "scripts": {
@@ -16,6 +16,7 @@
     "node-mpv": "^2.0.0-beta.2",
     "sqlite": "^4.0.23",
     "sqlite3": "^5.0.2",
+    "sqlite3-transactions": "^0.0.5",
     "yargs": "^17.2.1"
   },
   "type": "commonjs",
