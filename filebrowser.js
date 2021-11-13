@@ -6,7 +6,7 @@ const express = require("express");
 const router = express.Router();
 const nodeDiskInfo = require("node-disk-info");
 
-const { getMediastatusEntries } = require("./crud");
+const { getMediastatusEntries, getCollections } = require("./crud");
 const { settings } = require("./settings");
 const FILE_FORMATS = require("./fileformats").FILE_FORMATS;
 
@@ -118,7 +118,7 @@ router.get("/api/v1/filebrowser/paths", async (req, res) => {
 router.post("/api/v1/filebrowser/browse", async (req, res) => {
   try {
     let p = req.body.path;
-    let collectionId = req.body.collection;
+    let collectionId = req.body.collection_id;
 
     // Find FILEBROWSER_PATH entry
     if (!p && !collectionId)
@@ -137,7 +137,7 @@ router.post("/api/v1/filebrowser/browse", async (req, res) => {
         if (!fbe)
           return res
             .status(400)
-            .send({ message: "Path not exists on filebrowserpaths!" });
+            .send({ message: `Path not exists on filebrowserpaths: ${p}` });
       }
 
       if (!fs.existsSync(p))
@@ -158,9 +158,21 @@ router.post("/api/v1/filebrowser/browse", async (req, res) => {
       let collection = await getCollections(collectionId);
       if (!collection) return res.status(404).send("Collection not exists!");
       retval.content = [];
+      retval.errors = [];
       await Promise.all(
         collection.paths.map(async (item) => {
-          if (fs.existsSync(item.path)) {
+          // Check if exists on filebrowserpaths
+          if (!settings.unsafefilebrowsing) {
+            let fbe = settings.filebrowserPaths.find((el) => {
+              return item.path.includes(el.path);
+            });
+            if (!fbe) {
+              console.log(`Not exists on filebrowserpaths: ${item.path}`);
+              retval.errors.push(
+                `Not exists on filebrowserpaths: ${item.path}`
+              );
+            }
+          } else if (fs.existsSync(item.path)) {
             const dir = await getDirectoryContents(item.path);
             retval.content = [...retval.content, ...dir];
           } else {

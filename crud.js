@@ -316,4 +316,4 @@ exports.deleteCollection = deleteCollection;
 exports.createCollectionEntry = createCollectionEntry;
 exports.getCollectionEntries = getCollectionEntries;
 exports.deleteCollectionEntry = deleteCollectionEntry;
-exports.updateCollection = updateCollectionEntry;
+exports.updateCollection = updateCollection;

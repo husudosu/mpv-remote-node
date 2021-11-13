@@ -31,9 +31,10 @@ function loadSettings(argv) {
     settings.filebrowserPaths = argv.filebrowserpaths.map((el, index) => {
       return {
         index,
-        path: el,
+        path: el.replace(/^"|'+|"|'+$/g, ""),
       };
     });
+    console.log(settings.filebrowserPaths);
   }
 }
 

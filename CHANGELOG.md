@@ -16,6 +16,7 @@
 
 - Code tidy up
 - MPV socket Verbose mode made optional
-- From now on using sqlite3-transactions for local database
 - Better structure, validation, error handling for collections
 - Removed most debug messages from server
+- Metadata reading fixed
+- Filebrowserpath behaviour fixed

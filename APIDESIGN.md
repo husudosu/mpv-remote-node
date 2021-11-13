@@ -539,9 +539,23 @@ Response JSON:
 ]
 ```
 
+## /api/v1/filebrowser/browse
+
+**Methods:** POST
+
+Browse a path or collection.
+
+**Request JSON:**
+
+```json
+  "path": "/home/usr/media2"
+  // Or
+  "collection_id": 1
+```
+
 ## /api/v1/filebrowser/browse/:index
 
-**Methods**: GET
+**Methods:** GET
 
 **Note:** Only MPV supported fileformats will return. [Supported file formats](https://github.com/husudosu/mpv-remote-node/blob/master/fileformats.js)
 

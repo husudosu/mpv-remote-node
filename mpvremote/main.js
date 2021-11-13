@@ -58,7 +58,7 @@ var serverArgs = ["node", scriptPath, socketName, "-p " + options.webport];
 if (options.verbose) serverArgs.push("--verbose");
 if (options.uselocaldb) serverArgs.push("--uselocaldb");
 if (options.filebrowserpaths.length > 0) {
-  var pathsArr = options.filebrowserpaths.split("';");
+  var pathsArr = options.filebrowserpaths.split("';'");
   serverArgs.push("--filebrowserpaths");
   for (var i = 0; i < pathsArr.length; i++) {
     serverArgs.push(pathsArr[i]);

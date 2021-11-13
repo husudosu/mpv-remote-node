@@ -663,21 +663,17 @@ async function getChapters() {
   return chapters;
 }
 
-// TODO Metadata
 async function getMetaData() {
   const count = await mpv.getProperty("metadata/list/count");
   let metadata = {};
-  console.log(`Get METADATA count: ${count}`);
   for (let i = 0; i < count; i++) {
-    const key = await handle(mpv.getProperty(`metadata/${i}/key`)).then(
+    const key = await handle(mpv.getProperty(`metadata/list/${i}/key`)).then(
       (resp) => resp[0]
     );
-    console.log(`Property name: ${key}`);
-
     if (key) {
-      const value = await handle(mpv.getProperty(`metadata/${i}/value`)).then(
-        (resp) => resp[0]
-      );
+      const value = await handle(
+        mpv.getProperty(`metadata/list/${i}/value`)
+      ).then((resp) => resp[0]);
 
       if (value) {
         metadata[key] = value;
