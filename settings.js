@@ -34,7 +34,6 @@ function loadSettings(argv) {
         path: el.replace(/^"|'+|"|'+$/g, ""),
       };
     });
-    console.log(settings.filebrowserPaths);
   }
 }
 
