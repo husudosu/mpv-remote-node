@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Automated installer for mpvremote Linux version
-
 # Get MPV Path
 MPV_PATH=""
 if [[ -z "${MPV_HOME}" ]]; then
@@ -28,14 +27,14 @@ destMainPath="$destPluginPath/remoteServer.js"
 destWatchlistHandlerPath="$destPluginPath/watchlisthandler.js"
 
 mkdir -p "$mpvScriptFolder" && cp -r "$pluginPath" "$mpvScriptFolder"
-ln -s "$mainPath" "$destMainPath"
+ln -sf "$mainPath" "$destMainPath"
 
 copyOpts(){
     mkdir -p "$scriptOptsFolder" && cp -r "$scriptOptsPath" "$scriptOptsFolder"
 }
 
 watchlistHandler(){
-    ln -s "$watchlistHandlerPath" "$destWatchlistHandlerPath"
+    ln -sf "$watchlistHandlerPath" "$destWatchlistHandlerPath"
 }
 
 while true; do
@@ -59,4 +58,4 @@ while true; do
 done
 
 echo "Wizzard done. MPV remote should launch when running MPV"
-echo "Download the Android app here: https://github.com/husudosu/mpv-remote-app/blob/master/android/app/release/app-release.apk"
+echo "Download the Android app here: https://github.com/husudosu/mpv-remote-app/releases/latest"

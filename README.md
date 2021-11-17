@@ -1,4 +1,4 @@
-MPV remote control API. You can use [MPV Remote android application](https://github.com/husudosu/mpv-remote-app/blob/master/android/app/release/app-release.apk) or you can create your own frontend.
+MPV remote control API. You can use [MPV Remote android application](https://github.com/husudosu/mpv-remote-app/releases/latest) or you can create your own frontend.
 
 [API documentation accessible here.](https://github.com/husudosu/mpv-remote-node/blob/master/APIDESIGN.md)
 

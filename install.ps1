@@ -37,10 +37,12 @@ if (-NOT(Check-IsElevated)){
 # Copy base plugin directory
 xcopy /i $pluginPath $destPluginPath
 # Symlink for remoteServer.js
+Remove-Item $destMainPath -ErrorAction Ignore
 New-Item -ItemType SymbolicLink -Path $destMainPath -Target $mainPath
 
 $shouldUseWatchlist = Read-Host "Use watchlist handler? [Y/N](Default:Y)"
 if ($shouldUseWatchlist -ne "N"){
+    Remove-Item $destMainPath -ErrorAction Ignore
     New-Item -ItemType SymbolicLink -Path $destWatchlistHandlerPath -Target $watchlistHandlerPath
 }
 
@@ -52,4 +54,4 @@ if ($shouldCopyConfig.ToUpper() -ne "N"){
 
 
 "Wizzard done. MPV remote should launch when running MPV"
-"Download the Android app here: https://github.com/husudosu/mpv-remote-app/blob/master/android/app/release/app-release.apk"
+"Download the Android app here: https://github.com/husudosu/mpv-remote-app/releases/latest"

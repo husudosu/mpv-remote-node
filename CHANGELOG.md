@@ -20,3 +20,4 @@
 - Removed most debug messages from server
 - Metadata reading fixed
 - Filebrowserpath behaviour fixed
+- Hotfix: installer scritps fixed
