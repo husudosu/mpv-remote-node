@@ -42,7 +42,7 @@ New-Item -ItemType SymbolicLink -Path $destMainPath -Target $mainPath
 
 $shouldUseWatchlist = Read-Host "Use watchlist handler? [Y/N](Default:Y)"
 if ($shouldUseWatchlist -ne "N"){
-    Remove-Item $destMainPath -ErrorAction Ignore
+    Remove-Item $destWatchlistHandlerPath -ErrorAction Ignore
     New-Item -ItemType SymbolicLink -Path $destWatchlistHandlerPath -Target $watchlistHandlerPath
 }
 
