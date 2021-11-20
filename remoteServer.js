@@ -358,6 +358,12 @@ app.post("/api/v1/playlist", async (req, res) => {
         }
       }
     } else {
+      if (req.body["file-local-options"]) {
+        console.log("Settin file local options");
+        console.log(JSON.stringify(req.body["file-local-options"]));
+        await setFileLocalOptions(req.body["file-local-options"]);
+        console.log("File-local-options has ben set opening file...");
+      }
       await mpv.load(req.body.filename, req.body.flag);
       if (req.body.seekTo) {
         await mpv.seek(req.body.seekTo, "absolute");
@@ -682,6 +688,18 @@ async function getMetaData() {
   }
   return metadata;
 }
+
+async function setFileLocalOptions(options) {
+  for (const [key, value] of Object.entries(options)) {
+    await handle(mpv.setProperty(`file-local-options/${key}`))
+      .then((resp) => {
+        resp[0];
+        console.log(`File-local option has ben set ${key}: ${value}`);
+      })
+      .catch((err) => console.log(`Cannot set ${key} to ${value} exc: ${err}`));
+  }
+}
+
 async function getMPVProps() {
   let props = {
     pause: false,

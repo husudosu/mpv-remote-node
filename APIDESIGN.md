@@ -272,7 +272,10 @@ Puts an item to playlist.
 {
     "filename": "V:\\anime\\Vivy - Fluorite Eye's Song S01 1080p\\Vivy - Fluorite Eye's Song - E02.mkv",
     "flag": "replace",
-    "seekTo": 60.0 // seekTo works only if flag is replace. Format seconds
+    "seekTo": 60.0, // seekTo works only if flag is replace. Format seconds
+    "file-local-options": [
+      "http-header-fields": "'MyHeader: 1234', 'MyHeader2: 5678'"
+    ]
 }
 ```
 

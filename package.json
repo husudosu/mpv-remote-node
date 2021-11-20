@@ -25,11 +25,6 @@
     "Stream",
     "multimedia"
   ],
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/husudosu/mpv-remote-node/blob/master/LICENSE.md"
-    }
-  ],
+  "license": "MIT",
   "homepage": "https://github.com/husudosu/mpv-remote-node"
 }

@@ -21,3 +21,7 @@
 - Metadata reading fixed
 - Filebrowserpath behaviour fixed
 - Hotfix: installer scritps fixed
+
+## 1.0.4
+
+- Load file improvements, way to set http-header-fields, needed for playing data from streaming services,
