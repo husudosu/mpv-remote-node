@@ -106,3 +106,36 @@ if (options.uselocaldb) {
     mp.msg.info("Mediastatus updated");
   });
 }
+
+mp.add_hook("on_load", 50, function () {
+  /* For handling file-local-option
+  Currently storing file-local-options via file-local-options.txt
+  because have to get file-local-options before the file fully loaded.
+  */
+  var scriptDir = mp.get_script_directory();
+  mp.msg.info("scriptDir");
+  mp.msg.info(scriptDir);
+
+  var fileLocalOptions = mp.utils.read_file(
+    scriptDir + "/" + "file-local-options.txt"
+  );
+  fileLocalOptions = JSON.parse(fileLocalOptions);
+
+  if (fileLocalOptions["http-header-fields"]) {
+    mp.set_property(
+      "file-local-options/http-header-fields",
+      fileLocalOptions["http-header-fields"]
+    );
+  }
+  if (fileLocalOptions["media-title"]) {
+    mp.set_property(
+      "file-local-options/media-title",
+      fileLocalOptions["media-title"]
+    );
+  }
+  var http_header_fields = mp.get_property(
+    "file-local-options/http-header-fields"
+  );
+  mp.msg.info("MPV Http header fields");
+  mp.msg.info(JSON.stringify(http_header_fields));
+});

@@ -17,7 +17,7 @@ const WIN_REBOOT_COMMAND = "shutdown /r /t 1";
 const UNIX_SHUTDOWN_COMMAND = "/usr/sbin/shutdown now";
 const UNIX_REBOOT_COMMAND = "/usr/sbin/reboot";
 
-const { initDB } = require("./crud");
+const { initDB, getScriptFolder } = require("./crud");
 
 const filebrowser = require("./filebrowser");
 const collections = require("./collections");
@@ -343,6 +343,15 @@ app.get("/api/v1/playlist", async (req, res) => {
   }
 });
 
+async function writeFileLocalOptions(options) {
+  await fs_async.writeFile(
+    path.join(getScriptFolder(), "mpvremote", "file-local-options.txt"),
+    JSON.stringify(options),
+    "utf-8"
+  );
+  console.log("File local options written");
+}
+
 app.post("/api/v1/playlist", async (req, res) => {
   try {
     console.log(req.body);
@@ -361,8 +370,8 @@ app.post("/api/v1/playlist", async (req, res) => {
       if (req.body["file-local-options"]) {
         console.log("Settin file local options");
         console.log(JSON.stringify(req.body["file-local-options"]));
-        await setFileLocalOptions(req.body["file-local-options"]);
-        console.log("File-local-options has ben set opening file...");
+        // Have to write cach file here
+        await writeFileLocalOptions(req.body["file-local-options"]);
       }
       await mpv.load(req.body.filename, req.body.flag);
       if (req.body.seekTo) {
@@ -690,14 +699,20 @@ async function getMetaData() {
 }
 
 async function setFileLocalOptions(options) {
+  // TODO: Need an array for http-header-fields!
   for (const [key, value] of Object.entries(options)) {
-    await handle(mpv.setProperty(`file-local-options/${key}`))
+    await handle(mpv.setProperty(`file-local-options/${key}`, value))
       .then((resp) => {
         resp[0];
         console.log(`File-local option has ben set ${key}: ${value}`);
       })
       .catch((err) => console.log(`Cannot set ${key} to ${value} exc: ${err}`));
   }
+  console.log(
+    `HTTP Headers: ${JSON.stringify(
+      await mpv.getProperty("file-local-options/http-header-fields")
+    )}`
+  );
 }
 
 async function getMPVProps() {

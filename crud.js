@@ -317,3 +317,6 @@ exports.createCollectionEntry = createCollectionEntry;
 exports.getCollectionEntries = getCollectionEntries;
 exports.deleteCollectionEntry = deleteCollectionEntry;
 exports.updateCollection = updateCollection;
+
+// Get script folder
+exports.getScriptFolder = getScriptFolder;
