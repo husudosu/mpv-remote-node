@@ -373,6 +373,9 @@ app.post("/api/v1/playlist", async (req, res) => {
         // Have to write cach file here
         await writeFileLocalOptions(req.body["file-local-options"]);
       }
+      // Clear file local-options file
+      // else writeFileLocalOptions({});
+
       await mpv.load(req.body.filename, req.body.flag);
       if (req.body.seekTo) {
         await mpv.seek(req.body.seekTo, "absolute");
@@ -696,23 +699,6 @@ async function getMetaData() {
     }
   }
   return metadata;
-}
-
-async function setFileLocalOptions(options) {
-  // TODO: Need an array for http-header-fields!
-  for (const [key, value] of Object.entries(options)) {
-    await handle(mpv.setProperty(`file-local-options/${key}`, value))
-      .then((resp) => {
-        resp[0];
-        console.log(`File-local option has ben set ${key}: ${value}`);
-      })
-      .catch((err) => console.log(`Cannot set ${key} to ${value} exc: ${err}`));
-  }
-  console.log(
-    `HTTP Headers: ${JSON.stringify(
-      await mpv.getProperty("file-local-options/http-header-fields")
-    )}`
-  );
 }
 
 async function getMPVProps() {

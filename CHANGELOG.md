@@ -24,4 +24,4 @@
 
 ## 1.0.4
 
-- Load file improvements, way to set http-header-fields, needed for playing data from streaming services,
+- Load file improvements, way to set http-header-fields, needed for playing data from streaming services
