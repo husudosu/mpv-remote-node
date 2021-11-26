@@ -19,6 +19,12 @@ const UNIX_REBOOT_COMMAND = "/usr/sbin/reboot";
 
 const { initDB, getScriptFolder } = require("./crud");
 
+const FILE_LOCAL_OPTIONS_PATH = path.join(
+  getScriptFolder(),
+  "mpvremote",
+  "file-local-options.txt"
+);
+
 const filebrowser = require("./filebrowser");
 const collections = require("./collections");
 const { detectFileType } = require("./filebrowser");
@@ -345,11 +351,15 @@ app.get("/api/v1/playlist", async (req, res) => {
 
 async function writeFileLocalOptions(options) {
   await fs_async.writeFile(
-    path.join(getScriptFolder(), "mpvremote", "file-local-options.txt"),
+    FILE_LOCAL_OPTIONS_PATH,
     JSON.stringify(options),
     "utf-8"
   );
-  console.log("File local options written");
+}
+
+async function readFileLocalOptions() {
+  const content = await fs_async.readFile(FILE_LOCAL_OPTIONS_PATH, "utf-8");
+  return JSON.parse(content);
 }
 
 app.post("/api/v1/playlist", async (req, res) => {
@@ -368,10 +378,13 @@ app.post("/api/v1/playlist", async (req, res) => {
       }
     } else {
       if (req.body["file-local-options"]) {
-        console.log("Settin file local options");
-        console.log(JSON.stringify(req.body["file-local-options"]));
+        let fileLocalOptions = await readFileLocalOptions();
+        fileLocalOptions[req.body.filename] = req.body["file-local-options"];
+        console.log(
+          `File local options has been set: ${JSON.stringify(fileLocalOptions)}`
+        );
         // Have to write cach file here
-        await writeFileLocalOptions(req.body["file-local-options"]);
+        await writeFileLocalOptions(fileLocalOptions);
       }
       // Clear file local-options file
       // else writeFileLocalOptions({});
@@ -761,6 +774,8 @@ app.listen(settings.serverPort, () => {
 
 async function main() {
   try {
+    // Creates/clears file local options file.
+    writeFileLocalOptions({});
     await mpv.start();
 
     if (settings.uselocaldb) await initDB();

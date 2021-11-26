@@ -1,6 +1,6 @@
 {
   "name": "mpv-remote",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "MPV remote control",
   "main": "./remote.socketio.js",
   "scripts": {

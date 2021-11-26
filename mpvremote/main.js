@@ -80,34 +80,43 @@ mp.command_native_async(
   }
 );
 
+function setFileLocalOptions(options) {
+  for (var key in options) {
+    if (options.hasOwnProperty(key)) {
+      mp.msg.info(key);
+      mp.msg.info(options[key]);
+
+      mp.set_property(key, options[key]);
+    }
+  }
+}
 /* For handling file-local-option
 Currently storing file-local-options via file-local-options.txt
 because have to get file-local-options before the file fully loaded.
 */
 mp.add_hook("on_load", 50, function () {
   try {
-    /* TODO: How to handle files
-    MPV prop: stream-open-filename
+    /*
     JSON structure should be something like this:
-      [
-        {filename: "file or url", "file-local-options": {"http-header-fields": ["A: B"]}},
-        {filename: "file or url", "file-local-options": {"media-title": "Testt"}},
-      ]
+    {
+      "filename1": {"http-header-fields": ["test: a", "test1: b"]},
+      "filename2": {"http-header-fields": ["test: a", "test1: b"]}
+    }
     */
+    mp.set_property("force-media-title", "");
     var scriptDir = mp.get_script_directory();
-
+    var fileName = mp.get_property("path");
     var fileLocalOptions = mp.utils.read_file(
       scriptDir + "/" + "file-local-options.txt"
     );
     fileLocalOptions = JSON.parse(fileLocalOptions);
 
+    // Find filename in the file-local-options
     for (var key in fileLocalOptions) {
-      if (fileLocalOptions.hasOwnProperty(key)) {
-        mp.set_property(key, fileLocalOptions[key]);
-      }
+      if (key === fileName) setFileLocalOptions(fileLocalOptions[key]);
     }
   } catch (exc) {
-    console.log(exc);
+    mp.msg.info(exc);
   }
 });
 
