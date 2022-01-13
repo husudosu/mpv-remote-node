@@ -740,7 +740,8 @@ async function getMPVProps() {
 
   try {
     props.pause = (await mpv.getProperty("pause")) || false;
-    props.volume = (await mpv.getProperty("volume")) || 100;
+    props.volume = (await mpv.getProperty("volume"));
+    if (!props.volume && props.volume != 0) props.volume = 100; // Avoids sending 100 when actual volume is 0
     props["volume-max"] = (await mpv.getProperty("volume-max")) || 100;
     props.mute = (await mpv.getProperty("mute")) || false;
     // File related data, only send back if available.
