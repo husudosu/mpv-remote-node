@@ -90,6 +90,7 @@ Example response:
     }
   ],
   "volume": 100,
+  "max-volume": 100,
   "fullscreen": false,
   "speed": 1,
   "sub-delay": 0,

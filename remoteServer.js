@@ -727,6 +727,7 @@ async function getMPVProps() {
     chapter: 0,
     "chapter-list": [],
     volume: 0,
+    "volume-max": 100,
     fullscreen: false,
     speed: 1,
     "sub-delay": 0,
@@ -740,6 +741,7 @@ async function getMPVProps() {
   try {
     props.pause = (await mpv.getProperty("pause")) || false;
     props.volume = (await mpv.getProperty("volume")) || 100;
+    props["volume-max"] = (await mpv.getProperty("volume-max")) || 100;
     props.mute = (await mpv.getProperty("mute")) || false;
     // File related data, only send back if available.
     props.filename = await mpv.getProperty("filename");
