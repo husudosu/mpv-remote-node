@@ -75,6 +75,7 @@ Example configuration file:
 # ~/.config/mpv/script-opts/mpvremote.conf
 uselocaldb=1
 webport=8000
+webportrangeend=8010
 unsafefilebrowsing=1
 filebrowserpaths="'V:\anime';'W:\anime';'W:\Steins;Gate'"
 verbose=0
@@ -86,7 +87,8 @@ verbose=0
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ---------------------------------------- |
 | mpvremote-uselocaldb         | Use local database to store media statuses and collections.                                                                                                                                                                           | 1                   | 0 - Disabled <br /> 1 - Enabled          |
 | mpvremote-filebrowserpaths   | Stores paths which can be browsable by users it's a semicolon seperated list                                                                                                                                                          | N/A                 | "'V:\anime';'W:\anime';'W:\Steins;Gate'" |
-| mpvremote-webport            | Port of MPV backend engine                                                                                                                                                                                                            | 8000                | Any port within correct range            |
+| mpvremote-webport            | This option gonna be your first available port for MPV.                                                                                                                                                                               | 8000                | Any port within correct range            |
+| mpvremote-webportrangeend    | Web port range end. if mpvremote-webport is 8000 and this option set to 8004, 5 instances of MPV gonna be supported. Increase/decrease these numbers as you wish.                                                                     | 8005                | Any port within correct range            |
 | mpvreomte-address            | Server address                                                                                                                                                                                                                        | Your first local IP | 127.0.0.1                                |
 | mpvremote-unsafefilebrowsing | Allows you to browse your local filesystem. Be careful though, exposing your whole filesystem not the safest option. For security reasons filebrowser only send results of media files, playlists, subtitle files and subdirectories. | 1                   | 0 - Disabled<br/> 1 - Enabled            |
 | mpvremote-verbose            | Verbose logging of MPV socket                                                                                                                                                                                                         | 0                   | 0 - Disabled<br/> 1 - Enabled            |
@@ -116,10 +118,6 @@ yargs requires 12 or newer version of Node.JS so you should update your Node.JS 
 
 - [How to update Node.JS](https://askubuntu.com/questions/426750/how-can-i-update-my-nodejs-to-the-latest-version)
 - [If still not works, try update MPV to newer version](https://linuxhint.com/install-mpv-video-player-linux/)
-
-# Limitations
-
-- Currently only one instance of MPV supported
 
 # TODO
 

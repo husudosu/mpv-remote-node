@@ -11,6 +11,7 @@ const cors = require("cors");
 const mpvAPI = require("node-mpv");
 
 const yargs = require("yargs");
+const portfinder = require("portfinder");
 
 const WIN_SHUTDOWN_COMMAND = "shutdown /s /t 1";
 const WIN_REBOOT_COMMAND = "shutdown /r /t 1";
@@ -32,10 +33,16 @@ const { loadSettings, settings, CORSOPTIONS } = require("./settings");
 
 const argv = yargs
   .option("webport", {
-    description: "Server port",
+    description: "First available server port",
     alias: "p",
     type: "number",
     default: 8000,
+  })
+  .option("webportrangeend", {
+    description: "Last available server port",
+    alias: "e",
+    type: "number",
+    default: 8005,
   })
   .option("uselocaldb", {
     description: "Use database for storing collection & mediastatus",
@@ -58,7 +65,6 @@ const argv = yargs
   })
   .help()
   .alias("help", "h").argv;
-
 if (argv._.length == 0) {
   console.log("No socket provided");
   process.exit();
@@ -740,7 +746,7 @@ async function getMPVProps() {
 
   try {
     props.pause = (await mpv.getProperty("pause")) || false;
-    props.volume = (await mpv.getProperty("volume"));
+    props.volume = await mpv.getProperty("volume");
     if (!props.volume && props.volume != 0) props.volume = 100; // Avoids sending 100 when actual volume is 0
     props["volume-max"] = (await mpv.getProperty("volume-max")) || 100;
     props.mute = (await mpv.getProperty("mute")) || false;
@@ -770,10 +776,23 @@ async function getMPVProps() {
 
   return props;
 }
-
-app.listen(settings.serverPort, () => {
-  console.log(`listening on ${settings.serverIP}:${settings.serverPort}`);
-});
+portfinder
+  .getPortPromise({
+    port: settings.serverPort,
+    stopPort: settings.serverPortRangeEnd,
+  })
+  .then((port) => {
+    app.listen(port, () => {
+      settings.serverPort = port;
+      console.log(`listening on ${settings.serverIP}:${port}`);
+      main();
+    });
+  })
+  .catch(() => {
+    console.log(
+      "There is no free port available, mpv-remote not started check your settings."
+    );
+  });
 
 async function main() {
   try {
@@ -796,5 +815,3 @@ process.on("unhandledRejection", (error) => {
   // Will print "unhandledRejection err is not defined"
   console.log("unhandledRejection", JSON.stringify(error));
 });
-
-main();

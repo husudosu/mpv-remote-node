@@ -10,6 +10,7 @@ let settings = {
     .flat()
     .find((i) => i.family == "IPv4" && !i.internal).address,
   serverPort: null,
+  serverPortRangeEnd: null,
   filebrowserPaths: [],
   socketName: null,
   uselocaldb: false,
@@ -23,6 +24,7 @@ Loads settings
 function loadSettings(argv) {
   settings.socketName = argv._[0];
   settings.serverPort = argv.webport;
+  settings.serverPortRangeEnd = argv.webportrangeend;
   settings.uselocaldb = argv.uselocaldb;
   settings.unsafefilebrowsing = argv.unsafefilebrowsing;
   settings.verbose = argv.verbose;

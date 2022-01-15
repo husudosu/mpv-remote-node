@@ -10,6 +10,7 @@ var options = {
   uselocaldb: 1,
   filebrowserpaths: "",
   webport: 8000,
+  webportrangeend: 8005,
   address: "",
   unsafefilebrowsing: 1,
   verbose: 0,
@@ -20,12 +21,26 @@ mp.options.read_options(options, "mpvremote");
 var platform = mp.utils.getenv("windir") ? "win32" : "unix";
 var pathsep = platform === "win32" ? "\\" : "/";
 
+function createMPVSocketFilename() {
+  var i = 0;
+  var fname = "";
+  while (true) {
+    fname =
+      platform === "win32"
+        ? "\\\\.\\pipe\\mpvremote" + i
+        : "/tmp/mpvremote" + i;
+    i++;
+    if (!mp.utils.file_info(fname)) break;
+  }
+  return fname;
+}
+
 function getMPVSocket() {
   var socketName = mp.get_property("input-ipc-server");
 
   if (!socketName) {
-    var fname =
-      platform === "win32" ? "\\\\.\\pipe\\mpvremote" : "/tmp/mpvremote";
+    var fname = createMPVSocketFilename();
+
     mp.set_property("input-ipc-server", fname);
     // Check socket
     socketName = mp.get_property("input-ipc-server");
@@ -53,7 +68,13 @@ var watchlistHandlerPath = getScriptPath("watchlisthandler.js");
 
 var socketName = getMPVSocket();
 
-var serverArgs = ["node", scriptPath, socketName, "-p " + options.webport];
+var serverArgs = [
+  "node",
+  scriptPath,
+  socketName,
+  "-p " + options.webport,
+  "-e " + options.webportrangeend,
+];
 
 if (options.verbose) serverArgs.push("--verbose");
 if (options.uselocaldb) serverArgs.push("--uselocaldb");
@@ -74,9 +95,9 @@ mp.command_native_async(
     capture_stderr: true,
   },
   function (success, result, error) {
-    mp.msg.info(success);
-    mp.msg.info(result);
-    mp.msg.info(error);
+    mp.msg.info(JSON.stringify(success));
+    mp.msg.info(JSON.stringify(result));
+    mp.msg.info(JSON.stringify(error));
   }
 );
 
