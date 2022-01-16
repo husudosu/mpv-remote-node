@@ -18,14 +18,10 @@ const WIN_REBOOT_COMMAND = "shutdown /r /t 1";
 const UNIX_SHUTDOWN_COMMAND = "/usr/sbin/shutdown now";
 const UNIX_REBOOT_COMMAND = "/usr/sbin/reboot";
 
-const { initDB, getScriptFolder } = require("./crud");
+const { initDB } = require("./crud");
 
-const FILE_LOCAL_OPTIONS_PATH = path.join(
-  getScriptFolder(),
-  "mpvremote",
-  "file-local-options.txt"
-);
-
+const tempdir = process.env.TEMP || process.env.TMP || "/tmp"; // Temp dir
+const FILE_LOCAL_OPTIONS_PATH = path.join(tempdir, "file-local-options.txt");
 const filebrowser = require("./filebrowser");
 const collections = require("./collections");
 const { detectFileType } = require("./filebrowser");
@@ -386,15 +382,9 @@ app.post("/api/v1/playlist", async (req, res) => {
       if (req.body["file-local-options"]) {
         let fileLocalOptions = await readFileLocalOptions();
         fileLocalOptions[req.body.filename] = req.body["file-local-options"];
-        console.log(
-          `File local options has been set: ${JSON.stringify(fileLocalOptions)}`
-        );
         // Have to write cach file here
         await writeFileLocalOptions(fileLocalOptions);
       }
-      // Clear file local-options file
-      // else writeFileLocalOptions({});
-
       await mpv.load(req.body.filename, req.body.flag);
       if (req.body.seekTo) {
         await mpv.seek(req.body.seekTo, "absolute");
@@ -797,8 +787,10 @@ portfinder
 async function main() {
   try {
     // Creates/clears file local options file.
-    writeFileLocalOptions({});
     await mpv.start();
+
+    // Create file-local-options if not exists.
+    if (!fs.existsSync(FILE_LOCAL_OPTIONS_PATH)) writeFileLocalOptions({});
 
     if (settings.uselocaldb) await initDB();
     await mpv.command("show-text", [

@@ -30,3 +30,4 @@
 
 - max-volume added (contribution by: https://github.com/byter11)
 - multiple MPV instances supported (set webport and webportrangeend on your settings)
+- placing "file-local-options.txt" to OS temp directory

@@ -19,6 +19,7 @@ var options = {
 mp.options.read_options(options, "mpvremote");
 
 var platform = mp.utils.getenv("windir") ? "win32" : "unix";
+var tempdir = mp.utils.getenv("TEMP") || mp.utils.getenv("TMP") || "/tmp"; // Temp dir
 var pathsep = platform === "win32" ? "\\" : "/";
 
 function createMPVSocketFilename() {
@@ -103,12 +104,7 @@ mp.command_native_async(
 
 function setFileLocalOptions(options) {
   for (var key in options) {
-    if (options.hasOwnProperty(key)) {
-      mp.msg.info(key);
-      mp.msg.info(options[key]);
-
-      mp.set_property(key, options[key]);
-    }
+    if (options.hasOwnProperty(key)) mp.set_property(key, options[key]);
   }
 }
 /* For handling file-local-option
@@ -125,11 +121,10 @@ mp.add_hook("on_load", 50, function () {
     }
     */
     mp.set_property("force-media-title", "");
-    var scriptDir = mp.get_script_directory();
+    // var scriptDir = mp.get_script_directory();
     var fileName = mp.get_property("path");
-    var fileLocalOptions = mp.utils.read_file(
-      scriptDir + "/" + "file-local-options.txt"
-    );
+    var p = tempdir + "/" + "file-local-options.txt";
+    var fileLocalOptions = mp.utils.read_file(p);
     fileLocalOptions = JSON.parse(fileLocalOptions);
 
     // Find filename in the file-local-options
