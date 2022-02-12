@@ -26,7 +26,7 @@
 
 - Load file improvements, way to set http-header-fields, needed for playing data from streaming services.
 
-## 1.0.5 (Draft)
+## 1.0.5
 
 - max-volume added (contribution by: https://github.com/byter11)
 - multiple MPV instances supported (set webport and webportrangeend on your settings)

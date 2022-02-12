@@ -117,7 +117,18 @@ I recommend using [yt-dlp](https://github.com/yt-dlp/yt-dlp) for playing Youtube
 yargs requires 12 or newer version of Node.JS so you should update your Node.JS version. For example this error occours on Ubuntu 20.04.3 LTS.
 
 - [How to update Node.JS](https://askubuntu.com/questions/426750/how-can-i-update-my-nodejs-to-the-latest-version)
-- [If still not works, try update MPV to newer version](https://linuxhint.com/install-mpv-video-player-linux/)
+
+If the server works fine, then there's an issue with MPV itself. Some linux distributions like Debian and MX Linux ships pre-built MPV packages without Javascript support.
+
+You can check it by using this command:
+
+```bash
+mpv -v | grep javascript
+```
+
+if the output is empty, there's no javascript support.
+
+Install mujs and [build MPV for yourself](https://github.com/mpv-player/mpv-build)
 
 # TODO
 
