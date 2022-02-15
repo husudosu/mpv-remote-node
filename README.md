@@ -23,8 +23,9 @@ mpv-remote # Follow instructions
 ```
 
 **Windows:**
-
-```bash
+Open powershell as admin. It's required only for creating symbolic links.
+```powershell
+Set-ExecutionPolicy Unrestricted -Force # Allows running PS scripts from unknown sources
 npm install -g mpv-remote
 mpv-remote # Follow instructions
 ```
