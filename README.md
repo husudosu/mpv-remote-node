@@ -96,6 +96,13 @@ verbose=0
 
 # Troubleshooting
 
+## NPM install/update takes forever
+Sometimes NPM takes forever to install a package, [it's a known bug](https://github.com/npm/cli/issues/3359), try update NPM to the latest version and hope it's going to work. Run this as administrator:
+```
+npm install -g npm@latest
+```
+
+## Server not starting 
 If the server not starts, try run it manually, to get the exception (From terminal/command prompt):
 
 ```bash
@@ -130,6 +137,12 @@ mpv -v | grep javascript
 if the output is empty, there's no javascript support.
 
 Install mujs and [build MPV for yourself](https://github.com/mpv-player/mpv-build)
+
+## When you report an issue
+It makes problem solving easier if you provide some info about your environment.
+- Your OS,
+- Node.JS version (```node -v```)
+- NPM version (```npm -v```)
 
 # TODO
 
