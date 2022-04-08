@@ -14,6 +14,7 @@ var options = {
   address: "",
   unsafefilebrowsing: 1,
   verbose: 0,
+  "osd-messages": 1,
 };
 
 mp.options.read_options(options, "mpvremote");
@@ -87,6 +88,7 @@ if (options.filebrowserpaths.length > 0) {
   }
 }
 if (options.unsafefilebrowsing) serverArgs.push("--unsafefilebrowsing");
+if (options["osd-messages"]) serverArgs.push("--osd-messages");
 
 mp.command_native_async(
   {

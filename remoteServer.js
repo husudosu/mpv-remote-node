@@ -59,6 +59,11 @@ const argv = yargs
     type: "boolean",
     default: false,
   })
+  .option("osd-messages", {
+    description: "Enables OSD messages",
+    type: "boolean",
+    default: false,
+  })
   .help()
   .alias("help", "h").argv;
 if (argv._.length == 0) {
@@ -504,16 +509,19 @@ mpv.on("status", async (status) => {
   try {
     switch (status.property) {
       case "pause":
-        await mpv.command("show-text", [status.value ? "Pause" : "Play"]);
+        await showOSDMessage(status.value ? "Pause" : "Play");
+        // await mpv.command("show-text", [status.value ? "Pause" : "Play"]);
         break;
       case "volume":
-        await mpv.command("show-text", [`Volume: ${status.value}%`]);
+        // await mpv.command("show-text", [`Volume: ${status.value}%`]);
+        await showOSDMessage(`Volume: ${status.value}%`);
         break;
       case "mute":
         let volume = await mpv.getProperty("volume");
-        await mpv.command("show-text", [
-          status.value ? "Mute" : `Volume ${volume}`,
-        ]);
+        await showOSDMessage(status.value ? "Mute" : `Volume ${volume}`);
+        // await mpv.command("show-text", [
+        //   status.value ? "Mute" : `Volume ${volume}`,
+        // ]);
         break;
       case "playlist-count":
       case "playlist-pos":
@@ -525,10 +533,12 @@ mpv.on("status", async (status) => {
           await mpv.setProperty("sub-delay", 0);
           // Also reset audio delay to 0
           await mpv.adjustAudioTiming(0);
-
-          await mpv.command("show-text", [
-            `Playing: ${playerData["media-title"] || playerData.filename}`,
-          ]);
+          await showOSDMessage(
+            `Playing: ${playerData["media-title"] || playerData.filename}`
+          );
+          // await mpv.command("show-text", [
+          //   `Playing: ${playerData["media-title"] || playerData.filename}`,
+          // ]);
         }
         break;
     }
@@ -538,7 +548,8 @@ mpv.on("status", async (status) => {
 });
 
 mpv.on("seek", async (data) => {
-  await mpv.command("show-text", [`Seek: ${formatTime(data.end)}`]);
+  await showOSDMessage(`Seek: ${formatTime(data.end)}`);
+  // await mpv.command("show-text", [`Seek: ${formatTime(data.end)}`]);
 });
 
 function formatTime(param) {
@@ -784,6 +795,18 @@ portfinder
     );
   });
 
+async function showOSDMessage(text, timeout = null) {
+  /*
+  Shows OSD message on MPV if it's enabled on settings.
+  */
+  if (settings.osdMessages) {
+    if (timeout) return await mpv.command("show-text", [text, timeout]);
+    else return await mpv.command("show-text", [text]);
+  } else {
+    console.log(`OSD message: ${text}`);
+  }
+}
+
 async function main() {
   try {
     // Creates/clears file local options file.
@@ -793,10 +816,11 @@ async function main() {
     if (!fs.existsSync(FILE_LOCAL_OPTIONS_PATH)) writeFileLocalOptions({});
 
     if (settings.uselocaldb) await initDB();
-    await mpv.command("show-text", [
+
+    await showOSDMessage(
       `Remote access on: ${settings.serverIP}:${settings.serverPort}`,
-      5000,
-    ]);
+      5000
+    );
   } catch (error) {
     // handle errors here
     console.log(error);

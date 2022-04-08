@@ -28,6 +28,7 @@ function loadSettings(argv) {
   settings.uselocaldb = argv.uselocaldb;
   settings.unsafefilebrowsing = argv.unsafefilebrowsing;
   settings.verbose = argv.verbose;
+  settings.osdMessages = argv["osd-messages"];
 
   if (argv.filebrowserpaths) {
     settings.filebrowserPaths = argv.filebrowserpaths.map((el, index) => {
