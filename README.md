@@ -24,6 +24,7 @@ mpv-remote # Follow instructions
 
 **Windows:**
 Open powershell as admin. It's required only for creating symbolic links.
+
 ```powershell
 Set-ExecutionPolicy Unrestricted -Force # Allows running PS scripts from unknown sources
 npm install -g mpv-remote
@@ -93,16 +94,20 @@ verbose=0
 | mpvreomte-address            | Server address                                                                                                                                                                                                                        | Your first local IP | 127.0.0.1                                |
 | mpvremote-unsafefilebrowsing | Allows you to browse your local filesystem. Be careful though, exposing your whole filesystem not the safest option. For security reasons filebrowser only send results of media files, playlists, subtitle files and subdirectories. | 1                   | 0 - Disabled<br/> 1 - Enabled            |
 | mpvremote-verbose            | Verbose logging of MPV socket                                                                                                                                                                                                         | 0                   | 0 - Disabled<br/> 1 - Enabled            |
+| mpvremote-osd-messages       | Show OSD messages on the player created by this plugin                                                                                                                                                                                | 1                   | 0 - Disabled<br> 1 - Enabled             |
 
 # Troubleshooting
 
 ## NPM install/update takes forever
+
 Sometimes NPM takes forever to install a package, [it's a known bug](https://github.com/npm/cli/issues/3359), try update NPM to the latest version and hope it's going to work. Run this as administrator:
+
 ```
 npm install -g npm@latest
 ```
 
-## Server not starting 
+## Server not starting
+
 If the server not starts, try run it manually, to get the exception (From terminal/command prompt):
 
 ```bash
@@ -139,10 +144,12 @@ if the output is empty, there's no javascript support.
 Install mujs and [build MPV for yourself](https://github.com/mpv-player/mpv-build)
 
 ## When you report an issue
+
 It makes problem solving easier if you provide some info about your environment.
+
 - Your OS,
-- Node.JS version (```node -v```)
-- NPM version (```npm -v```)
+- Node.JS version (`node -v`)
+- NPM version (`npm -v`)
 
 # TODO
 

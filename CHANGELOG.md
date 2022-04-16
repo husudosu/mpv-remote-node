@@ -31,3 +31,8 @@
 - max-volume added (contribution by: https://github.com/byter11)
 - multiple MPV instances supported (set webport and webportrangeend on your settings)
 - placing "file-local-options.txt" to OS temp directory
+
+## 1.0.6
+
+- Ability to turn off OSD messages via `mpvremote-osd-messages` setting,
+- MPV info now includes version of MPV remote plugin

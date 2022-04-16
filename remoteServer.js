@@ -26,6 +26,7 @@ const filebrowser = require("./filebrowser");
 const collections = require("./collections");
 const { detectFileType } = require("./filebrowser");
 const { loadSettings, settings, CORSOPTIONS } = require("./settings");
+const { version } = require("./package.json");
 
 const argv = yargs
   .option("webport", {
@@ -510,18 +511,13 @@ mpv.on("status", async (status) => {
     switch (status.property) {
       case "pause":
         await showOSDMessage(status.value ? "Pause" : "Play");
-        // await mpv.command("show-text", [status.value ? "Pause" : "Play"]);
         break;
       case "volume":
-        // await mpv.command("show-text", [`Volume: ${status.value}%`]);
         await showOSDMessage(`Volume: ${status.value}%`);
         break;
       case "mute":
         let volume = await mpv.getProperty("volume");
         await showOSDMessage(status.value ? "Mute" : `Volume ${volume}`);
-        // await mpv.command("show-text", [
-        //   status.value ? "Mute" : `Volume ${volume}`,
-        // ]);
         break;
       case "playlist-count":
       case "playlist-pos":
@@ -536,9 +532,6 @@ mpv.on("status", async (status) => {
           await showOSDMessage(
             `Playing: ${playerData["media-title"] || playerData.filename}`
           );
-          // await mpv.command("show-text", [
-          //   `Playing: ${playerData["media-title"] || playerData.filename}`,
-          // ]);
         }
         break;
     }
@@ -549,7 +542,6 @@ mpv.on("status", async (status) => {
 
 mpv.on("seek", async (data) => {
   await showOSDMessage(`Seek: ${formatTime(data.end)}`);
-  // await mpv.command("show-text", [`Seek: ${formatTime(data.end)}`]);
 });
 
 function formatTime(param) {
@@ -588,6 +580,7 @@ async function getMPVInfo() {
       .then((resp) => resp[0])
       .catch(() => null),
     mpvremoteConfig: settings,
+    mpvremoteVersion: version,
   };
 }
 
