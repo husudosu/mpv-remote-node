@@ -81,6 +81,7 @@ webportrangeend=8010
 unsafefilebrowsing=1
 filebrowserpaths="'V:\anime';'W:\anime';'W:\Steins;Gate'"
 verbose=0
+osd-messages=1
 ```
 
 ## Available options:
@@ -154,4 +155,6 @@ It makes problem solving easier if you provide some info about your environment.
 # TODO
 
 - Need better installation scripts for Windows and Linux, where update can be handled easily. (NPM postinstall script maybe)
-- Improve API documentation
+- Improve API documentation,
+- Better installation scripts,
+- Make a Youtube video about installing/updating MPV-remote on Windows and Linux
