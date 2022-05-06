@@ -36,3 +36,7 @@
 
 - Ability to turn off OSD messages via `mpvremote-osd-messages` setting,
 - MPV info now includes version of MPV remote plugin
+
+## 1.0.7
+
+- Fixed IP getting on newer Node.JS versions

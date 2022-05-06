@@ -1,4 +1,8 @@
-const os = require("os");
+const { networkInterfaces } = require("os");
+
+const IP_ADDR = Object.values(networkInterfaces())
+  .flat()
+  .find((i) => (i.family == "IPv4" || i.family == 4) && !i.internal);
 
 const CORSOPTIONS = {
   origin: "*",
@@ -6,9 +10,7 @@ const CORSOPTIONS = {
 };
 
 let settings = {
-  serverIP: Object.values(os.networkInterfaces())
-    .flat()
-    .find((i) => i.family == "IPv4" && !i.internal).address,
+  serverIP: IP_ADDR ? IP_ADDR.address : "127.0.0.1",
   serverPort: null,
   serverPortRangeEnd: null,
   filebrowserPaths: [],
