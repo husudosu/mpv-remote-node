@@ -97,7 +97,7 @@ function stringIsAValidUrl(s) {
 
 app.get("/api/v1/status", async (req, res) => {
   try {
-    return res.json(await getMPVProps());
+    return res.json(await getMPVProps(req.query.exclude));
   } catch (exc) {
     console.log(exc);
     return res.status(500).json({ message: exc });
@@ -714,7 +714,33 @@ async function getMetaData() {
   return metadata;
 }
 
-async function getMPVProps() {
+async function getMPVProp(key) {
+  try {
+    switch (key) {
+      case "playlist":
+        return await getPlaylist();
+      case "chapter-list":
+        return await getChapters();
+      case "track-list":
+        return await getTracks();
+      case "metadata":
+        return await getMetaData();
+      case "position":
+        return await mpv.getProperty("time-pos");
+      case "remaining":
+        return await mpv.getProperty("time-remaining");
+      default:
+        return await mpv.getProperty(key);
+    }
+  } catch (exc) {
+    if (exc.errmessage != "property unavailable") {
+      console.log(exc);
+    }
+    return null;
+  }
+}
+
+async function getMPVProps(exclude = []) {
   let props = {
     pause: false,
     mute: false,
@@ -723,48 +749,26 @@ async function getMPVProps() {
     position: 0,
     remaining: 0,
     "media-title": null,
-    playlist: [],
     chapter: 0,
-    "chapter-list": [],
     volume: 0,
     "volume-max": 100,
     fullscreen: false,
     speed: 1,
     "sub-delay": 0,
     "sub-visibility": true,
-    "track-list": [],
     "audio-delay": 0,
     "sub-font-size": 55,
     "sub-ass-override": "no",
+    playlist: [],
+    "chapter-list": [],
+    "track-list": [],
+    metadata: {},
   };
 
-  try {
-    props.pause = (await mpv.getProperty("pause")) || false;
-    props.volume = await mpv.getProperty("volume");
-    if (!props.volume && props.volume != 0) props.volume = 100; // Avoids sending 100 when actual volume is 0
-    props["volume-max"] = (await mpv.getProperty("volume-max")) || 100;
-    props.mute = (await mpv.getProperty("mute")) || false;
-    // File related data, only send back if available.
-    props.filename = await mpv.getProperty("filename");
-    props.duration = (await mpv.getProperty("duration")) || 0.0;
-    props.position = (await mpv.getProperty("time-pos")) || 0.0;
-    props.remaining = (await mpv.getProperty("time-remaining")) || 0.0;
-    props.fullscreen = (await mpv.getProperty("fullscreen")) || false;
-    props.playlist = (await getPlaylist()) || [];
-    props["media-title"] = await mpv.getProperty("media-title");
-    props["chapter-list"] = (await getChapters()) || [];
-    props.speed = await mpv.getProperty("speed");
-    props["sub-delay"] = (await mpv.getProperty("sub-delay")) || 0;
-    props["sub-visibility"] = (await mpv.getProperty("sub-visibility")) || 0;
-    props.metadata = (await getMetaData()) || {};
-    props["track-list"] = (await getTracks()) || [];
-    props["audio-delay"] = (await mpv.getProperty("audio-delay")) || 0;
-    props["sub-font-size"] = (await mpv.getProperty("sub-font-size")) || 55;
-    props["sub-ass-override"] =
-      (await mpv.getProperty("sub-ass-override")) || "no";
-  } catch (exc) {
-    if (exc.errmessage != "property unavailable") {
-      console.log(exc);
+  for (key of Object.keys(props)) {
+    if (!exclude.includes(key)) {
+      const val = (await getMPVProp(key)) || props[key];
+      props[key] = val;
     }
   }
 
@@ -807,7 +811,6 @@ async function main() {
 
     // Create file-local-options if not exists.
     if (!fs.existsSync(FILE_LOCAL_OPTIONS_PATH)) writeFileLocalOptions({});
-
     if (settings.uselocaldb) await initDB();
 
     await showOSDMessage(
