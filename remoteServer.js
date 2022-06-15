@@ -765,14 +765,15 @@ async function getMPVProps(exclude = []) {
     metadata: {},
   };
 
+  retval = {};
   for (key of Object.keys(props)) {
     if (!exclude.includes(key)) {
       const val = (await getMPVProp(key)) || props[key];
-      props[key] = val;
+      retval[key] = val;
     }
   }
 
-  return props;
+  return retval;
 }
 portfinder
   .getPortPromise({
