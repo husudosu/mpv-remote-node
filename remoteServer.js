@@ -27,6 +27,8 @@ const collections = require("./collections");
 const { detectFileType } = require("./filebrowser");
 const { loadSettings, settings, CORSOPTIONS } = require("./settings");
 const { version } = require("./package.json");
+// Returning cached properties if the CPU usage high.
+let cachedProps = {};
 
 const argv = yargs
   .option("webport", {
@@ -95,12 +97,37 @@ function stringIsAValidUrl(s) {
   }
 }
 
+// Thanks: https://javascript.plainenglish.io/how-to-add-a-timeout-limit-to-asynchronous-javascript-functions-3676d89c186d
+const asyncCallWithTimeout = async (asyncPromise, timeLimit) => {
+  let timeoutHandle;
+
+  const timeoutPromise = new Promise((_resolve, reject) => {
+    timeoutHandle = setTimeout(
+      () => reject(new Error("Async call timeout limit reached")),
+      timeLimit
+    );
+  });
+
+  return Promise.race([asyncPromise, timeoutPromise]).then((result) => {
+    clearTimeout(timeoutHandle);
+    return result;
+  });
+};
+
 app.get("/api/v1/status", async (req, res) => {
+  setTimeout(async () => {});
   try {
-    return res.json(await getMPVProps(req.query.exclude));
+    const result = await asyncCallWithTimeout(
+      getMPVProps(req.query.exclude),
+      500
+    );
+    // Returning cached properties if the CPU usage high.
+    cachedProps = Object.assign(cachedProps, result);
+    return res.json(result);
   } catch (exc) {
-    console.log(exc);
-    return res.status(500).json({ message: exc });
+    if (exc.message == "Async call timeout limit reached")
+      return res.json(cachedProps);
+    else return res.status(500).json({ message: exc });
   }
 });
 
@@ -772,9 +799,9 @@ async function getMPVProps(exclude = []) {
       retval[key] = val;
     }
   }
-
   return retval;
 }
+
 portfinder
   .getPortPromise({
     port: settings.serverPort,
