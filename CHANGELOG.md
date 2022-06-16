@@ -39,4 +39,6 @@
 
 ## 1.0.7
 
-- Fixed IP getting on newer Node.JS versions
+- Fixed IP getting on newer Node.JS versions,
+- If the CPU usage high on the host machine returning cached properties,
+- Ability to exclude properties on /status route as query param, check [APIDESIGN.MD](https://github.com/husudosu/mpv-remote-node/blob/master/APIDESIGN.md)

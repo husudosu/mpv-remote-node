@@ -36,6 +36,12 @@ Gets info about MPV. MPV remote plugin settings also included.
 
 Gets status of the player.
 
+**Query parameters:**
+
+**exclude:** You can provide properties to exclude as list.
+
+- example value: exclude=playlist,track-list
+
 Example response:
 
 ```json

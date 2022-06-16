@@ -115,7 +115,6 @@ const asyncCallWithTimeout = async (asyncPromise, timeLimit) => {
 };
 
 app.get("/api/v1/status", async (req, res) => {
-  setTimeout(async () => {});
   try {
     const result = await asyncCallWithTimeout(
       getMPVProps(req.query.exclude),
