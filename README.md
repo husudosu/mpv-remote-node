@@ -9,13 +9,11 @@ MPV remote control API. You can use [MPV Remote android application](https://git
 - [Node.JS](https://nodejs.org/en/) (use [13.14.0 LTS](https://nodejs.org/download/release/v13.14.0/) for Windows 7)
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp) or [youtube-dl](https://youtube-dl.org/) for playing youtube videos,
 
-### Note about youtube-dl
-
-youtube-dl buffers too much for me (Windows 10 & 11), so I've changed to yt-dlp and no issues at all.
-
 ### Install package
 
 **Linux:**
+
+Open your favorite terminal and:
 
 ```bash
 sudo npm install -g mpv-remote
@@ -158,3 +156,7 @@ It makes problem solving easier if you provide some info about your environment.
 - Improve API documentation,
 - Better installation scripts,
 - Make a Youtube video about installing/updating MPV-remote on Windows and Linux
+
+# Disclaimer
+
+The app developer DOES NOT promotes piracy! Other apps and modules used by this app may include some level of piracy.
