@@ -1,4 +1,4 @@
-const FILE_FORMATS = {
+export const FILE_FORMATS = {
   audio: [
     ".ac3",
     ".a52",
@@ -165,5 +165,3 @@ const FILE_FORMATS = {
     ".txt",
   ],
 };
-
-exports.FILE_FORMATS = FILE_FORMATS;

@@ -1,15 +1,15 @@
-const { networkInterfaces } = require("os");
+import { networkInterfaces } from "os";
 
-const IP_ADDR = Object.values(networkInterfaces())
+export const IP_ADDR = Object.values(networkInterfaces())
   .flat()
   .find((i) => (i.family == "IPv4" || i.family == 4) && !i.internal);
 
-const CORSOPTIONS = {
+export const CORSOPTIONS = {
   origin: "*",
   methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH"],
 };
 
-let settings = {
+export let settings = {
   serverIP: IP_ADDR ? IP_ADDR.address : "127.0.0.1",
   serverPort: null,
   serverPortRangeEnd: null,
@@ -23,7 +23,7 @@ let settings = {
 /*
 Loads settings
 */
-function loadSettings(argv) {
+export const loadSettings = (argv) => {
   settings.socketName = argv._[0];
   settings.serverPort = argv.webport;
   settings.serverPortRangeEnd = argv.webportrangeend;
@@ -40,8 +40,4 @@ function loadSettings(argv) {
       };
     });
   }
-}
-
-exports.loadSettings = loadSettings;
-exports.settings = settings;
-exports.CORSOPTIONS = CORSOPTIONS;
+};

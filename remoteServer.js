@@ -1,74 +1,75 @@
-const os = require("os");
-const process = require("process");
-const fs = require("fs");
-const fs_async = require("fs").promises;
-const path = require("path");
-const URL = require("url").URL;
-const exec = require("child_process").exec;
+import { platform } from "os";
+import path from "path";
+import { lstatSync, existsSync, promises as fs_async } from "fs";
+import child_process from "child_process";
+import { URL } from "url";
 
-const express = require("express");
-const cors = require("cors");
-const mpvAPI = require("node-mpv");
+import yargs from "yargs";
+import { getPortPromise } from "portfinder";
+import express, { json, Router } from "express";
+import cors from "cors";
 
-const yargs = require("yargs");
-const portfinder = require("portfinder");
+import mpvAPI from "node-mpv";
 
+import { initDB } from "./crud.js";
+import filebrowser, { detectFileType } from "./filebrowser.js";
+import collections from "./collections.js";
+import { loadSettings, settings, CORSOPTIONS } from "./settings.js";
+
+const TEMPDIR = process.env.TEMP || process.env.TMP || "/tmp"; // Temp dir
+const FILE_LOCAL_OPTIONS_PATH = path.join(TEMPDIR, "file-local-options.txt");
 const WIN_SHUTDOWN_COMMAND = "shutdown /s /t 1";
 const WIN_REBOOT_COMMAND = "shutdown /r /t 1";
 const UNIX_SHUTDOWN_COMMAND = "/usr/sbin/shutdown now";
 const UNIX_REBOOT_COMMAND = "/usr/sbin/reboot";
+// TODO: Get version from package.json
+const VERSION = "1.0.8";
 
-const { initDB } = require("./crud");
-
-const tempdir = process.env.TEMP || process.env.TMP || "/tmp"; // Temp dir
-const FILE_LOCAL_OPTIONS_PATH = path.join(tempdir, "file-local-options.txt");
-const filebrowser = require("./filebrowser");
-const collections = require("./collections");
-const { detectFileType } = require("./filebrowser");
-const { loadSettings, settings, CORSOPTIONS } = require("./settings");
-const { version } = require("./package.json");
 // Returning cached properties if the CPU usage high.
 let cachedProps = {};
 
-const argv = yargs
-  .option("webport", {
-    description: "First available server port",
-    alias: "p",
-    type: "number",
-    default: 8000,
-  })
-  .option("webportrangeend", {
-    description: "Last available server port",
-    alias: "e",
-    type: "number",
-    default: 8005,
-  })
-  .option("uselocaldb", {
-    description: "Use database for storing collection & mediastatus",
-    type: "boolean",
-    default: false,
-  })
-  .option("filebrowserpaths", {
-    description: "File browser paths, which can be accessed by the server",
-    type: "array",
-  })
-  .option("unsafefilebrowsing", {
-    description: "Allows to browse your filesystem",
-    type: "boolean",
-    default: false,
-  })
-  .option("verbose", {
-    description: "Activates MPV node verbose log",
-    type: "boolean",
-    default: false,
-  })
-  .option("osd-messages", {
-    description: "Enables OSD messages",
-    type: "boolean",
-    default: false,
+const argv = yargs(process.argv.slice(2))
+  .options({
+    webport: {
+      description: "First available server port",
+      alias: "p",
+      type: "number",
+      default: 8000,
+    },
+    webportrangeend: {
+      description: "Last available server port",
+      alias: "e",
+      type: "number",
+      default: 8005,
+    },
+    uselocaldb: {
+      description: "Use database for storing collection & mediastatus",
+      type: "boolean",
+      default: false,
+    },
+    filebrowserpaths: {
+      description: "File browser paths, which can be accessed by the server",
+      type: "array",
+    },
+    unsafefilebrowsing: {
+      description: "Allows to browse your filesystem",
+      type: "boolean",
+      default: false,
+    },
+    verbose: {
+      description: "Activates MPV node verbose log",
+      type: "boolean",
+      default: false,
+    },
+    "osd-messages": {
+      description: "Enables OSD messages",
+      type: "boolean",
+      default: false,
+    },
   })
   .help()
   .alias("help", "h").argv;
+
 if (argv._.length == 0) {
   console.log("No socket provided");
   process.exit();
@@ -77,27 +78,27 @@ if (argv._.length == 0) {
 loadSettings(argv);
 
 const app = express();
-app.use(cors(CORSOPTIONS));
-app.use(express.json());
-
-const APIRouter = express.Router();
-app.use("/api/v1", APIRouter);
-APIRouter.use("/", filebrowser);
-APIRouter.use("/collections", collections);
-
+const APIRouter = Router();
 const mpv = new mpvAPI({
   socket: settings.socketName,
   verbose: settings.verbose,
 });
 
-function stringIsAValidUrl(s) {
+app.use(cors(CORSOPTIONS));
+app.use(json());
+
+app.use("/api/v1", APIRouter);
+APIRouter.use("/", filebrowser);
+APIRouter.use("/collections", collections);
+
+const stringIsAValidUrl = (s) => {
   try {
     new URL(s);
     return true;
   } catch (err) {
     return false;
   }
-}
+};
 
 // Thanks: https://javascript.plainenglish.io/how-to-add-a-timeout-limit-to-asynchronous-javascript-functions-3676d89c186d
 const asyncCallWithTimeout = async (asyncPromise, timeLimit) => {
@@ -174,7 +175,7 @@ APIRouter.post("/controls/stop", async (req, res) => {
   }
 });
 
-async function playlistPrev(req, res) {
+const playlistPrev = async (req, res) => {
   try {
     await mpv.prev();
     return res.json({ message: "success" });
@@ -182,9 +183,9 @@ async function playlistPrev(req, res) {
     console.log(exc);
     return res.status(500).json({ message: exc });
   }
-}
+};
 
-async function playlistNext(req, res) {
+const playlistNext = async (req, res) => {
   try {
     await mpv.next();
     return res.json({ message: "success" });
@@ -192,7 +193,7 @@ async function playlistNext(req, res) {
     console.log(exc);
     return res.status(500).json({ message: exc });
   }
-}
+};
 
 APIRouter.post("/controls/prev", playlistPrev);
 APIRouter.post("/playlist/prev", playlistPrev);
@@ -385,18 +386,18 @@ APIRouter.get("/playlist", async (req, res) => {
   }
 });
 
-async function writeFileLocalOptions(options) {
+const writeFileLocalOptions = async (options) => {
   await fs_async.writeFile(
     FILE_LOCAL_OPTIONS_PATH,
     JSON.stringify(options),
     "utf-8"
   );
-}
+};
 
-async function readFileLocalOptions() {
+const readFileLocalOptions = async () => {
   const content = await fs_async.readFile(FILE_LOCAL_OPTIONS_PATH, "utf-8");
   return JSON.parse(content);
-}
+};
 
 APIRouter.post("/playlist", async (req, res) => {
   try {
@@ -404,7 +405,7 @@ APIRouter.post("/playlist", async (req, res) => {
     if (!req.body.flag) req.body.flag = "append-play";
     if (
       !stringIsAValidUrl(req.body.filename) &&
-      fs.lstatSync(req.body.filename).isDirectory()
+      lstatSync(req.body.filename).isDirectory()
     ) {
       for (const item of await fs_async.readdir(req.body.filename)) {
         let type = detectFileType(path.extname(item));
@@ -498,25 +499,27 @@ APIRouter.get("/mpvinfo", async (req, res) => {
   }
 });
 
-async function shutdownAction(action) {
+const shutdownAction = async (action) => {
   switch (action) {
     case "shutdown":
       // First stop MPV playback to save playback data
       await mpv.stop();
-      exec(
-        os.platform == "win32" ? WIN_SHUTDOWN_COMMAND : UNIX_SHUTDOWN_COMMAND
+      child_process.exec(
+        platform == "win32" ? WIN_SHUTDOWN_COMMAND : UNIX_SHUTDOWN_COMMAND
       );
       break;
     case "reboot":
       await mpv.stop();
-      exec(os.platform == "win32" ? WIN_REBOOT_COMMAND : UNIX_REBOOT_COMMAND);
+      child_process.exec(
+        platform == "win32" ? WIN_REBOOT_COMMAND : UNIX_REBOOT_COMMAND
+      );
       break;
     case "quit":
       await mpv.stop();
 
       break;
   }
-}
+};
 
 APIRouter.post("/computer/:action", async (req, res) => {
   try {
@@ -551,7 +554,7 @@ mpv.on("status", async (status) => {
       case "playlist-pos":
         break;
       case "path":
-        playerData = await getMPVProps();
+        const playerData = await getMPVProps();
         if (status.value) {
           // Reset subdelay to 0
           await mpv.setProperty("sub-delay", 0);
@@ -572,7 +575,7 @@ mpv.on("seek", async (data) => {
   await showOSDMessage(`Seek: ${formatTime(data.end)}`);
 });
 
-function formatTime(param) {
+const formatTime = (param) => {
   var sec_num = parseInt(param);
   var hours = Math.floor(sec_num / 3600);
   var minutes = Math.floor((sec_num - hours * 3600) / 60);
@@ -588,15 +591,15 @@ function formatTime(param) {
     seconds = "0" + seconds;
   }
   return hours + ":" + minutes + ":" + seconds;
-}
+};
 
-function handle(promise) {
+const handle = (promise) => {
   return promise
     .then((data) => [data, undefined])
     .catch((error) => Promise.resolve([undefined, error]));
-}
+};
 
-async function getMPVInfo() {
+const getMPVInfo = async () => {
   return {
     "ffmpeg-version": await handle(mpv.getProperty("ffmpeg-version"))
       .then((resp) => resp[0])
@@ -608,11 +611,11 @@ async function getMPVInfo() {
       .then((resp) => resp[0])
       .catch(() => null),
     mpvremoteConfig: settings,
-    mpvremoteVersion: version,
+    mpvremoteVersion: VERSION,
   };
-}
+};
 
-async function getTracks() {
+const getTracks = async () => {
   const count = await mpv.getProperty("track-list/count");
   let tracks = [];
   for (let i = 0; i < count; i++) {
@@ -674,9 +677,9 @@ async function getTracks() {
     }
   }
   return tracks;
-}
+};
 
-async function getPlaylist() {
+const getPlaylist = async () => {
   const count = await mpv.getProperty("playlist-count");
   let playlist = [];
   for (let i = 0; i < count; i++) {
@@ -696,7 +699,6 @@ async function getPlaylist() {
           (resp) => resp[0]
         ),
       };
-
       if (item.filePath) item.filename = path.basename(item.filePath);
       playlist.push(item);
     } catch (exc) {
@@ -704,9 +706,9 @@ async function getPlaylist() {
     }
   }
   return playlist;
-}
+};
 
-async function getChapters() {
+const getChapters = async () => {
   const count = await mpv.getProperty("chapter-list/count");
   let chapters = [];
   for (let i = 0; i < count; i++) {
@@ -720,9 +722,9 @@ async function getChapters() {
     });
   }
   return chapters;
-}
+};
 
-async function getMetaData() {
+const getMetaData = async () => {
   const count = await mpv.getProperty("metadata/list/count");
   let metadata = {};
   for (let i = 0; i < count; i++) {
@@ -740,9 +742,9 @@ async function getMetaData() {
     }
   }
   return metadata;
-}
+};
 
-async function getMPVProp(key) {
+const getMPVProp = async (key) => {
   try {
     switch (key) {
       case "playlist":
@@ -766,9 +768,9 @@ async function getMPVProp(key) {
     }
     return null;
   }
-}
+};
 
-async function getMPVProps(exclude = []) {
+const getMPVProps = async (exclude = []) => {
   let props = {
     pause: false,
     mute: false,
@@ -793,21 +795,20 @@ async function getMPVProps(exclude = []) {
     metadata: {},
   };
 
-  retval = {};
-  for (key of Object.keys(props)) {
+  let retval = {};
+  for (const key of Object.keys(props)) {
     if (!exclude.includes(key)) {
       const val = (await getMPVProp(key)) || props[key];
       retval[key] = val;
     }
   }
   return retval;
-}
+};
 
-portfinder
-  .getPortPromise({
-    port: settings.serverPort,
-    stopPort: settings.serverPortRangeEnd,
-  })
+getPortPromise({
+  port: settings.serverPort,
+  stopPort: settings.serverPortRangeEnd,
+})
   .then((port) => {
     app.listen(port, () => {
       settings.serverPort = port;
@@ -821,7 +822,7 @@ portfinder
     );
   });
 
-async function showOSDMessage(text, timeout = null) {
+const showOSDMessage = async (text, timeout = null) => {
   /*
   Shows OSD message on MPV if it's enabled on settings.
   */
@@ -831,15 +832,15 @@ async function showOSDMessage(text, timeout = null) {
   } else {
     console.log(`OSD message: ${text}`);
   }
-}
+};
 
-async function main() {
+const main = async () => {
   try {
     // Creates/clears file local options file.
     await mpv.start();
 
     // Create file-local-options if not exists.
-    if (!fs.existsSync(FILE_LOCAL_OPTIONS_PATH)) writeFileLocalOptions({});
+    if (!existsSync(FILE_LOCAL_OPTIONS_PATH)) writeFileLocalOptions({});
     if (settings.uselocaldb) await initDB();
 
     await showOSDMessage(
@@ -850,7 +851,7 @@ async function main() {
     // handle errors here
     console.log(error);
   }
-}
+};
 
 process.on("unhandledRejection", (error) => {
   // Will print "unhandledRejection err is not defined"

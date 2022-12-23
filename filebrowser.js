@@ -1,16 +1,16 @@
-const fs = require("fs");
-const fs_async = require("fs").promises;
-const path = require("path");
+import { lstatSync, existsSync, promises as fs_async } from "fs";
+import { sep, join, extname, basename, resolve } from "path";
+import { getDiskInfo } from "node-disk-info";
 
-const express = require("express");
-const router = express.Router();
-const nodeDiskInfo = require("node-disk-info");
+import { Router } from "express";
 
-const { getMediastatusEntries, getCollections } = require("./crud");
-const { settings } = require("./settings");
-const FILE_FORMATS = require("./fileformats").FILE_FORMATS;
+import { settings } from "./settings.js";
+import { FILE_FORMATS } from "./fileformats.js";
+import { MediaStatusCRUD, CollectionCRUD } from "./crud.js";
 
-function detectFileType(extension) {
+const router = Router();
+
+export const detectFileType = (extension) => {
   extension = extension.toLowerCase();
 
   if (FILE_FORMATS.video.includes(extension)) {
@@ -22,9 +22,9 @@ function detectFileType(extension) {
   } else {
     return "file";
   }
-}
+};
 
-async function getDirectoryContents(qpath) {
+export const getDirectoryContents = async (qpath) => {
   // TODO Handle exceptions
   let content = [];
 
@@ -33,20 +33,20 @@ async function getDirectoryContents(qpath) {
   Interesting because C: (System partition) needs a path seperator to work correctly,
   but for my network drives works without path sep.
   */
-  if (qpath[qpath.length - 1] != path.sep) qpath += path.sep;
+  if (qpath[qpath.length - 1] != sep) qpath += sep;
   let mediaStatus = [];
 
   if (settings.uselocaldb)
-    mediaStatus = await getMediastatusEntries(null, qpath);
+    mediaStatus = await MediaStatusCRUD.getMediastatusEntries(null, qpath);
 
   for (const item of await fs_async.readdir(qpath)) {
     try {
-      if (fs.lstatSync(path.join(qpath, item)).isDirectory()) {
+      if (lstatSync(join(qpath, item)).isDirectory()) {
         let entry = {
           priority: 1,
           type: "directory",
           name: item,
-          fullPath: path.join(qpath, item),
+          fullPath: join(qpath, item),
         };
         entry.lastModified = await fs_async
           .stat(entry.fullPath)
@@ -55,14 +55,14 @@ async function getDirectoryContents(qpath) {
 
         content.push(entry);
       } else {
-        let fileType = detectFileType(path.extname(item));
+        let fileType = detectFileType(extname(item));
         // Render only media, sub types.
         if (fileType !== "file") {
           let entry = {
             priority: 2,
             type: fileType,
             name: item,
-            fullPath: path.join(qpath, item),
+            fullPath: join(qpath, item),
           };
           entry.lastModified = await fs_async
             .stat(entry.fullPath)
@@ -79,12 +79,12 @@ async function getDirectoryContents(qpath) {
     }
   }
   return content;
-}
+};
 
 router.get("/drives", async (req, res) => {
   try {
     if (settings.unsafefilebrowsing) {
-      let disks = await nodeDiskInfo.getDiskInfo();
+      let disks = await getDiskInfo();
       // ignore snap, flatpak stuff linux
       disks = disks.filter(
         (disk) =>
@@ -140,13 +140,13 @@ router.post("/filebrowser/browse", async (req, res) => {
             .send({ message: `Path not exists on filebrowserpaths: ${p}` });
       }
 
-      if (!fs.existsSync(p))
+      if (!existsSync(p))
         return res.status(404).send({ message: "Path not exists!" });
       // Get files from directory
 
       retval.content = await getDirectoryContents(p);
-      retval.dirname = path.basename(p);
-      retval.prevDir = path.resolve(p, "..");
+      retval.dirname = basename(p);
+      retval.prevDir = resolve(p, "..");
       retval.cwd = p;
     } else if (collectionId) {
       // Get collection contents if local database enabled!
@@ -155,7 +155,7 @@ router.post("/filebrowser/browse", async (req, res) => {
           .status(400)
           .send({ message: "mpvremote-uselocaldb is disabled!" });
 
-      let collection = await getCollections(collectionId);
+      let collection = await CollectionCRUD.getCollections(collectionId);
       if (!collection) return res.status(404).send("Collection not exists!");
       retval.content = [];
       retval.errors = [];
@@ -172,7 +172,7 @@ router.post("/filebrowser/browse", async (req, res) => {
                 `Not exists on filebrowserpaths: ${item.path}`
               );
             }
-          } else if (fs.existsSync(item.path)) {
+          } else if (existsSync(item.path)) {
             const dir = await getDirectoryContents(item.path);
             retval.content = [...retval.content, ...dir];
           } else {
@@ -198,6 +198,4 @@ router.post("/filebrowser/browse", async (req, res) => {
   }
 });
 
-exports.getDirectoryContents = getDirectoryContents;
-exports.detectFileType = detectFileType;
-module.exports = router;
+export default router;

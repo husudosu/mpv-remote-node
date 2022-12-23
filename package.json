@@ -1,8 +1,8 @@
 {
   "name": "mpv-remote",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "MPV remote control",
-  "main": "./remote.socketio.js",
+  "main": "./remoteServer.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,7 +18,7 @@
     "sqlite3": "^5.0.2",
     "yargs": "^17.2.1"
   },
-  "type": "commonjs",
+  "type": "module",
   "keywords": [
     "mpv",
     "Audio",

@@ -1,16 +1,12 @@
-const express = require("express");
-const router = express.Router();
-const {
-  createCollection,
-  getCollections,
-  updateCollection,
-  deleteCollection,
-  createCollectionEntry,
-  deleteCollectionEntry,
+import { Router } from "express";
+const router = Router();
+import {
+  CollectionCRUD,
+  CollectionEntryCRUD,
   NotFoundException,
-} = require("./crud");
+} from "./crud.js";
 
-const { settings } = require("./settings");
+import { settings } from "./settings.js";
 
 // Base URL: /api/v1/collections
 
@@ -27,12 +23,12 @@ router.use(function checkUseLocalDB(req, res, next) {
 router.get("/:id?", async (req, res) => {
   try {
     if (req.params.id) {
-      const collection = await getCollections(req.params.id);
+      const collection = await CollectionCRUD.getCollections(req.params.id);
       if (!collection)
         return res.status(404).json({ message: "Collection not exists" });
       return res.json(collection);
     } else {
-      return res.json(await getCollections());
+      return res.json(await CollectionCRUD.getCollections());
     }
   } catch (exc) {
     console.log(exc);
@@ -43,7 +39,7 @@ router.get("/:id?", async (req, res) => {
 router.post("", async (req, res) => {
   // TODO Some validation.
   try {
-    const collection = await createCollection(req.body);
+    const collection = await CollectionCRUD.createCollection(req.body);
     return res.json(collection);
   } catch (exc) {
     console.log(exc);
@@ -53,7 +49,9 @@ router.post("", async (req, res) => {
 
 router.patch("/:collection_id/", async (req, res) => {
   try {
-    return res.json(await updateCollection(req.params.collection_id, req.body));
+    return res.json(
+      await CollectionCRUD.updateCollection(req.params.collection_id, req.body)
+    );
   } catch (exc) {
     if (exc instanceof NotFoundException)
       return res.status(404).json({ message: exc.message });
@@ -67,7 +65,7 @@ router.patch("/:collection_id/", async (req, res) => {
 router.delete("/:collection_id/", async (req, res) => {
   try {
     const collection_id = req.params.collection_id;
-    deleteCollection(collection_id);
+    CollectionCRUD.deleteCollection(collection_id);
     return res.json({});
   } catch (exc) {
     return res.status(500).json({ message: exc });
@@ -76,7 +74,7 @@ router.delete("/:collection_id/", async (req, res) => {
 
 router.post("/:collection_id/entries/", async (req, res) => {
   try {
-    const collection_entry = await createCollectionEntry(
+    const collection_entry = await CollectionEntryCRUD.createCollectionEntry(
       req.params.collection_id,
       req.body
     );
@@ -90,7 +88,7 @@ router.post("/:collection_id/entries/", async (req, res) => {
 
 router.delete("/entries/:id", async (req, res) => {
   try {
-    deleteCollectionEntry(req.params.id);
+    CollectionEntryCRUD.deleteCollectionEntry(req.params.id);
     return res.json({});
   } catch (exc) {
     if (exc instanceof NotFoundException)
@@ -99,4 +97,4 @@ router.delete("/entries/:id", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
