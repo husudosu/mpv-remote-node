@@ -81,7 +81,7 @@ async function getDirectoryContents(qpath) {
   return content;
 }
 
-router.get("/api/v1/drives", async (req, res) => {
+router.get("/drives", async (req, res) => {
   try {
     if (settings.unsafefilebrowsing) {
       let disks = await nodeDiskInfo.getDiskInfo();
@@ -106,7 +106,7 @@ router.get("/api/v1/drives", async (req, res) => {
   }
 });
 
-router.get("/api/v1/filebrowser/paths", async (req, res) => {
+router.get("/filebrowser/paths", async (req, res) => {
   try {
     return res.json(settings.filebrowserPaths);
   } catch (exc) {
@@ -115,7 +115,7 @@ router.get("/api/v1/filebrowser/paths", async (req, res) => {
   }
 });
 
-router.post("/api/v1/filebrowser/browse", async (req, res) => {
+router.post("/filebrowser/browse", async (req, res) => {
   try {
     let p = req.body.path;
     let collectionId = req.body.collection_id;

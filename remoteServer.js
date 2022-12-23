@@ -80,8 +80,10 @@ const app = express();
 app.use(cors(CORSOPTIONS));
 app.use(express.json());
 
-app.use("/", filebrowser);
-app.use("/api/v1/collections", collections);
+const APIRouter = express.Router();
+app.use("/api/v1", APIRouter);
+APIRouter.use("/", filebrowser);
+APIRouter.use("/collections", collections);
 
 const mpv = new mpvAPI({
   socket: settings.socketName,
@@ -114,7 +116,7 @@ const asyncCallWithTimeout = async (asyncPromise, timeLimit) => {
   });
 };
 
-app.get("/api/v1/status", async (req, res) => {
+APIRouter.get("/status", async (req, res) => {
   try {
     const result = await asyncCallWithTimeout(
       getMPVProps(req.query.exclude),
@@ -134,7 +136,7 @@ app.get("/api/v1/status", async (req, res) => {
 MEDIA CONTROLS
 */
 
-app.post("/api/v1/controls/play-pause", async (req, res) => {
+APIRouter.post("/controls/play-pause", async (req, res) => {
   try {
     await mpv.togglePause();
     return res.json({ message: "success" });
@@ -144,7 +146,7 @@ app.post("/api/v1/controls/play-pause", async (req, res) => {
   }
 });
 
-app.post("/api/v1/controls/play", async (req, res) => {
+APIRouter.post("/controls/play", async (req, res) => {
   try {
     await mpv.play();
     return res.json({ messsage: "success" });
@@ -153,7 +155,7 @@ app.post("/api/v1/controls/play", async (req, res) => {
   }
 });
 
-app.post("/api/v1/controls/pause", async (req, res) => {
+APIRouter.post("/controls/pause", async (req, res) => {
   try {
     await mpv.pause();
     return res.json({ messsage: "success" });
@@ -162,7 +164,7 @@ app.post("/api/v1/controls/pause", async (req, res) => {
   }
 });
 
-app.post("/api/v1/controls/stop", async (req, res) => {
+APIRouter.post("/controls/stop", async (req, res) => {
   try {
     await mpv.stop();
     return res.json({ message: "success" });
@@ -192,13 +194,13 @@ async function playlistNext(req, res) {
   }
 }
 
-app.post("/api/v1/controls/prev", playlistPrev);
-app.post("/api/v1/playlist/prev", playlistPrev);
+APIRouter.post("/controls/prev", playlistPrev);
+APIRouter.post("/playlist/prev", playlistPrev);
 
-app.post("/api/v1/controls/next", playlistNext);
-app.post("/api/v1/playlist/next", playlistNext);
+APIRouter.post("/controls/next", playlistNext);
+APIRouter.post("/playlist/next", playlistNext);
 
-app.post("/api/v1/controls/fullscreen", async (req, res) => {
+APIRouter.post("/controls/fullscreen", async (req, res) => {
   try {
     await mpv.toggleFullscreen();
     return res.json({ message: "success" });
@@ -208,7 +210,7 @@ app.post("/api/v1/controls/fullscreen", async (req, res) => {
   }
 });
 
-app.post("/api/v1/controls/volume/:value", async (req, res) => {
+APIRouter.post("/controls/volume/:value", async (req, res) => {
   try {
     await mpv.volume(req.params.value);
     return res.json({ message: "success" });
@@ -218,7 +220,7 @@ app.post("/api/v1/controls/volume/:value", async (req, res) => {
   }
 });
 
-app.post("/api/v1/controls/mute", async (req, res) => {
+APIRouter.post("/controls/mute", async (req, res) => {
   try {
     await mpv.mute();
     return res.json({ message: "success" });
@@ -228,7 +230,7 @@ app.post("/api/v1/controls/mute", async (req, res) => {
   }
 });
 
-app.post("/api/v1/controls/seek", async (req, res) => {
+APIRouter.post("/controls/seek", async (req, res) => {
   try {
     if (!req.body.flag) req.body.flag = "relative";
     await mpv.seek(req.body.target, req.body.flag);
@@ -242,7 +244,7 @@ app.post("/api/v1/controls/seek", async (req, res) => {
 /*
   TRACKS
 */
-app.get("/api/v1/tracks", async (req, res) => {
+APIRouter.get("/tracks", async (req, res) => {
   try {
     return res.json(await getTracks());
   } catch (exc) {
@@ -254,7 +256,7 @@ app.get("/api/v1/tracks", async (req, res) => {
 /*
   AUDIO TRACKS
 */
-app.post("/api/v1/tracks/audio/reload/:id", async (req, res) => {
+APIRouter.post("/tracks/audio/reload/:id", async (req, res) => {
   try {
     await mpv.selectAudioTrack(req.params.id);
     return res.json({ message: "success" });
@@ -264,7 +266,7 @@ app.post("/api/v1/tracks/audio/reload/:id", async (req, res) => {
   }
 });
 
-app.post("/api/v1/tracks/audio/cycle", async (req, res) => {
+APIRouter.post("/tracks/audio/cycle", async (req, res) => {
   try {
     await mpv.cycleAudioTracks();
     return res.json({ message: "success" });
@@ -274,7 +276,7 @@ app.post("/api/v1/tracks/audio/cycle", async (req, res) => {
   }
 });
 
-app.post("/api/v1/tracks/audio/add", async (req, res) => {
+APIRouter.post("/tracks/audio/add", async (req, res) => {
   try {
     if (!req.body.flag) req.body.flag = "select";
     await mpv.addAudioTrack(req.body.filename, req.body.flag);
@@ -285,7 +287,7 @@ app.post("/api/v1/tracks/audio/add", async (req, res) => {
   }
 });
 
-app.post("/api/v1/tracks/audio/timing/:seconds", async (req, res) => {
+APIRouter.post("/tracks/audio/timing/:seconds", async (req, res) => {
   try {
     await mpv.adjustAudioTiming(req.params.seconds);
     return res.json({ message: "success" });
@@ -298,7 +300,7 @@ app.post("/api/v1/tracks/audio/timing/:seconds", async (req, res) => {
 /*
   SUB TRACKS
 */
-app.post("/api/v1/tracks/sub/timing/:seconds", async (req, res) => {
+APIRouter.post("/tracks/sub/timing/:seconds", async (req, res) => {
   try {
     await mpv.adjustSubtitleTiming(req.params.seconds);
     return res.json({ message: "success" });
@@ -308,7 +310,7 @@ app.post("/api/v1/tracks/sub/timing/:seconds", async (req, res) => {
   }
 });
 
-app.post("/api/v1/tracks/sub/ass-override/:value", async (req, res) => {
+APIRouter.post("/tracks/sub/ass-override/:value", async (req, res) => {
   try {
     await mpv.setProperty("sub-ass-override", req.params.value);
     return res.json({ message: "success" });
@@ -318,7 +320,7 @@ app.post("/api/v1/tracks/sub/ass-override/:value", async (req, res) => {
   }
 });
 
-app.post("/api/v1/tracks/sub/font-size/:size", async (req, res) => {
+APIRouter.post("/tracks/sub/font-size/:size", async (req, res) => {
   try {
     await mpv.setProperty("sub-font-size", req.params.size);
     return res.json({ message: "success" });
@@ -328,7 +330,7 @@ app.post("/api/v1/tracks/sub/font-size/:size", async (req, res) => {
   }
 });
 
-app.post("/api/v1/tracks/sub/toggle-visibility", async (req, res) => {
+APIRouter.post("/tracks/sub/toggle-visibility", async (req, res) => {
   try {
     await mpv.toggleSubtitleVisibility();
     return res.json({ message: "success" });
@@ -338,7 +340,7 @@ app.post("/api/v1/tracks/sub/toggle-visibility", async (req, res) => {
   }
 });
 
-app.post("/api/v1/tracks/sub/visibility/:value", async (req, res) => {
+APIRouter.post("/tracks/sub/visibility/:value", async (req, res) => {
   try {
     let val = req.params.value.toLowerCase() == "true" ? true : false;
     await mpv.setProperty("sub-visibility", val);
@@ -349,7 +351,7 @@ app.post("/api/v1/tracks/sub/visibility/:value", async (req, res) => {
   }
 });
 
-app.post("/api/v1/tracks/sub/add", async (req, res) => {
+APIRouter.post("/tracks/sub/add", async (req, res) => {
   try {
     // TODO: title, lang
     if (!req.body.flag) req.body.flag = "select";
@@ -361,7 +363,7 @@ app.post("/api/v1/tracks/sub/add", async (req, res) => {
   }
 });
 
-app.post("/api/v1/tracks/sub/reload/:id", async (req, res) => {
+APIRouter.post("/tracks/sub/reload/:id", async (req, res) => {
   try {
     await mpv.selectSubtitles(req.params.id);
     return res.json({ message: "success" });
@@ -374,7 +376,7 @@ app.post("/api/v1/tracks/sub/reload/:id", async (req, res) => {
 /*
   PLAYLIST
 */
-app.get("/api/v1/playlist", async (req, res) => {
+APIRouter.get("/playlist", async (req, res) => {
   try {
     return res.json(await getPlaylist());
   } catch (exc) {
@@ -396,7 +398,7 @@ async function readFileLocalOptions() {
   return JSON.parse(content);
 }
 
-app.post("/api/v1/playlist", async (req, res) => {
+APIRouter.post("/playlist", async (req, res) => {
   try {
     console.log(req.body);
     if (!req.body.flag) req.body.flag = "append-play";
@@ -429,7 +431,7 @@ app.post("/api/v1/playlist", async (req, res) => {
   }
 });
 
-app.delete("/api/v1/playlist/remove/:index", async (req, res) => {
+APIRouter.delete("/playlist/remove/:index", async (req, res) => {
   try {
     await mpv.playlistRemove(req.params.index);
     return res.json({ message: "success" });
@@ -439,7 +441,7 @@ app.delete("/api/v1/playlist/remove/:index", async (req, res) => {
   }
 });
 
-app.post("/api/v1/playlist/move", async (req, res) => {
+APIRouter.post("/playlist/move", async (req, res) => {
   try {
     if (!req.query.fromIndex)
       return res
@@ -456,7 +458,7 @@ app.post("/api/v1/playlist/move", async (req, res) => {
   }
 });
 
-app.post("/api/v1/playlist/play/:index", async (req, res) => {
+APIRouter.post("/playlist/play/:index", async (req, res) => {
   try {
     await mpv.command("playlist-play-index", [req.params.index]);
     await mpv.play();
@@ -468,7 +470,7 @@ app.post("/api/v1/playlist/play/:index", async (req, res) => {
   }
 });
 
-app.post("/api/v1/playlist/clear", async (req, res) => {
+APIRouter.post("/playlist/clear", async (req, res) => {
   try {
     await mpv.clearPlaylist();
     return res.json({ message: "success" });
@@ -478,7 +480,7 @@ app.post("/api/v1/playlist/clear", async (req, res) => {
   }
 });
 
-app.post("/api/v1/playlist/shuffle", async (req, res) => {
+APIRouter.post("/playlist/shuffle", async (req, res) => {
   try {
     await mpv.shuffle();
     return res.json({ message: "success" });
@@ -488,7 +490,7 @@ app.post("/api/v1/playlist/shuffle", async (req, res) => {
   }
 });
 
-app.get("/api/v1/mpvinfo", async (req, res) => {
+APIRouter.get("/mpvinfo", async (req, res) => {
   try {
     res.json(await getMPVInfo());
   } catch (exc) {
@@ -516,7 +518,7 @@ async function shutdownAction(action) {
   }
 }
 
-app.post("/api/v1/computer/:action", async (req, res) => {
+APIRouter.post("/computer/:action", async (req, res) => {
   try {
     switch (req.params.action) {
       case "shutdown":
