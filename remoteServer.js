@@ -2,7 +2,6 @@ import { platform } from "os";
 import path from "path";
 import { lstatSync, existsSync, promises as fs_async } from "fs";
 import child_process from "child_process";
-import { URL } from "url";
 
 import yargs from "yargs";
 import { getPortPromise } from "portfinder";
@@ -15,6 +14,7 @@ import { initDB } from "./crud.js";
 import filebrowser, { detectFileType } from "./filebrowser.js";
 import collections from "./collections.js";
 import { loadSettings, settings, CORSOPTIONS } from "./settings.js";
+import { stringIsAValidUrl, formatTime } from "./util.js";
 
 const TEMPDIR = process.env.TEMP || process.env.TMP || "/tmp"; // Temp dir
 const FILE_LOCAL_OPTIONS_PATH = path.join(TEMPDIR, "file-local-options.txt");
@@ -87,18 +87,10 @@ const mpv = new mpvAPI({
 app.use(cors(CORSOPTIONS));
 app.use(json());
 
-app.use("/api/v1", APIRouter);
 APIRouter.use("/", filebrowser);
 APIRouter.use("/collections", collections);
 
-const stringIsAValidUrl = (s) => {
-  try {
-    new URL(s);
-    return true;
-  } catch (err) {
-    return false;
-  }
-};
+app.use("/api/v1", APIRouter);
 
 // Thanks: https://javascript.plainenglish.io/how-to-add-a-timeout-limit-to-asynchronous-javascript-functions-3676d89c186d
 const asyncCallWithTimeout = async (asyncPromise, timeLimit) => {
@@ -574,24 +566,6 @@ mpv.on("status", async (status) => {
 mpv.on("seek", async (data) => {
   await showOSDMessage(`Seek: ${formatTime(data.end)}`);
 });
-
-const formatTime = (param) => {
-  var sec_num = parseInt(param);
-  var hours = Math.floor(sec_num / 3600);
-  var minutes = Math.floor((sec_num - hours * 3600) / 60);
-  var seconds = sec_num - hours * 3600 - minutes * 60;
-
-  if (hours < 10) {
-    hours = "0" + hours;
-  }
-  if (minutes < 10) {
-    minutes = "0" + minutes;
-  }
-  if (seconds < 10) {
-    seconds = "0" + seconds;
-  }
-  return hours + ":" + minutes + ":" + seconds;
-};
 
 const handle = (promise) => {
   return promise
