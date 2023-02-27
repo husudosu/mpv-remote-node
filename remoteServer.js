@@ -682,26 +682,6 @@ const getPlaylist = async () => {
   return playlist;
 };
 
-const getMetaData = async () => {
-  const count = await mpv.getProperty("metadata/list/count");
-  let metadata = {};
-  for (let i = 0; i < count; i++) {
-    const key = await handle(mpv.getProperty(`metadata/list/${i}/key`)).then(
-      (resp) => resp[0]
-    );
-    if (key) {
-      const value = await handle(
-        mpv.getProperty(`metadata/list/${i}/value`)
-      ).then((resp) => resp[0]);
-
-      if (value) {
-        metadata[key] = value;
-      }
-    }
-  }
-  return metadata;
-};
-
 const getMPVProp = async (key) => {
   try {
     switch (key) {
@@ -712,7 +692,7 @@ const getMPVProp = async (key) => {
       case "track-list":
         return await getTracks();
       case "metadata":
-        return await getMetaData();
+        return await mpv.getMetadata();
       case "position":
         return await mpv.getProperty("time-pos");
       case "remaining":
