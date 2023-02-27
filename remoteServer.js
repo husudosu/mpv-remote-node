@@ -682,22 +682,6 @@ const getPlaylist = async () => {
   return playlist;
 };
 
-const getChapters = async () => {
-  const count = await mpv.getProperty("chapter-list/count");
-  let chapters = [];
-  for (let i = 0; i < count; i++) {
-    chapters.push({
-      title: await handle(mpv.getProperty(`chapter-list/${i}/title`)).then(
-        (resp) => resp[0]
-      ),
-      time: await handle(mpv.getProperty(`chapter-list/${i}/time`)).then(
-        (resp) => resp[0]
-      ),
-    });
-  }
-  return chapters;
-};
-
 const getMetaData = async () => {
   const count = await mpv.getProperty("metadata/list/count");
   let metadata = {};
@@ -724,7 +708,7 @@ const getMPVProp = async (key) => {
       case "playlist":
         return await getPlaylist();
       case "chapter-list":
-        return await getChapters();
+        return await mpv.getChapters();
       case "track-list":
         return await getTracks();
       case "metadata":
