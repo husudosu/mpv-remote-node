@@ -138,6 +138,7 @@ const FILE_FORMATS = {
     ".3gp",
     ".3gp2",
     ".3g2",
+    ".iso",
   ],
   playlist: [".m3u", ".m3u8", ".pls"],
   subtitle: [
