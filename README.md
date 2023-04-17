@@ -29,6 +29,18 @@ npm install -g mpv-remote
 mpv-remote # Follow instructions
 ```
 
+## Installing mpv-remote to custom location (Windows)
+
+If you prefer MPV ```portable_config``` directory instead using of ```%APPDATA%\mpv``` you can set the ```MPV_HOME``` environment variable like this:
+
+```powershell
+$Env:MPV_HOME = "C:\your_mpv_path\portable_config"
+```
+
+After setting environment variable run the installer script as usual.
+
+This method also can be used for MPV custom frontends like MPV.NET.
+
 ## Update
 
 You have to re-run installation script after updating the package.

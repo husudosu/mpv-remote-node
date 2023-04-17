@@ -3,8 +3,13 @@
 Launcher came from here.
 https://github.com/mrxdst/webtorrent-mpv-hook/blob/master/src/bin.ts
 */
-import { join } from "path";
+import { join, dirname } from "path";
 import { platform } from "os";
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+
+const __dirname = dirname(__filename);
 
 const pluginDir = join(__dirname, "mpvremote");
 const MPVHome = getMPVHome();
