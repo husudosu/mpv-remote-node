@@ -8,7 +8,7 @@ import { getPortPromise } from "portfinder";
 import express, { json, Router } from "express";
 import cors from "cors";
 
-import mpvAPI from "node-mpv";
+import mpvAPI from "node-mpv-2";
 
 import { initDB } from "./crud.js";
 import filebrowser, { detectFileType } from "./filebrowser.js";
