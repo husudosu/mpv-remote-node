@@ -161,7 +161,8 @@ Example response:
   "audio-delay": 0,
   "sub-font-size": 55,
   "sub-ass-override": true,
-  "metadata": {}
+  "metadata": {},
+  "current-chapter": 0
 }
 ```
 

@@ -709,6 +709,12 @@ const getMPVProp = async (key) => {
 };
 
 const getMPVProps = async (exclude = []) => {
+  /* TODO: Find better method to exclude  current-chapter.
+  current-chapter not MPV included property, it's created by mpv-remote-node.
+  In some case MPV can't detect chapter correctly, that's why current-chapter property exists.
+  */
+  exclude.push("current-chapter");
+
   let props = {
     pause: false,
     mute: false,
@@ -731,6 +737,7 @@ const getMPVProps = async (exclude = []) => {
     "chapter-list": [],
     "track-list": [],
     metadata: {},
+    "current-chapter": 0,
   };
 
   let retval = {};
@@ -740,6 +747,16 @@ const getMPVProps = async (exclude = []) => {
       retval[key] = val;
     }
   }
+
+  // Decide current chapter.
+  if (retval["chapter-list"].length > 0) {
+    for (let i = 0; i < retval["chapter-list"].length; i++) {
+      if (retval.position >= retval["chapter-list"][i].time) {
+        retval["current-chapter"] = i;
+      }
+    }
+  }
+
   return retval;
 };
 
