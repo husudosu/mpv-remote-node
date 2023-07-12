@@ -1,5 +1,6 @@
-const process = require("process");
-const { initDB, addMediaStatusEntry } = require("./crud");
+import { argv, exit } from "process";
+
+import { initDB, MediaStatusCRUD } from "./crud.js";
 
 console.log("Watchlisthandler called");
 async function main() {
@@ -10,12 +11,12 @@ async function main() {
      [1]: Time
      [2]: percent-pos
   */
-  const cliArgs = process.argv.slice(2);
+  const cliArgs = argv.slice(2);
   if (cliArgs.length < 3) {
     console.log("Not enough parameters");
-    process.exit();
+    exit();
   }
-  await addMediaStatusEntry(cliArgs[0], cliArgs[1], cliArgs[2]);
+  await MediaStatusCRUD.addMediaStatusEntry(cliArgs[0], cliArgs[1], cliArgs[2]);
   console.log("Entry added/updated");
 }
 

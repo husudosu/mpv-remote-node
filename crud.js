@@ -154,7 +154,7 @@ class MediaStatus {
     if (percentPos >= 90) finished = 1;
     else if (percentPos <= 5) return;
 
-    await createMediaStatusEntry(filepath, time, finished);
+    await this.createMediaStatusEntry(filepath, time, finished);
     // Check if entry already exists
   }
 }

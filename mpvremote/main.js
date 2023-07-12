@@ -19,7 +19,8 @@ var options = {
 
 mp.options.read_options(options, "mpvremote");
 
-var platform = mp.utils.getenv("windir") || mp.utils.getenv("WINDIR") ? "win32" : "unix";
+var platform =
+  mp.utils.getenv("windir") || mp.utils.getenv("WINDIR") ? "win32" : "unix";
 var tempdir = mp.utils.getenv("TEMP") || mp.utils.getenv("TMP") || "/tmp"; // Temp dir
 var pathsep = platform === "win32" ? "\\" : "/";
 
