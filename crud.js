@@ -188,7 +188,10 @@ class Collection {
     collection.paths = [];
     if (data.paths && data.paths.length > 0) {
       data.paths.forEach(async (element) => {
-        const entry = await createCollectionEntry(collection.id, element);
+        const entry = await CollectionEntryCRUD.createCollectionEntry(
+          collection.id,
+          element
+        );
         collection.paths.push(entry);
       });
     }
@@ -201,7 +204,9 @@ class Collection {
       let collection = await db.get("SELECT * FROM collection WHERE id=?", id);
 
       if (collection) {
-        collection.paths = await getCollectionEntries(collection.id);
+        collection.paths = await CollectionEntryCRUD.getCollectionEntries(
+          collection.id
+        );
         return collection;
       } else {
         return null;
@@ -232,16 +237,21 @@ class Collection {
     if (data.paths) {
       data.paths.forEach(async (element) => {
         // Add collection entry
-        if (!element.id) await createCollectionEntry(collection.id, element);
+        if (!element.id)
+          await CollectionEntryCRUD.createCollectionEntry(
+            collection.id,
+            element
+          );
         // Update path
-        else await updateCollectionEntry(element.id, element);
+        else
+          await CollectionEntryCRUD.updateCollectionEntry(element.id, element);
       });
     }
-    return await getCollections(id);
+    return await this.getCollections(id);
   }
 
   async deleteCollection(id) {
-    const collection = getCollections(id);
+    const collection = this.getCollections(id);
     if (!collection) throw new NotFoundException("Collection not exists.");
     await db.run("DELETE FROM collection WHERE id=?", id);
   }
@@ -250,7 +260,7 @@ class Collection {
 class CollectionEntry {
   async createCollectionEntry(collection_id, data) {
     // Check if collection exists
-    const collectionExists = await getCollections(collection_id);
+    const collectionExists = await CollectionCRUD.getCollections(collection_id);
     if (!collectionExists)
       throw new NotFoundException("Collection not exists.");
 
@@ -278,7 +288,7 @@ class CollectionEntry {
   }
 
   async updateCollectionEntry(id, data) {
-    const collectionEntry = await getCollectionEntry(id);
+    const collectionEntry = await this.getCollectionEntry(id);
     if (!collectionEntry)
       throw new NotFoundException("Collection entry not exists.");
     await db.run(
@@ -286,7 +296,7 @@ class CollectionEntry {
       [data.path, id]
     );
 
-    return await getCollectionEntry(id);
+    return await this.getCollectionEntry(id);
   }
 
   async deleteCollectionEntry(id) {
