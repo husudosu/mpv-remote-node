@@ -1,6 +1,5 @@
 import { existsSync } from "fs";
 import { basename, resolve } from "path";
-import { getDiskInfo } from "node-disk-info";
 
 import { Router } from "express";
 
@@ -12,26 +11,13 @@ const router = Router();
 
 router.get("/drives", async (req, res) => {
   try {
-    if (settings.unsafefilebrowsing) {
-      let disks = await getDiskInfo();
-      // ignore snap, flatpak stuff linux
-      disks = disks.filter(
-        (disk) =>
-          !disk._mounted.includes("snap") && !disk._mounted.includes("flatpak")
-      );
-      disks = disks.map((disk) => {
-        return {
-          path: disk._mounted,
-        };
-      });
-      return res.json(disks);
-    } else
-      return res
-        .status(403)
-        .json({ message: "mpvremote-unsafefilebrowsing disabled!" });
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({ message: exc });
+    return res.json(await FileBrowserService.getDrives());
+  } catch (exc) {
+    if (exc.statusCode) {
+      return res.status(exc.statusCode).json({ message: exc.message });
+    }
+    console.error(exc);
+    return res.status(500).json({ message: exc });
   }
 });
 

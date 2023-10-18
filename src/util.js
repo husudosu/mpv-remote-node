@@ -49,3 +49,10 @@ export const handle = (promise) => {
     .then((data) => [data, undefined])
     .catch((error) => Promise.resolve([undefined, error]));
 };
+
+export class HTTPException extends Error {
+  constructor(message, statusCode = 500) {
+    super(message);
+    this.statusCode = statusCode;
+  }
+}

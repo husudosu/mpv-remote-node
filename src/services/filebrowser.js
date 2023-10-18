@@ -1,9 +1,11 @@
 import { lstatSync, existsSync, promises as fs_async } from "fs";
 import { sep, join, extname, basename, resolve } from "path";
+import { getDiskInfo } from "node-disk-info";
 
 import { FILE_FORMATS } from "../fileformats.js";
 import { MediaStatusCRUD } from "../crud.js";
 import { settings } from "../settings.js";
+import { HTTPException } from "../util.js";
 
 class FileBrowser {
   /**
@@ -83,10 +85,32 @@ class FileBrowser {
           }
         }
       } catch (exc) {
-        console.log(exc);
+        console.error(exc);
       }
     }
     return content;
+  }
+
+  /**
+   * Get drives if unsafe file browsing enabled
+   * @returns Drive list.
+   */
+  async getDrives() {
+    if (settings.unsafefilebrowsing) {
+      let disks = await getDiskInfo();
+      // ignore snap, flatpak stuff linux
+      disks = disks.filter(
+        (disk) =>
+          !disk._mounted.includes("snap") && !disk._mounted.includes("flatpak")
+      );
+      disks = disks.map((disk) => {
+        return {
+          path: disk._mounted,
+        };
+      });
+      return disks;
+    } else
+      throw new HTTPException("mpvremote-unsafefilebrowsing disabled!", 403);
   }
 }
 
