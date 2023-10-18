@@ -18,8 +18,8 @@ mpvScriptFolder="$MPV_PATH/scripts"
 
 pluginPath="$bashScriptPath/mpvremote"
 scriptOptsPath="$bashScriptPath/mpvremote.conf"
-mainPath="$bashScriptPath/remoteServer.js"
-watchlistHandlerPath="$bashScriptPath/watchlisthandler.js"
+mainPath="$bashScriptPath/src/remoteServer.js"
+watchlistHandlerPath="$bashScriptPath/src/watchlisthandler.js"
 
 destPluginPath="$MPV_PATH/scripts/mpvremote"
 destScriptOptsPath="$scriptOptsFolder/mpvremote.conf"

@@ -10,8 +10,8 @@ $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 
 $pluginPath = Join-Path -Path "$scriptPath" -ChildPath "mpvremote"
 $scriptOptsPath = Join-Path -Path "$scriptPath" -ChildPath "mpvremote.conf"
-$mainPath = Join-Path -Path "$scriptPath" -ChildPath "remoteServer.js"
-$watchlistHandlerPath = Join-Path -Path "$scriptPath" -ChildPath "watchlisthandler.js"
+$mainPath = Join-Path -Path "$scriptPath" -ChildPath "\src\remoteServer.js"
+$watchlistHandlerPath = Join-Path -Path "$scriptPath" -ChildPath "\src\watchlisthandler.js"
 
 $destPluginPath = Join-Path -Path "$MPV_PATH" -ChildPath "\scripts\mpvremote"
 $destScriptOptsPath = Join-Path "$MPV_PATH" -ChildPath "\script-opts\mpvremote.conf"

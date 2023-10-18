@@ -2,11 +2,11 @@
   "name": "mpv-remote",
   "version": "1.0.8",
   "description": "MPV remote control",
-  "main": "./remoteServer.js",
+  "main": "./src/remoteServer.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "bin": "./bin.js",
+  "bin": "./src/bin.js",
   "author": "Ferenc Nánási",
   "dependencies": {
     "cors": "^2.8.5",
@@ -28,5 +28,8 @@
     "Remote"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/husudosu/mpv-remote-node"
+  "homepage": "https://github.com/husudosu/mpv-remote-node",
+  "imports": {
+    "#root/*.js": "./*.js"
+  }
 }
