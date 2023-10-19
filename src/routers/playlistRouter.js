@@ -21,7 +21,7 @@ playlistRouter.post("/playlist", async (req, res) => {
   }
 });
 
-playlistRouter.delete("/playlist/remove/:index", async (req, res) => {
+playlistRouter.post("/playlist/remove/:index", async (req, res) => {
   try {
     await mpvControlsService.mpv.playlistRemove(req.params.index);
     return res.json({ message: "success" });
@@ -57,7 +57,7 @@ playlistRouter.post("/playlist/play/:index", async (req, res) => {
       req.params.index,
     ]);
     await mpvControlsService.mpv.play();
-    return res.json(await getPlaylist());
+    return res.json(await mpvControlsService.getPlaylist());
   } catch (exc) {
     console.error(exc);
     return res.status(500).json({ message: exc.message });
