@@ -1,11 +1,11 @@
 import { existsSync } from "fs";
-import { basename, resolve } from "path";
 
 import { Router } from "express";
 
 import { settings } from "../settings.js";
 import { CollectionCRUD } from "../crud.js";
 import { FileBrowserService } from "../services/filebrowser.js";
+import { HTTPException } from "../util.js";
 
 const router = Router();
 
@@ -13,7 +13,7 @@ router.get("/drives", async (req, res) => {
   try {
     return res.json(await FileBrowserService.getDrives());
   } catch (exc) {
-    if (exc.statusCode) {
+    if (exc instanceof HTTPException) {
       return res.status(exc.statusCode).json({ message: exc.message });
     }
     console.error(exc);
@@ -25,36 +25,10 @@ router.get("/filebrowser/paths", async (req, res) => {
   try {
     return res.json(settings.filebrowserPaths);
   } catch (exc) {
-    console.log(exc);
+    console.error(exc);
     return res.status(500).json({ message: exc });
   }
 });
-
-const getPath = async (path) => {
-  let retval = {};
-  // If unsafe filebrowsing disabled we've to check FILEBROWSER_PATHS
-  if (!settings.unsafefilebrowsing) {
-    let fbe = settings.filebrowserPaths.find((el) => {
-      return path.includes(el.path);
-    });
-
-    if (!fbe)
-      return res
-        .status(400)
-        .send({ message: `Path not exists on filebrowserpaths: ${path}` });
-  }
-
-  if (!existsSync(path))
-    return res.status(404).send({ message: "Path not exists!" });
-  // Get files from directory
-
-  retval.content = await FileBrowserService.getDirectoryContents(path);
-  retval.dirname = basename(path);
-  retval.prevDir = resolve(path, "..");
-  retval.cwd = path;
-
-  return retval;
-};
 
 const getCollection = async (collectionId) => {
   let retval = {};
@@ -99,7 +73,7 @@ router.post("/filebrowser/browse", async (req, res) => {
 
     let retval = {};
     if (p) {
-      retval = await getPath(p);
+      retval = await FileBrowserService.getPath(p);
     } else if (collectionId) {
       // Get collection contents if local database enabled!
       if (!settings.uselocaldb)
@@ -119,7 +93,10 @@ router.post("/filebrowser/browse", async (req, res) => {
 
     return res.json(retval);
   } catch (exc) {
-    console.log(exc);
+    if (exc instanceof HTTPException) {
+      return res.status(exc.statusCode).json({ message: exc.message });
+    }
+    console.error(exc);
     return res.status(500).json({ message: exc });
   }
 });

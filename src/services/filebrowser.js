@@ -112,6 +112,38 @@ class FileBrowser {
     } else
       throw new HTTPException("mpvremote-unsafefilebrowsing disabled!", 403);
   }
+
+  /**
+   * Get directory contents based on path
+   * @param {Text} path
+   * @returns Contents of directory as array.
+   */
+  async getPath(path) {
+    let retval = {};
+    // If unsafe filebrowsing disabled we've to check FILEBROWSER_PATHS
+    if (!settings.unsafefilebrowsing) {
+      let fbe = settings.filebrowserPaths.find((el) => {
+        return path.includes(el.path);
+      });
+
+      if (!fbe)
+        throw new HTTPException(
+          `Path not exists on filebrowserpaths: ${path}`,
+          400
+        );
+    }
+
+    if (!existsSync(path)) {
+      throw new HTTPException("Path not exists!", 404);
+    }
+    // Get files from directory
+    retval.content = await this.getDirectoryContents(path);
+    retval.dirname = basename(path);
+    retval.prevDir = resolve(path, "..");
+    retval.cwd = path;
+
+    return retval;
+  }
 }
 
 export const FileBrowserService = new FileBrowser();

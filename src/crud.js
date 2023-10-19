@@ -300,7 +300,7 @@ class CollectionEntry {
   }
 
   async deleteCollectionEntry(id) {
-    const collectionEntry = await getCollectionEntry(id);
+    const collectionEntry = await this.getCollectionEntry(id);
     if (!collectionEntry)
       throw new NotFoundException("Collection entry not exists.");
     await db.run("DELETE FROM collection_entry WHERE id=?", id);
