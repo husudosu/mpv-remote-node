@@ -1,9 +1,6 @@
-import { existsSync } from "fs";
-
 import { Router } from "express";
 
 import { settings } from "../settings.js";
-import { CollectionCRUD } from "../crud.js";
 import { FileBrowserService } from "../services/filebrowser.js";
 import { HTTPException } from "../util.js";
 
@@ -17,7 +14,7 @@ router.get("/drives", async (req, res) => {
       return res.status(exc.statusCode).json({ message: exc.message });
     }
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -26,39 +23,9 @@ router.get("/filebrowser/paths", async (req, res) => {
     return res.json(settings.filebrowserPaths);
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
-
-const getCollection = async (collectionId) => {
-  let retval = {};
-  let collection = await CollectionCRUD.getCollections(collectionId);
-  if (!collection) return res.status(404).send("Collection not exists!");
-  retval.content = [];
-  retval.errors = [];
-  await Promise.all(
-    collection.paths.map(async (item) => {
-      // Check if exists on filebrowserpaths
-      if (!settings.unsafefilebrowsing) {
-        let fbe = settings.filebrowserPaths.find((el) => {
-          return item.path.includes(el.path);
-        });
-        if (!fbe) {
-          console.log(`Not exists on filebrowserpaths: ${item.path}`);
-          retval.errors.push(`Not exists on filebrowserpaths: ${item.path}`);
-        }
-      } else if (existsSync(item.path)) {
-        const dir = await getDirectoryContents(item.path);
-        retval.content = [...retval.content, ...dir];
-      } else {
-        retval.errors.push(`Path not exists ${item.path}`);
-      }
-    })
-  );
-  retval.collection_id = collectionId;
-
-  return retval;
-};
 
 router.post("/filebrowser/browse", async (req, res) => {
   try {
@@ -80,7 +47,7 @@ router.post("/filebrowser/browse", async (req, res) => {
         return res
           .status(400)
           .send({ message: "mpvremote-uselocaldb is disabled!" });
-      retval = await getCollection(collectionId);
+      retval = await FileBrowserService.getCollectionFiles(collectionId);
     }
 
     // Sort content firstly by priority and alphabet order.
@@ -97,7 +64,7 @@ router.post("/filebrowser/browse", async (req, res) => {
       return res.status(exc.statusCode).json({ message: exc.message });
     }
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 

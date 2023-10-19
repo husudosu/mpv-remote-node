@@ -7,7 +7,7 @@ playlistRouter.get("/playlist", async (req, res) => {
     return res.json(await mpvControlsService.getPlaylist());
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -17,7 +17,7 @@ playlistRouter.post("/playlist", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -27,7 +27,7 @@ playlistRouter.delete("/playlist/remove/:index", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -47,7 +47,7 @@ playlistRouter.post("/playlist/move", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -60,7 +60,7 @@ playlistRouter.post("/playlist/play/:index", async (req, res) => {
     return res.json(await getPlaylist());
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -70,7 +70,7 @@ playlistRouter.post("/playlist/clear", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -80,6 +80,6 @@ playlistRouter.post("/playlist/shuffle", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });

@@ -32,7 +32,7 @@ router.get("/:id?", async (req, res) => {
     }
   } catch (exc) {
     console.log(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -43,7 +43,7 @@ router.post("", async (req, res) => {
     return res.json(collection);
   } catch (exc) {
     console.log(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -57,7 +57,7 @@ router.patch("/:collection_id/", async (req, res) => {
       return res.status(404).json({ message: exc.message });
     else {
       console.log(exc);
-      return res.status(500).json({ message: exc });
+      return res.status(500).json({ message: exc.message });
     }
   }
 });
@@ -68,7 +68,7 @@ router.delete("/:collection_id/", async (req, res) => {
     CollectionCRUD.deleteCollection(collection_id);
     return res.json({});
   } catch (exc) {
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -82,7 +82,7 @@ router.post("/:collection_id/entries/", async (req, res) => {
   } catch (exc) {
     if (exc instanceof NotFoundException)
       return res.status(404).json({ message: exc.message });
-    else return res.status(500).json({ message: exc });
+    else return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -93,7 +93,7 @@ router.delete("/entries/:id", async (req, res) => {
   } catch (exc) {
     if (exc instanceof NotFoundException)
       return res.status(404).json({ message: exc.message });
-    else return res.status(500).json({ message: exc });
+    else return res.status(500).json({ message: exc.message });
   }
 });
 

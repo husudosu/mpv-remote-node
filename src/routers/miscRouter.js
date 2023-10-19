@@ -10,7 +10,7 @@ miscRouter.get("/mpvinfo", async (req, res) => {
     res.json(await mpvControlsService.getMPVInfo());
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 

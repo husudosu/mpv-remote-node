@@ -6,6 +6,7 @@ import { FILE_FORMATS } from "../fileformats.js";
 import { MediaStatusCRUD } from "../crud.js";
 import { settings } from "../settings.js";
 import { HTTPException } from "../util.js";
+import { CollectionCRUD } from "../crud.js";
 
 class FileBrowser {
   /**
@@ -141,6 +142,43 @@ class FileBrowser {
     retval.dirname = basename(path);
     retval.prevDir = resolve(path, "..");
     retval.cwd = path;
+
+    return retval;
+  }
+
+  /**
+   * Get files, directories from collection
+   * @param {Number} collectionId Collection ID.
+   * @returns An object with content and errors.
+   */
+  async getCollectionFiles(collectionId) {
+    let retval = {};
+    let collection = await CollectionCRUD.getCollections(collectionId);
+    if (!collection) {
+      throw new HTTPException("Collection not exists!", 404);
+    }
+    retval.content = [];
+    retval.errors = [];
+    await Promise.all(
+      collection.paths.map(async (item) => {
+        // Check if exists on filebrowserpaths
+        if (!settings.unsafefilebrowsing) {
+          let fbe = settings.filebrowserPaths.find((el) => {
+            return item.path.includes(el.path);
+          });
+          if (!fbe) {
+            console.log(`Not exists on filebrowserpaths: ${item.path}`);
+            retval.errors.push(`Not exists on filebrowserpaths: ${item.path}`);
+          }
+        } else if (existsSync(item.path)) {
+          const dir = await this.getDirectoryContents(item.path);
+          retval.content = [...retval.content, ...dir];
+        } else {
+          retval.errors.push(`Path not exists ${item.path}`);
+        }
+      })
+    );
+    retval.collection_id = collectionId;
 
     return retval;
   }

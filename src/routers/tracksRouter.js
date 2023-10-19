@@ -9,7 +9,7 @@ tracksRouter.get("/tracks", async (req, res) => {
     return res.json(await mpvControlsService.getTracks());
   } catch (exc) {
     console.log(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -22,7 +22,7 @@ tracksRouter.post("/tracks/audio/reload/:id", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -32,7 +32,7 @@ tracksRouter.post("/tracks/audio/cycle", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -46,7 +46,7 @@ tracksRouter.post("/tracks/audio/add", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -56,7 +56,7 @@ tracksRouter.post("/tracks/audio/timing/:seconds", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -69,7 +69,7 @@ tracksRouter.post("/tracks/sub/timing/:seconds", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -82,7 +82,7 @@ tracksRouter.post("/tracks/sub/ass-override/:value", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -92,7 +92,7 @@ tracksRouter.post("/tracks/sub/font-size/:size", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.messagec });
   }
 });
 
@@ -102,7 +102,7 @@ tracksRouter.post("/tracks/sub/toggle-visibility", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -113,7 +113,7 @@ tracksRouter.post("/tracks/sub/visibility/:value", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -125,7 +125,7 @@ tracksRouter.post("/tracks/sub/add", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -135,6 +135,6 @@ tracksRouter.post("/tracks/sub/reload/:id", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });

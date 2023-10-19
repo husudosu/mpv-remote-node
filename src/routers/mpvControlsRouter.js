@@ -8,7 +8,7 @@ mpvControlsRouter.get("/mpvinfo", async (req, res) => {
     res.json(await mpvControlsService.getMPVInfo());
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -21,7 +21,7 @@ mpvControlsRouter.get("/status", async (req, res) => {
       return res.json(mpvControlsService.cachedProps);
     else {
       console.error(exc);
-      return res.status(500).json({ message: exc });
+      return res.status(500).json({ message: exc.message });
     }
   }
 });
@@ -32,7 +32,7 @@ mpvControlsRouter.post("/controls/play-pause", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -42,7 +42,7 @@ mpvControlsRouter.post("/controls/play", async (req, res) => {
     return res.json({ messsage: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -52,7 +52,7 @@ mpvControlsRouter.post("/controls/pause", async (req, res) => {
     return res.json({ messsage: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -62,7 +62,7 @@ mpvControlsRouter.post("/controls/stop", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -72,7 +72,7 @@ const playlistPrev = async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 };
 
@@ -82,7 +82,7 @@ const playlistNext = async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 };
 
@@ -97,7 +97,7 @@ mpvControlsRouter.post("/controls/fullscreen", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -107,7 +107,7 @@ mpvControlsRouter.post("/controls/volume/:value", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -117,7 +117,7 @@ mpvControlsRouter.post("/controls/mute", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
 
@@ -128,6 +128,6 @@ mpvControlsRouter.post("/controls/seek", async (req, res) => {
     return res.json({ message: "success" });
   } catch (exc) {
     console.error(exc);
-    return res.status(500).json({ message: exc });
+    return res.status(500).json({ message: exc.message });
   }
 });
