@@ -340,14 +340,12 @@ export class MPVControlsService {
    */
   async addPlaylistItem(reqBody) {
     if (!reqBody.flag) reqBody.flag = "append-play";
-    if (
-      !stringIsAValidUrl(reqBody.filename) &&
-      lstatSync(reqBody.filename).isDirectory()
-    ) {
+    const p = lstatSync(reqBody.filename, { throwIfNoEntry: false });
+    if (p && p.isDirectory()) {
       for (const item of await fs_async.readdir(reqBody.filename)) {
         let type = FileBrowserService.detectFileType(path.extname(item));
         if (type === "video" || type == "audio") {
-          await this.mpv.load(item, "append-play");
+          await this.mpv.load(path.join(reqBody.filename, item), "append-play");
         }
       }
     } else {

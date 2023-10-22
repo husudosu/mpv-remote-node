@@ -16,7 +16,7 @@ playlistRouter.post("/playlist", async (req, res) => {
     await mpvControlsService.addPlaylistItem(req.body);
     return res.json({ message: "success" });
   } catch (exc) {
-    console.error(exc);
+    console.log(exc);
     return res.status(500).json({ message: exc.message });
   }
 });

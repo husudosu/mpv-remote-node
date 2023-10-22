@@ -2,8 +2,7 @@ import { URL } from "url";
 
 export const stringIsAValidUrl = (s) => {
   try {
-    new URL(s);
-    return true;
+    return Boolean(new URL(s));
   } catch (err) {
     return false;
   }
