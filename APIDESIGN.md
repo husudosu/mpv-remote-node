@@ -293,6 +293,9 @@ Puts an item to playlist.
 - append
 - append-play (Default)
 
+**Query parameters**:
+**includeSubDir:** Should include sub directories or just import single dir. **Default:** false
+
 ## /api/v1/playlist/remove/:index
 
 **Methods:** DELETE

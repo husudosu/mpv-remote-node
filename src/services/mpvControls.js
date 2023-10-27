@@ -2,17 +2,12 @@ import { lstatSync, promises as fs_async } from "fs";
 import path from "path";
 
 import mpvAPI from "node-mpv-2";
+import Walker from "walker";
 
 import { settings, FILE_LOCAL_OPTIONS_PATH } from "../settings.js";
 import { VERSION } from "../remoteServer.js";
-import {
-  handle,
-  asyncCallWithTimeout,
-  stringIsAValidUrl,
-  formatTime,
-} from "../util.js";
+import { handle, asyncCallWithTimeout, formatTime } from "../util.js";
 import { FileBrowserService } from "./filebrowser.js";
-
 export class MPVControlsService {
   /**
    * Creates a MPV Controller
@@ -335,20 +330,44 @@ export class MPVControlsService {
   }
 
   /**
+   * Get directory tree and filter out video and audio file types and load them into MPV.
+   * @param {*} desiredPath
+   */
+  async loadTree(desiredPath) {
+    Walker(desiredPath).on("entry", async (entry, stat) => {
+      const type = FileBrowserService.detectFileType(path.extname(entry));
+      if (type === "video" || type == "audio") {
+        await this.mpv.load(entry, "append-play");
+      }
+    });
+  }
+
+  /**
    * Adds an item to the playlist.
+   * @param {*} query Request query.
    * @param {*} reqBody Request body.
    */
-  async addPlaylistItem(reqBody) {
+  async addPlaylistItem(query, reqBody) {
     if (!reqBody.flag) reqBody.flag = "append-play";
     const p = lstatSync(reqBody.filename, { throwIfNoEntry: false });
     if (p && p.isDirectory()) {
-      for (const item of await fs_async.readdir(reqBody.filename)) {
-        let type = FileBrowserService.detectFileType(path.extname(item));
-        if (type === "video" || type == "audio") {
-          await this.mpv.load(path.join(reqBody.filename, item), "append-play");
+      // Add tree.
+      if (query.includeSubDir === "true") {
+        this.loadTree(reqBody.filename);
+      } else {
+        // Add path.
+        for (const item of await fs_async.readdir(reqBody.filename)) {
+          const type = FileBrowserService.detectFileType(path.extname(item));
+          if (type === "video" || type == "audio") {
+            await this.mpv.load(
+              path.join(reqBody.filename, item),
+              "append-play"
+            );
+          }
         }
       }
     } else {
+      // Add File/URL
       if (reqBody["file-local-options"]) {
         let fileLocalOptions = await this.readFileLocalOptions();
         fileLocalOptions[reqBody.filename] = reqBody["file-local-options"];
