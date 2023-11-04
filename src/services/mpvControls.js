@@ -211,21 +211,12 @@ export class MPVControlsService {
     let playlist = [];
     for (let i = 0; i < count; i++) {
       try {
-        let item = {
-          index: i,
-          id: await handle(this.mpv.getProperty(`playlist/${i}/id`)).then(
-            (resp) => resp[0]
-          ),
-          filePath: await handle(
-            this.mpv.getProperty(`playlist/${i}/filename`)
-          ).then((resp) => resp[0]),
-          current: await handle(
-            this.mpv.getProperty(`playlist/${i}/current`)
-          ).then((resp) => resp[0]),
-          title: await handle(this.mpv.getProperty(`playlist/${i}/title`)).then(
-            (resp) => resp[0]
-          ),
-        };
+        let item = await handle(this.mpv.getProperty(`playlist/${i}`)).then(
+          (resp) => resp[0]
+        );
+        // Add custom variables.
+        item.index = i;
+        item.filePath = item.filename;
         if (item.filePath) item.filename = path.basename(item.filePath);
         playlist.push(item);
       } catch (exc) {
