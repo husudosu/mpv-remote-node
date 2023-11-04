@@ -212,8 +212,7 @@ class Collection {
         return null;
       }
     } else {
-      let collections = await db.all("SELECT * FROM collection");
-      return collections;
+      return await db.all("SELECT * FROM collection");
     }
   }
 

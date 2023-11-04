@@ -114,11 +114,13 @@ getPortPromise({
 const main = async () => {
   try {
     // TODO: Creates/clears file local options file.
-
     await mpvControlsService.mpv.start();
     // Create file-local-options if not exists.
-    if (!existsSync(FILE_LOCAL_OPTIONS_PATH)) writeFileLocalOptions({});
-    if (settings.uselocaldb) await initDB();
+    if (!existsSync(FILE_LOCAL_OPTIONS_PATH))
+      mpvControlsService.writeFileLocalOptions({});
+    if (settings.uselocaldb) {
+      await initDB();
+    }
 
     await mpvControlsService.showOSDMessage(
       `Remote access on: ${settings.serverIP}:${settings.serverPort}`,
@@ -126,7 +128,7 @@ const main = async () => {
     );
   } catch (error) {
     // handle errors here
-    console.error(error);
+    console.log(error);
   }
 };
 

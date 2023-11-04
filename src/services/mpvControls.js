@@ -195,10 +195,8 @@ export class MPVControlsService {
    * @returns Status of MPV.
    */
   async getStatus(query) {
-    const result = await asyncCallWithTimeout(
-      this.getMPVProps(query.exclude),
-      500
-    );
+    const exclude = query.exclude ? query.exclude.split(",") : [];
+    const result = await asyncCallWithTimeout(this.getMPVProps(exclude), 500);
     // Returning cached properties if the CPU usage high.
     this.cachedProps = Object.assign(this.cachedProps, result);
     return result;
@@ -335,9 +333,12 @@ export class MPVControlsService {
    */
   async loadTree(desiredPath) {
     Walker(desiredPath).on("entry", async (entry, stat) => {
-      const type = FileBrowserService.detectFileType(path.extname(entry));
-      if (type === "video" || type == "audio") {
-        await this.mpv.load(entry, "append-play");
+      try {
+        const type = FileBrowserService.detectFileType(path.extname(entry));
+        if (type === "video" || type === "audio")
+          await this.mpv.load(entry, "append-play");
+      } catch (exc) {
+        console.log(`Error while opening ${entry}: ${exc}`);
       }
     });
   }
