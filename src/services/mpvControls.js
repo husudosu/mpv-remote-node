@@ -372,4 +372,15 @@ export class MPVControlsService {
       }
     }
   }
+
+  async runCustomCommand(body) {
+    try {
+      return await this.mpv.command(body.command, body.args);
+    } catch (exc) {
+      console.log(
+        `Error while running ${body.command} with ${JSON.stringify(body.args)}:`
+      );
+      console.log(exc);
+    }
+  }
 }

@@ -25,6 +25,7 @@ export const VERSION = "1.0.8";
 
 import mpvAPI from "node-mpv-2";
 import { playlistRouter } from "./routers/playlistRouter.js";
+import { miscRouter } from "./routers/miscRouter.js";
 const argv = yargs(process.argv.slice(2))
   .options({
     webport: {
@@ -91,6 +92,7 @@ APIRouter.use("/", tracksRouter);
 APIRouter.use("/", playlistRouter);
 APIRouter.use("/", filebrowser);
 APIRouter.use("/collections", collections);
+APIRouter.use("/", miscRouter);
 
 app.use("/api/v1", APIRouter);
 

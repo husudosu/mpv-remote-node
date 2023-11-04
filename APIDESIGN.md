@@ -777,6 +777,43 @@ Adds collection entry to collection.
 }
 ```
 
+# Running custom commands
+
+## /api/v1/mpv/custom-command
+
+**Methods:** POST
+
+Runs any command which allowed by the IPC protocol.
+
+**Request JSON:**
+
+```json
+{
+  "command": "screenshot",
+  "args": ["window"]
+}
+```
+
+**command**: desired command to run
+**args**: Arguments for the command as an array.
+
+**Response JSON:**
+In case of output:
+
+```json
+{
+  "result": "Result of command"
+}
+```
+
+In case of no output:
+
+```json
+{
+  "message": "success"
+}
+```
+
 # Computer actions
 
 ## /api/v1/computer/:action

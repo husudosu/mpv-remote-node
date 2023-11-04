@@ -27,5 +27,17 @@ miscRouter.post("/computer/:action", async (req, res) => {
     }
   } catch (exc) {
     console.error(exc);
+
+    return res.status(500).json({ message: exc.message });
+  }
+});
+
+miscRouter.post("/mpv/custom-command", async (req, res) => {
+  try {
+    const result = await mpvControlsService.runCustomCommand(req.body);
+    return res.json(result ? { result } : { message: "success" });
+  } catch (exc) {
+    console.log(exc);
+    return res.json(500).json({ message: exc.message });
   }
 });
