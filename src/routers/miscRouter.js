@@ -38,6 +38,6 @@ miscRouter.post("/mpv/custom-command", async (req, res) => {
     return res.json(result ? { result } : { message: "success" });
   } catch (exc) {
     console.log(exc);
-    return res.json(500).json({ message: exc.message });
+    return res.status(500).json({ message: exc.message });
   }
 });
