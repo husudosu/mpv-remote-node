@@ -31,7 +31,7 @@ mpv-remote # Follow instructions
 
 ## Installing mpv-remote to custom location (Windows)
 
-If you prefer MPV ```portable_config``` directory instead using of ```%APPDATA%\mpv``` you can set the ```MPV_HOME``` environment variable like this:
+If you prefer MPV `portable_config` directory instead using of `%APPDATA%\mpv` you can set the `MPV_HOME` environment variable like this:
 
 ```powershell
 $Env:MPV_HOME = "C:\your_mpv_path\portable_config"
@@ -161,6 +161,7 @@ It makes problem solving easier if you provide some info about your environment.
 - Your OS,
 - Node.JS version (`node -v`)
 - NPM version (`npm -v`)
+- MPV Version (`mpv --version`)
 
 # TODO
 
