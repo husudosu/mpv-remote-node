@@ -811,7 +811,7 @@ portfinder
     stopPort: settings.serverPortRangeEnd,
   })
   .then((port) => {
-    app.listen(port, () => {
+    app.listen(port, settings.realServerIP, () => {
       settings.serverPort = port;
       console.log(`listening on ${settings.serverIP}:${port}`);
       main();
