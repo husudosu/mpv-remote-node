@@ -130,8 +130,10 @@ router.post("/api/v1/filebrowser/browse", async (req, res) => {
     if (p) {
       // If unsafe filebrowsing disabled we've to check FILEBROWSER_PATHS
       if (!settings.unsafefilebrowsing) {
+        // Security: Protect against path-traversal attack by resolving synlinks and ..
+        p = await fs_async.realpath(p);
         let fbe = settings.filebrowserPaths.find((el) => {
-          return p.includes(el.path);
+          return p.startsWith(el.path);
         });
 
         if (!fbe)
