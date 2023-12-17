@@ -78,6 +78,10 @@ var serverArgs = [
   "-e " + options.webportrangeend,
 ];
 
+if (options.address) {
+  serverArgs.push("--address");
+  serverArgs.push(options.address);
+}
 if (options.verbose) serverArgs.push("--verbose");
 if (options.uselocaldb) serverArgs.push("--uselocaldb");
 if (options.filebrowserpaths.length > 0) {

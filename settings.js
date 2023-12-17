@@ -25,6 +25,7 @@ Loads settings
 */
 function loadSettings(argv) {
   settings.socketName = argv._[0];
+  if (argv.address !== undefined) settings.serverIP = argv.address;
   settings.serverPort = argv.webport;
   settings.serverPortRangeEnd = argv.webportrangeend;
   settings.uselocaldb = argv.uselocaldb;

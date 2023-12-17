@@ -31,6 +31,10 @@ const { version } = require("./package.json");
 let cachedProps = {};
 
 const argv = yargs
+  .option("address", {
+    description: "Server address to listen on",
+    type: "string",
+  })
   .option("webport", {
     description: "First available server port",
     alias: "p",
