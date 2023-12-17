@@ -28,7 +28,7 @@ function loadSettings(argv) {
   settings.socketName = argv._[0];
   settings.realServerIP = argv.address;
   // If we have an explicit address, display that instead
-  if (args.address) settings.serverIP = args.address;
+  if (argv.address) settings.serverIP = argv.address;
   settings.serverPort = argv.webport;
   settings.serverPortRangeEnd = argv.webportrangeend;
   settings.uselocaldb = argv.uselocaldb;
