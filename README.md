@@ -161,7 +161,7 @@ It makes problem solving easier if you provide some info about your environment.
 - Your OS,
 - Node.JS version (`node -v`)
 - NPM version (`npm -v`)
-- MPV Version (`mpv --version`)
+- MPV version (`mpv -v`)
 
 # TODO
 

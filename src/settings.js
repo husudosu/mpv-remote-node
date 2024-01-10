@@ -1,22 +1,15 @@
-import path from "path";
-import { networkInterfaces } from "os";
+const { networkInterfaces } = require("os");
 
-const TEMPDIR = process.env.TEMP || process.env.TMP || "/tmp"; // Temp dir
-export const FILE_LOCAL_OPTIONS_PATH = path.join(
-  TEMPDIR,
-  "file-local-options.txt"
-);
-
-export const IP_ADDR = Object.values(networkInterfaces())
+const IP_ADDR = Object.values(networkInterfaces())
   .flat()
   .find((i) => (i.family == "IPv4" || i.family == 4) && !i.internal);
 
-export const CORSOPTIONS = {
+const CORSOPTIONS = {
   origin: "*",
   methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH"],
 };
 
-export let settings = {
+let settings = {
   serverIP: IP_ADDR ? IP_ADDR.address : "127.0.0.1",
   serverPort: null,
   serverPortRangeEnd: null,
@@ -30,7 +23,7 @@ export let settings = {
 /*
 Loads settings
 */
-export const loadSettings = (argv) => {
+function loadSettings(argv) {
   settings.socketName = argv._[0];
   settings.serverPort = argv.webport;
   settings.serverPortRangeEnd = argv.webportrangeend;
@@ -47,4 +40,8 @@ export const loadSettings = (argv) => {
       };
     });
   }
-};
+}
+
+exports.loadSettings = loadSettings;
+exports.settings = settings;
+exports.CORSOPTIONS = CORSOPTIONS;
