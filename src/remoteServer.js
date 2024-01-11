@@ -72,11 +72,6 @@ const argv = yargs(process.argv.slice(2))
   .help()
   .alias("help", "h").argv;
 
-if (argv._.length == 0) {
-  console.log("No socket provided");
-  process.exit();
-}
-
 loadSettings(argv);
 
 const mpv = new mpvAPI({

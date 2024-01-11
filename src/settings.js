@@ -1,7 +1,10 @@
 import path from "path";
 import { networkInterfaces } from "os";
+import { existsSync } from "fs";
 
 const TEMPDIR = process.env.TEMP || process.env.TMP || "/tmp"; // Temp dir
+const DEF_SOCKET_NAME_PREFIX = "mpvsocket";
+
 export const FILE_LOCAL_OPTIONS_PATH = path.join(
   TEMPDIR,
   "file-local-options.txt"
@@ -32,7 +35,7 @@ export let settings = {
 Loads settings
 */
 export const loadSettings = (argv) => {
-  settings.socketName = argv._[0];
+  settings.socketName = argv._.length === 0 ? createSocketName() : argv._[0];
   settings.realServerIP = argv.address;
   // If we have an explicit address, display that instead
   if (argv.address) settings.serverIP = argv.address;
@@ -51,4 +54,20 @@ export const loadSettings = (argv) => {
       };
     });
   }
+};
+
+/**
+ * Creates a socket name if not provided as CLI arg.
+ * Returns a socket name.
+ */
+export const createSocketName = () => {
+  let i = 0;
+  let fname = path.join(TEMPDIR, DEF_SOCKET_NAME_PREFIX);
+
+  do {
+    if (!existsSync(fname)) break;
+    fname = path.join(TEMPDIR, DEF_SOCKET_NAME_PREFIX + i);
+    i++;
+  } while (true);
+  return fname;
 };
