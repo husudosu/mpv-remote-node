@@ -4,6 +4,7 @@
   "description": "MPV remote control",
   "main": "./src/remoteServer.js",
   "scripts": {
+    "run": "node ./src/remoteServer.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": "./src/bin.js",
