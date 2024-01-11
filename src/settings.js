@@ -1,15 +1,22 @@
-const { networkInterfaces } = require("os");
+import path from "path";
+import { networkInterfaces } from "os";
 
-const IP_ADDR = Object.values(networkInterfaces())
+const TEMPDIR = process.env.TEMP || process.env.TMP || "/tmp"; // Temp dir
+export const FILE_LOCAL_OPTIONS_PATH = path.join(
+  TEMPDIR,
+  "file-local-options.txt"
+);
+
+export const IP_ADDR = Object.values(networkInterfaces())
   .flat()
   .find((i) => (i.family == "IPv4" || i.family == 4) && !i.internal);
 
-const CORSOPTIONS = {
+export const CORSOPTIONS = {
   origin: "*",
   methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH"],
 };
 
-let settings = {
+export let settings = {
   serverIP: IP_ADDR ? IP_ADDR.address : "127.0.0.1", // Used for displaying the remote access URL
   realServerIP: undefined, // Used for app.listen(). Default is all interfaces
   serverPort: null,
@@ -24,7 +31,7 @@ let settings = {
 /*
 Loads settings
 */
-function loadSettings(argv) {
+export const loadSettings = (argv) => {
   settings.socketName = argv._[0];
   settings.realServerIP = argv.address;
   // If we have an explicit address, display that instead
@@ -44,8 +51,4 @@ function loadSettings(argv) {
       };
     });
   }
-}
-
-exports.loadSettings = loadSettings;
-exports.settings = settings;
-exports.CORSOPTIONS = CORSOPTIONS;
+};
