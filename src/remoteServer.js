@@ -28,6 +28,10 @@ import { playlistRouter } from "./routers/playlistRouter.js";
 import { miscRouter } from "./routers/miscRouter.js";
 const argv = yargs(process.argv.slice(2))
   .options({
+    address: {
+      description: "Server address to listen on",
+      type: "string",
+    },
     webport: {
       description: "First available server port",
       alias: "p",
@@ -101,7 +105,7 @@ getPortPromise({
   stopPort: settings.serverPortRangeEnd,
 })
   .then((port) => {
-    app.listen(port, () => {
+    app.listen(port, settings.realServerIP, () => {
       settings.serverPort = port;
       console.log(`listening on ${settings.serverIP}:${port}`);
       main();

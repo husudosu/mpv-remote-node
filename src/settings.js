@@ -10,7 +10,8 @@ const CORSOPTIONS = {
 };
 
 let settings = {
-  serverIP: IP_ADDR ? IP_ADDR.address : "127.0.0.1",
+  serverIP: IP_ADDR ? IP_ADDR.address : "127.0.0.1", // Used for displaying the remote access URL
+  realServerIP: undefined, // Used for app.listen(). Default is all interfaces
   serverPort: null,
   serverPortRangeEnd: null,
   filebrowserPaths: [],
@@ -25,6 +26,9 @@ Loads settings
 */
 function loadSettings(argv) {
   settings.socketName = argv._[0];
+  settings.realServerIP = argv.address;
+  // If we have an explicit address, display that instead
+  if (argv.address) settings.serverIP = args.address;
   settings.serverPort = argv.webport;
   settings.serverPortRangeEnd = argv.webportrangeend;
   settings.uselocaldb = argv.uselocaldb;
