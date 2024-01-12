@@ -3,13 +3,16 @@
 Launcher came from here.
 https://github.com/mrxdst/webtorrent-mpv-hook/blob/master/src/bin.ts
 */
-import { join, dirname } from "path";
+import { join, dirname, resolve } from "path";
 import { platform } from "os";
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = dirname(__filename);
+
+// Getting the root directory Where installation scripts are located.
+const __root = resolve(__dirname, "..");
 
 const pluginDir = join(__dirname, "mpvremote");
 const MPVHome = getMPVHome();
@@ -19,8 +22,8 @@ const scriptOptsFolder = join(MPVHome, "script-opts");
 const target = join(__dirname, "remoteServer.js");
 const target1 = join(__dirname, "watchlisthandler.js");
 const target2 = join(__dirname, "mpvremote.conf");
-const powershellInstaller = join(__dirname, "install.ps1");
-const bashInstaller = join(__dirname, "install.sh");
+const powershellInstaller = join(__root, "install.ps1");
+const bashInstaller = join(__root, "install.sh");
 
 const link = join(scriptFolder, "mpvremote", "remoteServer.js");
 const link1 = join(scriptFolder, "mpvremote", "watchlisthandler.js");
