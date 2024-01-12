@@ -11,18 +11,19 @@ const UNIX_REBOOT_COMMAND = "/usr/sbin/reboot";
 
 class MiscService {
   async shutdownAction(action) {
+    const os = platform();
     switch (action) {
       case "shutdown":
         // First stop MPV playback to save playback data
         await mpvControlsService.mpv.stop();
         child_process.exec(
-          platform == "win32" ? WIN_SHUTDOWN_COMMAND : UNIX_SHUTDOWN_COMMAND
+          os == "win32" ? WIN_SHUTDOWN_COMMAND : UNIX_SHUTDOWN_COMMAND
         );
         break;
       case "reboot":
         await mpvControlsService.mpv.stop();
         child_process.exec(
-          platform == "win32" ? WIN_REBOOT_COMMAND : UNIX_REBOOT_COMMAND
+          os == "win32" ? WIN_REBOOT_COMMAND : UNIX_REBOOT_COMMAND
         );
         break;
       case "quit":

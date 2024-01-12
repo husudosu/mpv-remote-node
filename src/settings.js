@@ -1,7 +1,6 @@
 import path from "path";
-import { networkInterfaces } from "os";
+import { networkInterfaces, platform } from "os";
 import { existsSync } from "fs";
-
 const TEMPDIR = process.env.TEMP || process.env.TMP || "/tmp"; // Temp dir
 const DEF_SOCKET_NAME_PREFIX = "mpvsocket";
 
@@ -61,12 +60,19 @@ export const loadSettings = (argv) => {
  * Returns a socket name.
  */
 export const createSocketName = () => {
+  const os = platform();
   let i = 0;
-  let fname = path.join(TEMPDIR, DEF_SOCKET_NAME_PREFIX);
+  let fname =
+    os === "win32"
+      ? `\\\\.\\pipe\\${DEF_SOCKET_NAME_PREFIX}`
+      : path.join(TEMPDIR, DEF_SOCKET_NAME_PREFIX);
 
   do {
     if (!existsSync(fname)) break;
-    fname = path.join(TEMPDIR, DEF_SOCKET_NAME_PREFIX + i);
+    fname =
+      os === "win32"
+        ? `\\\\.\\pipe\\${DEF_SOCKET_NAME_PREFIX}${i}`
+        : path.join(TEMPDIR, DEF_SOCKET_NAME_PREFIX + i);
     i++;
   } while (true);
   return fname;
