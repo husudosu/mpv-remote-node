@@ -1,4 +1,5 @@
 const { networkInterfaces } = require("os");
+const { readFile, existsSync } = require("fs");
 
 const IP_ADDR = Object.values(networkInterfaces())
   .flat()
@@ -46,6 +47,32 @@ function loadSettings(argv) {
   }
 }
 
+/*
+Load default ytdl format
+*/
+async function readDefaultYtdlFormat() {
+  const mpvConfigPath = `${process.env.HOME}/.config/mpv/mpv.conf`;
+  if (!existsSync(mpvConfigPath)) {
+
+    readFile(mpvConfigPath, "utf8", (err, data) => {
+      if (err) {
+        return console.log(err);
+      }
+
+      const lines = data.split("\n");
+      const formatLine = lines.find((line) => line.includes("ytdl-format"));
+      const format = formatLine.split("=")[1].trim();
+
+      console.log(`Default ytdl format: ${format}`);
+      return format;
+
+
+    });
+  }
+}
+
+
 exports.loadSettings = loadSettings;
 exports.settings = settings;
 exports.CORSOPTIONS = CORSOPTIONS;
+exports.YTDL_DEFAULT_FORMAT = readDefaultYtdlFormat();
