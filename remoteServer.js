@@ -402,7 +402,6 @@ async function readFileLocalOptions() {
 
 app.post("/api/v1/playlist", async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body.flag) req.body.flag = "append-play";
     if (
       !stringIsAValidUrl(req.body.filename) &&
@@ -419,11 +418,13 @@ app.post("/api/v1/playlist", async (req, res) => {
         let fileLocalOptions = await readFileLocalOptions();
         fileLocalOptions[req.body.filename] = req.body["file-local-options"];
 
+        console.log(`Default ytdl format: ${YTDL_DEFAULT_FORMAT}`);
         if (!req.body["file-local-options"]["ytdl-format"])
           req.body["file-local-options"]["ytdl-format"] = YTDL_DEFAULT_FORMAT;
         
-        console.log(fileLocalOptions);
         // Have to write cach file here
+        console.log(`Writing file-local-options: ${req.body.filename}`);
+        console.log(req.body["file-local-options"]);
         await writeFileLocalOptions(fileLocalOptions);
       }
       await mpv.load(req.body.filename, req.body.flag);

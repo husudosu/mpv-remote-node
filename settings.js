@@ -1,5 +1,5 @@
 const { networkInterfaces } = require("os");
-const { readFile, existsSync } = require("fs");
+const { readFileSync, existsSync } = require("fs");
 
 const IP_ADDR = Object.values(networkInterfaces())
   .flat()
@@ -50,25 +50,27 @@ function loadSettings(argv) {
 /*
 Load default ytdl format
 */
-async function readDefaultYtdlFormat() {
-  const mpvConfigPath = `${process.env.HOME}/.config/mpv/mpv.conf`;
+function readDefaultYtdlFormat() {
+  const mpvConfigPath = `${process.env.HOME}/.config/mpv/mpv.conf`; // TODO: Windows support, this is also hardcoded
   if (!existsSync(mpvConfigPath)) {
-
-    readFile(mpvConfigPath, "utf8", (err, data) => {
-      if (err) {
-        return console.log(err);
-      }
-
-      const lines = data.split("\n");
-      const formatLine = lines.find((line) => line.includes("ytdl-format"));
-      const format = formatLine.split("=")[1].trim();
-
-      console.log(`Default ytdl format: ${format}`);
-      return format;
-
-
-    });
+    console.log("No mpv.conf file found");
+    return ""
   }
+
+  const data = readFileSync(mpvConfigPath, "utf8")
+  const lines = data.split("\n")
+  const formatLine = lines.find((line) => line.includes("ytdl-format"))
+
+  if (!formatLine) {
+    console.log("No ytdl-format line found in mpv.conf")
+    return "";
+  }
+  const regex = /ytdl-format="(.+?)"/;
+  const match = formatLine.match(regex);
+
+  if (match) 
+    return match[1];
+  return "";
 }
 
 
