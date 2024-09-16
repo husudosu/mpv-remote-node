@@ -418,13 +418,10 @@ app.post("/api/v1/playlist", async (req, res) => {
         let fileLocalOptions = await readFileLocalOptions();
         fileLocalOptions[req.body.filename] = req.body["file-local-options"];
 
-        console.log(`Default ytdl format: ${YTDL_DEFAULT_FORMAT}`);
         if (!req.body["file-local-options"]["ytdl-format"])
           req.body["file-local-options"]["ytdl-format"] = YTDL_DEFAULT_FORMAT;
         
         // Have to write cach file here
-        console.log(`Writing file-local-options: ${req.body.filename}`);
-        console.log(req.body["file-local-options"]);
         await writeFileLocalOptions(fileLocalOptions);
       }
       await mpv.load(req.body.filename, req.body.flag);

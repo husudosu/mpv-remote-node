@@ -13,8 +13,7 @@ function NotFoundException(message) {
   this.name = "NotFoundException";
 }
 
-// Get scripts folder
-function getScriptFolder() {
+function getMPVHome() {
   let mpvHome;
 
   if (os.platform() === "win32") {
@@ -29,8 +28,13 @@ function getScriptFolder() {
       mpvHome = path.join(xdgConfigHome, "mpv");
     }
   }
+  return mpvHome;
+}
 
-  return path.join(mpvHome, "scripts");
+// Get scripts folder
+function getScriptFolder() {
+  
+  return path.join(getMPVHome(), "scripts");
 }
 
 async function init_tables() {
@@ -318,5 +322,8 @@ exports.getCollectionEntries = getCollectionEntries;
 exports.deleteCollectionEntry = deleteCollectionEntry;
 exports.updateCollection = updateCollection;
 
+
 // Get script folder
 exports.getScriptFolder = getScriptFolder;
+// Get mpv home folder
+exports.getMPVHome = getMPVHome;
