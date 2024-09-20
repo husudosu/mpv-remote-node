@@ -25,7 +25,7 @@ const FILE_LOCAL_OPTIONS_PATH = path.join(tempdir, "file-local-options.txt");
 const filebrowser = require("./filebrowser");
 const collections = require("./collections");
 const { detectFileType } = require("./filebrowser");
-const { loadSettings, settings, CORSOPTIONS } = require("./settings");
+const { loadSettings, settings, CORSOPTIONS, YTDL_DEFAULT_FORMAT } = require("./settings");
 const { version } = require("./package.json");
 // Returning cached properties if the CPU usage high.
 let cachedProps = {};
@@ -402,7 +402,6 @@ async function readFileLocalOptions() {
 
 app.post("/api/v1/playlist", async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body.flag) req.body.flag = "append-play";
     if (
       !stringIsAValidUrl(req.body.filename) &&
@@ -418,6 +417,10 @@ app.post("/api/v1/playlist", async (req, res) => {
       if (req.body["file-local-options"]) {
         let fileLocalOptions = await readFileLocalOptions();
         fileLocalOptions[req.body.filename] = req.body["file-local-options"];
+
+        if (!req.body["file-local-options"]["ytdl-format"])
+          req.body["file-local-options"]["ytdl-format"] = YTDL_DEFAULT_FORMAT;
+        
         // Have to write cach file here
         await writeFileLocalOptions(fileLocalOptions);
       }

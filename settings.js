@@ -1,4 +1,8 @@
 const { networkInterfaces } = require("os");
+const { readFileSync, existsSync } = require("fs");
+const { getMPVHome } = require("./crud");
+
+const path = require("path");
 
 const IP_ADDR = Object.values(networkInterfaces())
   .flat()
@@ -46,6 +50,36 @@ function loadSettings(argv) {
   }
 }
 
+/*
+Load default ytdl format,
+if it don't exist return empty string
+*/
+function readDefaultYtdlFormat() {
+  const mpvConfigPath = path.join(getMPVHome(), "mpv.conf");
+  if (!existsSync(mpvConfigPath)) {
+    console.log("No mpv.conf file found");
+    return ""
+  }
+
+  const ytdlFormatLine = 
+    readFileSync(mpvConfigPath, "utf8")
+    .split("\n")
+    .find((line) => line.includes("ytdl-format"))
+
+  if (!ytdlFormatLine) {
+    console.log("No ytdl-format line found in mpv.conf")
+    return "";
+  }
+  const regex = /ytdl-format="(.+?)"/;
+  const match = ytdlFormatLine.match(regex);
+
+  if (match) 
+    return match[1];
+  return "";
+}
+
+
 exports.loadSettings = loadSettings;
 exports.settings = settings;
 exports.CORSOPTIONS = CORSOPTIONS;
+exports.YTDL_DEFAULT_FORMAT = readDefaultYtdlFormat();
