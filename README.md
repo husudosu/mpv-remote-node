@@ -1,3 +1,5 @@
+Note: Looking for some developers who can help with maintaining the project. Unfortunately I don't have that much time anymore to maintain this project.
+
 MPV remote control API. You can use [MPV Remote android application](https://github.com/husudosu/mpv-remote-app/releases/latest) or you can create your own frontend.
 
 [API documentation accessible here.](https://github.com/husudosu/mpv-remote-node/blob/master/APIDESIGN.md)
