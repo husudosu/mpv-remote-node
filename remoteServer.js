@@ -420,7 +420,7 @@ app.post("/api/v1/playlist", async (req, res) => {
 
         if (!req.body["file-local-options"]["ytdl-format"])
           req.body["file-local-options"]["ytdl-format"] = YTDL_DEFAULT_FORMAT;
-        
+
         // Have to write cach file here
         await writeFileLocalOptions(fileLocalOptions);
       }
@@ -839,22 +839,24 @@ async function showOSDMessage(text, timeout = null) {
 }
 
 async function main() {
-  try {
-    // Creates/clears file local options file.
-    await mpv.start();
+  setTimeout(async () => {
+    try {
+      // Creates/clears file local options file.
+      await mpv.start();
 
-    // Create file-local-options if not exists.
-    if (!fs.existsSync(FILE_LOCAL_OPTIONS_PATH)) writeFileLocalOptions({});
-    if (settings.uselocaldb) await initDB();
+      // Create file-local-options if not exists.
+      if (!fs.existsSync(FILE_LOCAL_OPTIONS_PATH)) writeFileLocalOptions({});
+      if (settings.uselocaldb) await initDB();
 
-    await showOSDMessage(
-      `Remote access on: ${settings.serverIP}:${settings.serverPort}`,
-      5000
-    );
-  } catch (error) {
-    // handle errors here
-    console.log(error);
-  }
+      await showOSDMessage(
+        `Remote access on: ${settings.serverIP}:${settings.serverPort}`,
+        5000
+      );
+    } catch (error) {
+      // handle errors here
+      console.log(error);
+    }
+  }, 2000)
 }
 
 process.on("unhandledRejection", (error) => {
