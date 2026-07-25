@@ -27,6 +27,17 @@
     "multimedia",
     "Remote"
   ],
+  "pnpm": {
+    "overrides": {
+      "node-gyp": "11.x"
+    },
+    "onlyBuiltDependencies": [
+      "sqlite3"
+    ]
+  },
+  "overrides": {
+    "node-gyp": "11.x"
+  },
   "license": "MIT",
   "homepage": "https://github.com/husudosu/mpv-remote-node"
 }
